@@ -110,11 +110,10 @@ typedef struct NodeIDType {
 
 
 typedef enum class NodeTypeEnum {
-  CONST_IN_VISION,
-  CONST_OUT_VISION,
-
   STATIC,
   DYNAMIC,
+  CONST_IN_VISION,
+  CONST_OUT_VISION,
 } NodeType;
 
 typedef struct ElementInformationType {
@@ -127,10 +126,10 @@ typedef struct ElementInformationType {
 
 typedef struct NodeInformationType {
   NodeType node_type   = NodeType::DYNAMIC;
-/*
+
   size_t const_count   = 0;
   size_t static_count  = 0;
-  size_t dynamic_count = 0;*/
+  size_t dynamic_count = 0;
 
   size_t const_value   = 0;
   size_t static_value  = 0;

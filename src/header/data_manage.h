@@ -5,8 +5,7 @@
 #ifndef DATA_MANAGE_H_
 #define DATA_MANAGE_H_
 #include "data_type.h"
-#include "type/type_range.h"
-
+#include "type_range.h"
 #include <forward_list>
 #include <list>
 #include <stdexcept>
@@ -164,7 +163,7 @@ public:
 
 
 class Node {
-  friend class NodeAllocator;
+  friend class NodeManageSystem;
 
 private:
   NodeID m_id_;
@@ -203,7 +202,7 @@ using NodeList = std::vector<Node>;
 
 //节点管理
 //申请节点，查找节点，删除节点，修改节点
-class NodeAllocator {
+class NodeManageSystem {
   NodeIDAllocator m_id_alloc_;
 
   std::map<NodeType, NodeList> m_const_node_;
@@ -211,7 +210,6 @@ class NodeAllocator {
   std::map<NodeID, Node> m_tmp_static_nodes_;
 
 public:
-  NodeAllocator():m_id_alloc_(0x1000000000000ULL){}
   Node *applyNode(const NodeInfo &initInfo) {
     if (initInfo.node_type == NodeTypeEnum::STATIC) {
       NodeID newId = m_id_alloc_.allocate();
@@ -220,13 +218,13 @@ public:
       NodeID newId = m_id_alloc_.allocate();
       return &m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
     } else {
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为常态节点，请用另一种申请方式"));
+      throw std::runtime_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
     }
   }
 
   NodeList *applyNode(const NodeInfo &initInfo, size_t typeSize) {
     if (initInfo.node_type == NodeTypeEnum::STATIC || initInfo.node_type == NodeTypeEnum::DYNAMIC) {
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:常态节点申请失败，此节点为动态节点或静态节点，请用另一种申请方式"));
+      throw std::runtime_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
     } else {
       std::vector<NodeID> ids;
       std::vector<Node> tmpNodes;
@@ -239,23 +237,35 @@ public:
     }
   }
 
-  [[nodiscard]] bool deleteNode(Node*willDeleteNode) const {
-    std::string path = willDeleteNode->m_id_.id_path();
-    if (willDeleteNode->m_info_.node_type ==NodeType::STATIC){
-      std::string path = willDeleteNode->m_id_.id_path();
-      if (fs::exists(path)) {
-        fs::remove_all(path);
-        return true;
-      }
-      return false;
-    }else if (willDeleteNode->m_info_.node_type ==NodeType::DYNAMIC){
-      std::map<NodeID, Node>::const_iterator iter= m_dynamics_nodes_.find(willDeleteNode->m_id_);
-      m_dynamics_nodes_.erase(iter)
-      
-    }else{
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为常态节点，请用另一种申请方式"));
+
+  Node &createNode(const NodeInfo &initInfo, const std::shared_ptr<NodeLinks> &initLinks = nullptr) {
+    NodeID newId = m_id_alloc_.allocate();
+    Node ret{newId, initInfo};
+    if (initInfo.node_type == NodeTypeEnum::STATIC) {
+      auto res = m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, ret});
+      ret      = res.first->second;
+    } else if (initInfo.node_type == NodeTypeEnum::DYNAMIC) {
+      auto res = m_dynamics_nodes_.emplace(std::pair<NodeID, Node>{newId, ret});
+      ret      = res.first->second;
+    } else {
+      m_const_node_.emplace(std::pair<NodeType, NodeList>{initInfo.node_type, {}});
     }
-    
+
+    std::string path = newId.id_path() + "node.dat";
+    if (!fs::exists(path)) {
+      fs::create_directory(path);
+    }
+    std::ofstream outFile(path, std::ios::out | std::ios::binary);
+    if (outFile.is_open()) {
+      outFile.write(reinterpret_cast<const char *>(&initInfo), sizeof(NodeInfo));
+      outFile.close();
+      return true;
+    }
+    return false;
+  }
+
+  [[nodiscard]] bool deleteNode(NodeIDAllocator &nodeAlloca) const {
+    std::string path = m_id_.id_path();
     if (fs::exists(path)) {
       fs::remove_all(path);
       return true;
@@ -263,8 +273,8 @@ public:
     return false;
   }
 
-  bool saveNode(Node*willSaveNode) {
-    std::string path = willSaveNode->m_id_.id_path() + "node.dat";
+  bool saveNode() {
+    std::string path = m_id_.id_path() + "node.dat";
     if (!fs::exists(path)) {
       fs::create_directory(path);
     }
