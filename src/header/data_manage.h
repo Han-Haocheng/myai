@@ -239,31 +239,60 @@ public:
     }
   }
 
-  [[nodiscard]] bool deleteNode(Node*willDeleteNode) const {
-    std::string path = willDeleteNode->m_id_.id_path();
+  bool deleteNode(Node*willDeleteNode)  {
     if (willDeleteNode->m_info_.node_type ==NodeType::STATIC){
+      m_tmp_static_nodes_.erase(willDeleteNode->m_id_);
+      
       std::string path = willDeleteNode->m_id_.id_path();
       if (fs::exists(path)) {
         fs::remove_all(path);
         return true;
       }
       return false;
-    }else if (willDeleteNode->m_info_.node_type ==NodeType::DYNAMIC){
-      std::map<NodeID, Node>::const_iterator iter= m_dynamics_nodes_.find(willDeleteNode->m_id_);
-      m_dynamics_nodes_.erase(iter)
-      
+    }else if (willDeleteNode->m_info_.node_type == NodeType::DYNAMIC){
+      m_dynamics_nodes_.erase(willDeleteNode->m_id_);
+      return true;
     }else{
+      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点删除失败，此节点为动态节点或静态节点，请用另一种申请方式"));
+    }
+  }
+
+  inline bool deleteNode(NodeType willDeleteType){
+    return m_const_node_.erase(willDeleteType)>0;
+  }
+
+  bool saveNode(Node*willSaveNode) {
+    if (willSaveNode->m_info_.node_type==NodeType::DYNAMIC)
+    {
       throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为常态节点，请用另一种申请方式"));
     }
     
-    if (fs::exists(path)) {
-      fs::remove_all(path);
+    std::string path = willSaveNode->m_id_.id_path() + "node.dat";
+    if (!fs::exists(path)) {
+      fs::create_directory(path);
+    }
+    std::ofstream outFile;
+    outFile.open(path, std::ios::out | std::ios::binary);
+    if (outFile.is_open()) {
+      outFile.write(reinterpret_cast<const char *>(&m_info_), sizeof(NodeInfo));
+      outFile.write(reinterpret_cast<const char *>(m_links_->const_links.data()),
+                    static_cast<std::streamsize>(m_links_->const_links.size() * sizeof(EleInfo)));
+      outFile.write(reinterpret_cast<const char *>(m_links_->static_links.data()),
+                    static_cast<std::streamsize>(m_links_->static_links.size() * sizeof(EleInfo)));
+      outFile.write(reinterpret_cast<const char *>(m_links_->dynamic_links.data()),
+                    static_cast<std::streamsize>(m_links_->dynamic_links.size() * sizeof(EleInfo)));
+      outFile.close();
       return true;
     }
     return false;
   }
 
-  bool saveNode(Node*willSaveNode) {
+    bool saveNode(Node*willSaveNode) {
+    if (willSaveNode->m_info_.node_type==NodeType::DYNAMIC)
+    {
+      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为常态节点，请用另一种申请方式"));
+    }
+    
     std::string path = willSaveNode->m_id_.id_path() + "node.dat";
     if (!fs::exists(path)) {
       fs::create_directory(path);
