@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1) #最低版本
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # set(MYSQL_CONNECTOR_DIR "C:/Program Files/MySQL/Connector C++ 8.0")
 # set(MYSQL_SERVER_DIR "C:/Program Files/MySQL/MySQL Server 8.0")

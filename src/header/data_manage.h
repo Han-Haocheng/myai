@@ -9,10 +9,12 @@
 #include <forward_list>
 #include <list>
 #include <stdexcept>
+#include <memory>
 
 #include <filesystem>
 #include <fstream>
 #include <map>
+
 
 namespace fs = std::filesystem;
 
@@ -239,16 +241,21 @@ public:
     std::string path = "CONST_ID_LIST.dat";
     if (!fs::exists(path)) {}
 
-    FILE *constIdFIle = fopen(path.c_str(), "rb");
+    FILE *constIdFIle = fopen(path.c_str(), "wb");
     struct ConstInfo {
       NodeType type;
       size_t size;
     };
     if (constIdFIle != nullptr) {
-      size_t tmpSize = 0;
-      fread_s(&tmpSize, sizeof(size_t), sizeof(size_t), 1, constIdFIle);
-
+      size_t tmpSize = m_const_node_.size();
+      fwrite(&tmpSize, sizeof(size_t), 1, constIdFIle);
       std::vector<ConstInfo> ciList;
+      ciList.reserve(tmpSize);
+      for (const auto &i : m_const_node_){
+        ciList.emplace_back({});
+      }
+      
+
       ciList.resize(tmpSize);
       fread_s(ciList.data(), sizeof(ConstInfo) * tmpSize, sizeof(ConstInfo), tmpSize, constIdFIle);
       for (const auto &item: ciList) {
@@ -277,6 +284,10 @@ public:
     }
   }
 
+  /// @brief 创建常态节点
+  /// @param initInfo 初始化信息
+  /// @param typeSize 类型数量
+  /// @return 创建常态列表列表
   NodeList *createNode(const NodeInfo &initInfo, size_t typeSize) {
     if (initInfo.node_type > NodeTypeEnum::DYNAMIC) {
       std::vector<NodeID> ids;
@@ -314,6 +325,16 @@ public:
 
   bool deleteNode(NodeType willDeleteType) {
     if (willDeleteType > NodeType::DYNAMIC) {
+      auto res = m_const_node_.find(willDeleteType);
+      std::vector<NodeID>tmpID;
+      tmpID.reserve(res->second.size());
+      for (const auto &i : res->second){
+        tmpID.emplace_back(i.m_id_);
+      }
+
+      
+      m_const_node_.erase(res);
+      
     }
     std::string path = willDeleteNode->m_id_.id_path();
     if (fs::exists(path)) {
