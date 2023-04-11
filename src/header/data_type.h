@@ -6,6 +6,7 @@
 #define DATA_TYPE_H_
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -109,7 +110,7 @@ typedef struct NodeIDType {
 } NodeID;//!struct NodeIDType
 
 
-typedef enum class NodeTypeEnum {
+typedef enum class NodeTypeEnum : unsigned short {
   STATIC,
   DYNAMIC,
   CONST_IN_VISION,
@@ -122,28 +123,60 @@ typedef struct ElementInformationType {
   NodeID node_id;
   link_type link_val = 0;
 
-} EleInfo;
+} LinkInfo;
 
-typedef struct NodeInformationType {
-  NodeType node_type   = NodeType::DYNAMIC;
 
-  size_t const_count   = 0;
-  size_t static_count  = 0;
-  size_t dynamic_count = 0;
+#pragma pack(push, 2)
 
-  size_t const_value   = 0;
-  size_t static_value  = 0;
-  size_t dynamic_value = 0;
-} NodeInfo;
 
-using LinkList = std::vector<EleInfo>;
+class Node {
+  //  friend class NodeManageSystem;
 
-struct NodeLinks {
-  LinkList const_links;
-  LinkList static_links;
-  LinkList dynamic_links;
-  //  Node(const NodeID &m_id_, const NodeInfo &m_info_) : m_node_id_(m_id_), m_node_info_(m_info_) {}
+  struct LinkList {
+    size_t link_val = 0;
+    std::vector<LinkInfo> link;
+    [[nodiscard]] inline size_t size() const { return link.size(); }
+  };
+  struct Link {
+    LinkList const_link;
+    LinkList static_link;
+    LinkList dynamic_link;
+  };
+  struct Info {
+    NodeID id{0};
+    NodeType type;
+    size_t const_link_count   = 0;
+    size_t static_link_count  = 0;
+    size_t dynamic_link_count = 0;
+    size_t const_link_val     = 0;
+    size_t static_link_val    = 0;
+    size_t dynamic_link_val   = 0;
+  };
+
+private:
+  NodeType node_type = NodeType::DYNAMIC;
+  NodeID m_id_{0};
+
+  std::shared_ptr<Link> m_links_ = nullptr;
+
+public:
+  Node() : node_type(NodeType::DYNAMIC), m_id_(0), m_links_(nullptr) {}
+  Node(NodeType type, NodeID id) : node_type(type), m_id_(id), m_links_(nullptr) {}
+  NodeID getId() { return m_id_; }
+  NodeType getType() { return node_type; }
+  const std::shared_ptr<Link> &linkPtr() { return m_links_; }
+  [[nodiscard]] bool isNull() const { return static_cast<size_t>(m_id_) == 0ULL; }
+  [[nodiscard]] bool isEmpty() const { return m_links_ == nullptr; }
+
+  bool emplace(NodeType type, LinkInfo links);
+
+  bool emplace(NodeType type, std::vector<LinkInfo> links);
 };
+#pragma pack(pop)
+
+using NodePtr  = Node *;
+using NodeList = std::vector<Node>;
+
 
 /*class Node {
   friend class ThinkCore;
@@ -151,13 +184,13 @@ struct NodeLinks {
 private:
   size_t m_tmp_link_val_ = 0;
   NodeInfo m_node_info;
-  std::vector<EleInfo> m_links_;
-  std::vector<EleInfo> m_links_buffer_;
+  std::vector<LinkInfo> m_links_;
+  std::vector<LinkInfo> m_links_buffer_;
 
 public:
   [[nodiscard]] NodeID nodeID() const { return m_node_info.node_id; }
 
-  void addLink(const EleInfo &newLink) {
+  void addLink(const LinkInfo &newLink) {
     m_tmp_link_val_ += newLink.static_value;
     m_links_buffer_.push_back(newLink);
   }
@@ -166,13 +199,13 @@ public:
   /// @param out 返回的激活节点
   /// @param actWeight 激活权重
   /// @return 激活节点总值
-  size_t getActLinks (std::vector<EleInfo> &out, double actWeight) {
+  size_t getActLinks (std::vector<LinkInfo> &out, double actWeight) {
     out.reserve(m_node_info.static_count);
     for (const auto &item: m_links_) {
-      out.push_back(EleInfo{item.node_id, static_cast<EleInfo::link_type>(item.static_value * actWeight)});
+      out.push_back(LinkInfo{item.node_id, static_cast<LinkInfo::link_type>(item.static_value * actWeight)});
     }
     for (const auto &item: m_links_buffer_) {
-      out.push_back(EleInfo{item.node_id, static_cast<EleInfo::link_type>(item.static_value * actWeight)});
+      out.push_back(LinkInfo{item.node_id, static_cast<LinkInfo::link_type>(item.static_value * actWeight)});
     }
     return static_cast<size_t>(static_cast<double>(m_node_info.static_value + m_tmp_link_val_) * actWeight);
   }
@@ -183,18 +216,18 @@ public:
     m_links_.reserve(m_links_.size() + m_links_buffer_.size());
 
     for (const auto &tmpEle: m_links_buffer_) {
-      m_links_.emplace_back(EleInfo{tmpEle.node_id, static_cast<EleInfo::link_type>(tmpEle.static_value * saveWeight)});
+      m_links_.emplace_back(LinkInfo{tmpEle.node_id, static_cast<LinkInfo::link_type>(tmpEle.static_value * saveWeight)});
     }
     m_node_info.static_value += static_cast<size_t>(static_cast<double>(m_tmp_link_val_) * saveWeight);
   }
 
   /// @brief 整理所有连接
   /// @param saveStandard 保存标准值（当连接小于标准值时删除连接）
-  void tidyAllLink(EleInfo::link_type saveStandard = 0) {
-    m_links_.erase(std::find_if(m_links_.begin(), m_links_.end(), [=](const EleInfo &avg) { return avg.static_value < saveStandard; }));
+  void tidyAllLink(LinkInfo::link_type saveStandard = 0) {
+    m_links_.erase(std::find_if(m_links_.begin(), m_links_.end(), [=](const LinkInfo &avg) { return avg.static_value < saveStandard; }));
     m_node_info.static_value   = 0;
     m_node_info.static_count = 0;
-    std::for_each(m_links_.begin(), m_links_.end(), [&](const EleInfo &avg) {
+    std::for_each(m_links_.begin(), m_links_.end(), [&](const LinkInfo &avg) {
       m_node_info.static_value += avg.static_value;
       ++m_node_info.static_count;
     });

@@ -5,7 +5,7 @@
 #ifndef DATA_MANAGE_H_
 #define DATA_MANAGE_H_
 #include "data_type.h"
-#include "type_range.h"
+#include "type/type_range.h"
 #include <forward_list>
 #include <list>
 #include <stdexcept>
@@ -17,47 +17,27 @@
 namespace fs = std::filesystem;
 
 namespace think {
-using NodeRange = Range<NodeID>;
 
 class NodeIDAllocator {
-
-
 private:
+  using NodeRange = Range<NodeID>;
   std::forward_list<NodeRange> m_id_datas_;
+
+
+  constexpr static const char *allocator_path = "id_allocator.dat";
 
 public:
   explicit NodeIDAllocator(size_t nodeCount) {
-    std::string path = "node_atto.dat";
     NodeRange tmp{NodeID{0}, NodeID{nodeCount}};
-    if (!fs::exists(path)) {
-      std::ofstream file;
-      m_id_datas_.emplace_front(tmp);
-      file.open(path, std::ios::binary | std::ios::out);
-      if (file.is_open()) {
-        file.write(reinterpret_cast<const char *>(&tmp), sizeof(NodeRange));
-        file.close();
-      }
+    if (fs::exists(allocator_path)) {
+      read_null_id(allocator_path);
     } else {
-      std::ifstream file;
-      file.open(path, std::ios::binary | std::ios::in);
-      if (file.is_open()) {
-        while (file.read(reinterpret_cast<char *>(&tmp), sizeof(NodeRange))) {
-          m_id_datas_.emplace_front(tmp);
-        }
-        file.close();
-      }
+      m_id_datas_.emplace_front(tmp);
     }
   }
 
   ~NodeIDAllocator() {
-    std::string path = "node_atto.dat";
-    std::ofstream file(path, std::ios::binary | std::ios::out);
-    if (file.is_open()) {
-      for (const auto &id: m_id_datas_) {
-        file.write(reinterpret_cast<const char *>(&id), sizeof(NodeRange));
-      }
-      file.close();
-    }
+    write_null_id(allocator_path);
   }
 
   /// 申请节点（时间复杂度O(1)）
@@ -105,21 +85,19 @@ public:
       } else {
         m_id_datas_.emplace_front(installRange);
       }
-      return;
-    }
+    } else {
+      auto itBfBeg = m_id_datas_.before_begin();
 
-    auto itBfBeg = m_id_datas_.before_begin();
-
-    //查找第一个begin_大于in的位置
-    for (; itBeg != m_id_datas_.end(); ++itBeg, ++itBfBeg) {
-      if (itBeg->begin() > in) {
-        //in在上一个范围中
-        ////抛出异常
-        //in在上一个范围结束和这个范围起始的位置
-        ////
-        if (itBfBeg->contains(in)) {
-          throw std::runtime_error("Error:节点释放异常，");
-        } else {
+      //查找第一个begin_大于in的位置
+      for (; itBeg != m_id_datas_.end(); ++itBeg, ++itBfBeg) {
+        if (itBeg->begin() > in) {
+          //in在上一个范围中
+          ////抛出异常
+          //in在上一个范围结束和这个范围起始的位置
+          ////
+          if (itBfBeg->contains(in)) {
+            throw std::runtime_error("Error:节点释放异常，");
+          }
           if (itBfBeg->end() == installRange.begin()) {
             if (installRange.end() == itBeg->begin()) {
               itBfBeg->end() = itBeg->end();
@@ -132,16 +110,15 @@ public:
           } else {
             auto newIter = m_id_datas_.insert_after(itBfBeg, installRange);
           }
-          return;
         }
       }
-    }
 
-    //假如释放位置未找到，说明释放位置为最后一个范围后
-    if (itBfBeg->end() == in) {
-      ++itBfBeg->end();
-    } else {
-      m_id_datas_.insert_after(itBfBeg, {in, in + 1});
+      //假如释放位置未找到，说明释放位置为最后一个范围后
+      if (itBfBeg->end() == in) {
+        ++itBfBeg->end();
+      } else {
+        m_id_datas_.insert_after(itBfBeg, {in, in + 1});
+      }
     }
   }
 
@@ -155,54 +132,39 @@ public:
       release(item);
     }
   }
+
+private:
+  void read_null_id(const std::string &path) {
+    std::ifstream file;
+    NodeRange tmp;
+    file.open(path, std::ios::binary | std::ios::in);
+    if (file.is_open()) {
+      while (file.read(reinterpret_cast<char *>(&tmp), sizeof(NodeRange))) {
+        m_id_datas_.emplace_front(tmp);
+      }
+      file.close();
+    }
+  }
+  void write_null_id(const std::string &path) {
+    std::ofstream file(path, std::ios::binary | std::ios::out);
+    if (file.is_open()) {
+      for (const auto &id: m_id_datas_) {
+        file.write(reinterpret_cast<const char *>(&id), sizeof(NodeRange));
+      }
+      file.close();
+    }
+  }
 };//! class NodeIDAllocator
 
 //============================================================================================================
 
-#pragma pack(push, 2)
-
-
-class Node {
-  friend class NodeManageSystem;
-
-private:
-  NodeID m_id_;
-  NodeInfo m_info_{};
-  std::shared_ptr<NodeLinks> m_links_;
-  bool m_is_read_;
-
-public:
-  Node(const NodeID &id, const NodeInfo &info) : m_id_(id), m_info_(info) {}
-
-  [[nodiscard]] const NodeID &getId() const { return m_id_; }
-  [[nodiscard]] const NodeInfo &getInfo() const { return m_info_; }
-  [[nodiscard]] const std::shared_ptr<NodeLinks> &getLinks() const { return m_links_; }
-
-  void emplace(NodeType type, const EleInfo &newLink) {
-    switch (type) {
-      case NodeTypeEnum::STATIC:
-        m_links_->static_links.emplace_back(newLink);
-        m_info_.static_value += newLink.link_val;
-        break;
-      case NodeTypeEnum::DYNAMIC:
-        m_links_->dynamic_links.emplace_back(newLink);
-        m_info_.dynamic_value += newLink.link_val;
-        break;
-      default:
-        break;
-    }
-  }
-};
-#pragma pack(pop)
-
-using NodePtr  = Node *;
-using NodeList = std::vector<Node>;
 
 //============================================================================================================
 
 //节点管理
 //申请节点，查找节点，删除节点，修改节点
 class NodeManageSystem {
+  static const ::size_t COUNT_ID_MAX_NUM = 0x1000000000000;
   NodeIDAllocator m_id_alloc_;
 
   std::map<NodeType, NodeList> m_const_node_;
@@ -210,121 +172,64 @@ class NodeManageSystem {
   std::map<NodeID, Node> m_tmp_static_nodes_;
 
 public:
-  Node *applyNode(const NodeInfo &initInfo) {
-    if (initInfo.node_type == NodeTypeEnum::STATIC) {
-      NodeID newId = m_id_alloc_.allocate();
-      return &m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
-    } else if (initInfo.node_type == NodeTypeEnum::STATIC) {
-      NodeID newId = m_id_alloc_.allocate();
-      return &m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
-    } else {
-      throw std::runtime_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
-    }
-  }
-
-  NodeList *applyNode(const NodeInfo &initInfo, size_t typeSize) {
-    if (initInfo.node_type == NodeTypeEnum::STATIC || initInfo.node_type == NodeTypeEnum::DYNAMIC) {
-      throw std::runtime_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
-    } else {
-      std::vector<NodeID> ids;
-      std::vector<Node> tmpNodes;
-      tmpNodes.reserve(typeSize);
-      m_id_alloc_.allocate(ids, typeSize);
-      for (const auto &id: ids) {
-        tmpNodes.emplace_back(Node{id, initInfo});
-      }
-      return &m_const_node_.emplace(std::pair<NodeType, NodeList>{initInfo.node_type, tmpNodes}).first->second;
-    }
-  }
-
-
-  Node &createNode(const NodeInfo &initInfo, const std::shared_ptr<NodeLinks> &initLinks = nullptr) {
-    NodeID newId = m_id_alloc_.allocate();
-    Node ret{newId, initInfo};
-    if (initInfo.node_type == NodeTypeEnum::STATIC) {
-      auto res = m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, ret});
-      ret      = res.first->second;
-    } else if (initInfo.node_type == NodeTypeEnum::DYNAMIC) {
-      auto res = m_dynamics_nodes_.emplace(std::pair<NodeID, Node>{newId, ret});
-      ret      = res.first->second;
-    } else {
-      m_const_node_.emplace(std::pair<NodeType, NodeList>{initInfo.node_type, {}});
-    }
-
-    std::string path = newId.id_path() + "node.dat";
-    if (!fs::exists(path)) {
-      fs::create_directory(path);
-    }
-    std::ofstream outFile(path, std::ios::out | std::ios::binary);
-    if (outFile.is_open()) {
-      outFile.write(reinterpret_cast<const char *>(&initInfo), sizeof(NodeInfo));
-      outFile.close();
-      return true;
-    }
-    return false;
-  }
-
-  [[nodiscard]] bool deleteNode(NodeIDAllocator &nodeAlloca) const {
-    std::string path = m_id_.id_path();
+  NodeManageSystem() : m_id_alloc_(COUNT_ID_MAX_NUM) {
+    std::string path = "CONST_ID_LIST.dat";
     if (fs::exists(path)) {
-      fs::remove_all(path);
-      return true;
+      read_const_id_list(path);
     }
-    return false;
+    for (auto &item: m_const_node_) {
+      for (auto &cNode: item.second) {
+        read_node(cNode);
+      }
+    }
   }
 
-  bool saveNode() {
-    std::string path = m_id_.id_path() + "node.dat";
-    if (!fs::exists(path)) {
-      fs::create_directory(path);
-    }
-    std::ofstream outFile;
-    outFile.open(path, std::ios::out | std::ios::binary);
-    if (outFile.is_open()) {
-      outFile.write(reinterpret_cast<const char *>(&m_info_), sizeof(NodeInfo));
-      outFile.write(reinterpret_cast<const char *>(m_links_->const_links.data()),
-                    static_cast<std::streamsize>(m_links_->const_links.size() * sizeof(EleInfo)));
-      outFile.write(reinterpret_cast<const char *>(m_links_->static_links.data()),
-                    static_cast<std::streamsize>(m_links_->static_links.size() * sizeof(EleInfo)));
-      outFile.write(reinterpret_cast<const char *>(m_links_->dynamic_links.data()),
-                    static_cast<std::streamsize>(m_links_->dynamic_links.size() * sizeof(EleInfo)));
-      outFile.close();
-      return true;
-    }
-    return false;
+  ~NodeManageSystem() {
+    std::string path = "CONST_ID_LIST.dat";
+    write_const_id_list(path);
   }
 
-  bool readNode() {
-    if (m_is_read_) {
-      return false;
-    }
-    std::string path = m_id_.id_path() + "node.dat";
-    if (!fs::exists(path)) {
-      fs::create_directory(path);
-    }
-    std::ifstream outFile;
-    outFile.open(path, std::ios::in | std::ios::binary);
-    if (outFile.is_open()) {
-      size_t constCount, staticCount, dynamicCount;
-      outFile.read(reinterpret_cast<char *>(&constCount), sizeof(size_t));
-      outFile.read(reinterpret_cast<char *>(&staticCount), sizeof(size_t));
-      outFile.read(reinterpret_cast<char *>(&dynamicCount), sizeof(size_t));
-      m_links_->const_links.reserve(constCount);
-      m_links_->static_links.reserve(staticCount);
-      m_links_->dynamic_links.reserve(dynamicCount);
-
-      outFile.read(reinterpret_cast<char *>(m_links_->const_links.data()),
-                   static_cast<std::streamsize>(constCount * sizeof(EleInfo)));
-      outFile.read(reinterpret_cast<char *>(m_links_->static_links.data()),
-                   static_cast<std::streamsize>(staticCount * sizeof(EleInfo)));
-      outFile.read(reinterpret_cast<char *>(m_links_->dynamic_links.data()),
-                   static_cast<std::streamsize>(dynamicCount * sizeof(EleInfo)));
-      outFile.close();
-      m_is_read_ = true;
-      return true;
-    }
-    throw std::runtime_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点读取文件时失败，文件未成功打开!!"));
+  Node &createDynamicNode() {
+    NodeID id                    = m_id_alloc_.allocate();
+    return m_dynamics_nodes_[id] = {NodeType::DYNAMIC, id};
   }
+
+  void dynamicCastStatic();
+
+  NodeList &createConstType(NodeType type, size_t num) {
+    auto res = m_const_node_.try_emplace(type);
+    if (res.second) {
+      auto &nodeList = res.first->second;
+      nodeList.reserve(num);
+      std::vector<NodeID> new_id_list;
+      m_id_alloc_.allocate(new_id_list, num);
+      for (const auto &id: new_id_list) {
+        nodeList.emplace_back(type, id);
+      }
+      return nodeList;
+    } else {
+      throw ;
+    }
+  }
+
+  void removeNotConstNode(NodeType type, NodeID &id);
+
+  void removeConstType(NodeType type);
+
+  const Node &getNotConstNode(NodeType type, NodeID &id);
+
+  const NodeList &getConstNode(NodeType type);
+
+  void setNotConstNode(NodeID &id, const Node &newNode);
+
+  void setConstNode(NodeType type, const NodeList &newNodes);
+
+private:
+  void read_const_id_list(const std::string &path);
+  void write_const_id_list(const std::string &path);
+
+  bool read_node(Node &node);
+  bool write_node(const Node &node);
 };
 
 }// namespace think
