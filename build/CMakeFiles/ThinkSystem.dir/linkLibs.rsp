@@ -1,1 +1,1 @@
-  -L"C:/Program Files/MySQL/Connector C++ 8.0/lib64"  -L"C:/Program Files/MySQL/MySQL Server 8.0/lib"  -L"D:/Users/HanHaocheng/Documents/Program Projects/lib/boost_1_79_0/stage/lib"  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
+ -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

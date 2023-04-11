@@ -13,9 +13,7 @@
 	{
 		"commands" : 
 		[
-			"add_executable",
-			"link_directories",
-			"include_directories"
+			"add_executable"
 		],
 		"files" : 
 		[
@@ -31,18 +29,6 @@
 				"file" : 0,
 				"line" : 32,
 				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 26,
-				"parent" : 0
-			},
-			{
-				"command" : 2,
-				"file" : 0,
-				"line" : 22,
-				"parent" : 0
 			}
 		]
 	},
@@ -53,21 +39,6 @@
 			[
 				{
 					"fragment" : "-g -std=gnu++17"
-				}
-			],
-			"includes" : 
-			[
-				{
-					"backtrace" : 3,
-					"path" : "C:/Program Files/MySQL/Connector C++ 8.0/include"
-				},
-				{
-					"backtrace" : 3,
-					"path" : "C:/Program Files/MySQL/MySQL Server 8.0/include"
-				},
-				{
-					"backtrace" : 3,
-					"path" : "D:/Users/HanHaocheng/Documents/Program Projects/lib/boost_1_79_0/include"
 				}
 			],
 			"language" : "CXX",
@@ -97,21 +68,6 @@
 			{
 				"fragment" : "",
 				"role" : "flags"
-			},
-			{
-				"backtrace" : 2,
-				"fragment" : "-L\"C:\\Program Files\\MySQL\\Connector C++ 8.0\\lib64\"",
-				"role" : "libraryPath"
-			},
-			{
-				"backtrace" : 2,
-				"fragment" : "-L\"C:\\Program Files\\MySQL\\MySQL Server 8.0\\lib\"",
-				"role" : "libraryPath"
-			},
-			{
-				"backtrace" : 2,
-				"fragment" : "-L\"D:\\Users\\HanHaocheng\\Documents\\Program Projects\\lib\\boost_1_79_0\\stage\\lib\"",
-				"role" : "libraryPath"
 			},
 			{
 				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",

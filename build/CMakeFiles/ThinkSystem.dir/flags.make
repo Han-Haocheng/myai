@@ -4,7 +4,7 @@
 # compile CXX with C:/Program Files/mingw64/bin/g++.exe
 CXX_DEFINES = 
 
-CXX_INCLUDES = @CMakeFiles/ThinkSystem.dir/includes_CXX.rsp
+CXX_INCLUDES = 
 
 CXX_FLAGS = -g -std=gnu++17
 
