@@ -6,7 +6,6 @@
 #define DATA_MANAGE_H_
 #include "data_type.h"
 #include "type/type_range.h"
-
 #include <forward_list>
 #include <list>
 #include <stdexcept>
@@ -18,12 +17,10 @@
 namespace fs = std::filesystem;
 
 namespace think {
-using NodeRange = Range<NodeID>;
 
 class NodeIDAllocator {
-
-
 private:
+  using NodeRange = Range<NodeID>;
   std::forward_list<NodeRange> m_id_datas_;
 
 public:
@@ -106,21 +103,19 @@ public:
       } else {
         m_id_datas_.emplace_front(installRange);
       }
-      return;
-    }
+    } else {
+      auto itBfBeg = m_id_datas_.before_begin();
 
-    auto itBfBeg = m_id_datas_.before_begin();
-
-    //查找第一个begin_大于in的位置
-    for (; itBeg != m_id_datas_.end(); ++itBeg, ++itBfBeg) {
-      if (itBeg->begin() > in) {
-        //in在上一个范围中
-        ////抛出异常
-        //in在上一个范围结束和这个范围起始的位置
-        ////
-        if (itBfBeg->contains(in)) {
-          throw std::runtime_error("Error:节点释放异常，");
-        } else {
+      //查找第一个begin_大于in的位置
+      for (; itBeg != m_id_datas_.end(); ++itBeg, ++itBfBeg) {
+        if (itBeg->begin() > in) {
+          //in在上一个范围中
+          ////抛出异常
+          //in在上一个范围结束和这个范围起始的位置
+          ////
+          if (itBfBeg->contains(in)) {
+            throw std::runtime_error("Error:节点释放异常，");
+          }
           if (itBfBeg->end() == installRange.begin()) {
             if (installRange.end() == itBeg->begin()) {
               itBfBeg->end() = itBeg->end();
@@ -133,16 +128,15 @@ public:
           } else {
             auto newIter = m_id_datas_.insert_after(itBfBeg, installRange);
           }
-          return;
         }
       }
-    }
 
-    //假如释放位置未找到，说明释放位置为最后一个范围后
-    if (itBfBeg->end() == in) {
-      ++itBfBeg->end();
-    } else {
-      m_id_datas_.insert_after(itBfBeg, {in, in + 1});
+      //假如释放位置未找到，说明释放位置为最后一个范围后
+      if (itBfBeg->end() == in) {
+        ++itBfBeg->end();
+      } else {
+        m_id_datas_.insert_after(itBfBeg, {in, in + 1});
+      }
     }
   }
 
@@ -164,16 +158,17 @@ public:
 
 
 class Node {
-  friend class NodeAllocator;
+  friend class NodeManageSystem;
 
 private:
-  NodeID m_id_;
+  bool m_is_read_ = false;
+  NodeID m_id_{0};
   NodeInfo m_info_{};
-  std::shared_ptr<NodeLinks> m_links_;
-  bool m_is_read_;
+  std::shared_ptr<NodeLinks> m_links_ = nullptr;
 
 public:
-  Node(const NodeID &id, const NodeInfo &info) : m_id_(id), m_info_(info) {}
+  Node() = default;
+  Node(NodeID id, const NodeInfo &info) : m_id_(id), m_info_(info) {}
 
   [[nodiscard]] const NodeID &getId() const { return m_id_; }
   [[nodiscard]] const NodeInfo &getInfo() const { return m_info_; }
@@ -203,7 +198,8 @@ using NodeList = std::vector<Node>;
 
 //节点管理
 //申请节点，查找节点，删除节点，修改节点
-class NodeAllocator {
+class NodeManageSystem {
+  static const ::size_t COUNT_ID_MAX_NUM = 0x1000000000000;
   NodeIDAllocator m_id_alloc_;
 
   std::map<NodeType, NodeList> m_const_node_;
@@ -211,82 +207,124 @@ class NodeAllocator {
   std::map<NodeID, Node> m_tmp_static_nodes_;
 
 public:
-  NodeAllocator():m_id_alloc_(0x1000000000000ULL){}
-  Node *applyNode(const NodeInfo &initInfo) {
-    if (initInfo.node_type == NodeTypeEnum::STATIC) {
-      NodeID newId = m_id_alloc_.allocate();
-      return &m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
-    } else if (initInfo.node_type == NodeTypeEnum::STATIC) {
-      NodeID newId = m_id_alloc_.allocate();
-      return &m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
-    } else {
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为常态节点，请用另一种申请方式"));
+  NodeManageSystem() : m_id_alloc_(COUNT_ID_MAX_NUM) {
+    std::string path = "CONST_ID_LIST.dat";
+    if (fs::exists(path)) {
+      FILE *constIdFIle = fopen(path.c_str(), "rb");
+      struct ConstInfo {
+        NodeType type;
+        size_t size;
+      };
+      if (constIdFIle != nullptr) {
+        size_t tmpSize = 0;
+        fread_s(&tmpSize, sizeof(size_t), sizeof(size_t), 1, constIdFIle);
+
+        std::vector<ConstInfo> ciList;
+        ciList.resize(tmpSize);
+        fread_s(ciList.data(), sizeof(ConstInfo) * tmpSize, sizeof(ConstInfo), tmpSize, constIdFIle);
+        for (const auto &item: ciList) {
+          NodeList &tmpNodeList = m_const_node_[item.type] = NodeList{item.size};
+          for (size_t i = 0U; i < item.size; ++i) {
+            NodeID tmpId;
+            fread_s(&tmpId, sizeof(NodeID), sizeof(NodeID), 1, constIdFIle);
+            tmpNodeList.emplace_back(tmpId, NodeInfo{item.type});
+          }
+        }
+        fclose(constIdFIle);
+      }
     }
   }
 
-  NodeList *applyNode(const NodeInfo &initInfo, size_t typeSize) {
-    if (initInfo.node_type == NodeTypeEnum::STATIC || initInfo.node_type == NodeTypeEnum::DYNAMIC) {
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:常态节点申请失败，此节点为动态节点或静态节点，请用另一种申请方式"));
+  ~NodeManageSystem() {
+    std::string path = "CONST_ID_LIST.dat";
+    if (!fs::exists(path)) {}
+
+    FILE *constIdFIle = fopen(path.c_str(), "rb");
+    struct ConstInfo {
+      NodeType type;
+      size_t size;
+    };
+    if (constIdFIle != nullptr) {
+      size_t tmpSize = 0;
+      fread_s(&tmpSize, sizeof(size_t), sizeof(size_t), 1, constIdFIle);
+
+      std::vector<ConstInfo> ciList;
+      ciList.resize(tmpSize);
+      fread_s(ciList.data(), sizeof(ConstInfo) * tmpSize, sizeof(ConstInfo), tmpSize, constIdFIle);
+      for (const auto &item: ciList) {
+        NodeList &tmpNodeList = m_const_node_[item.type] = NodeList{item.size};
+        for (size_t i = 0U; i < item.size; ++i) {
+          NodeID tmpId;
+          fread_s(&tmpId, sizeof(NodeID), sizeof(NodeID), 1, constIdFIle);
+          tmpNodeList.emplace_back(tmpId, NodeInfo{item.type});
+        }
+      }
+      fclose(constIdFIle);
+    }
+  }
+
+  /// 创建节点
+  /// \param initInfo 节点初始化信息
+  /// \return
+  Node *createNode(const NodeInfo &initInfo) {
+    NodeID newId = m_id_alloc_.allocate();
+    if (initInfo.node_type == NodeTypeEnum::STATIC) {
+      return &m_tmp_static_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
+    } else if (initInfo.node_type == NodeTypeEnum::DYNAMIC) {
+      return &m_dynamics_nodes_.emplace(std::pair<NodeID, Node>{newId, {newId, initInfo}}).first->second;
     } else {
+      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
+    }
+  }
+
+  NodeList *createNode(const NodeInfo &initInfo, size_t typeSize) {
+    if (initInfo.node_type > NodeTypeEnum::DYNAMIC) {
       std::vector<NodeID> ids;
       std::vector<Node> tmpNodes;
       tmpNodes.reserve(typeSize);
       m_id_alloc_.allocate(ids, typeSize);
       for (const auto &id: ids) {
-        tmpNodes.emplace_back(Node{id, initInfo});
+        tmpNodes.emplace_back(id, initInfo);
       }
       return &m_const_node_.emplace(std::pair<NodeType, NodeList>{initInfo.node_type, tmpNodes}).first->second;
+    } else {
+      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
     }
   }
 
-  bool deleteNode(Node*willDeleteNode)  {
-    if (willDeleteNode->m_info_.node_type ==NodeType::STATIC){
-      m_tmp_static_nodes_.erase(willDeleteNode->m_id_);
-      
-      std::string path = willDeleteNode->m_id_.id_path();
-      if (fs::exists(path)) {
-        fs::remove_all(path);
-        return true;
+  bool deleteNode(Node *willDeleteNode) {
+    if (willDeleteNode->m_info_.node_type == NodeType::DYNAMIC) {
+      auto iter = m_dynamics_nodes_.find(willDeleteNode->m_id_);
+      if (iter == m_dynamics_nodes_.end()) {
+        throw std::logic_error("移除节点错误，节点不存在");
       }
-      return false;
-    }else if (willDeleteNode->m_info_.node_type == NodeType::DYNAMIC){
+      m_id_alloc_.release(iter->first);
+      m_dynamics_nodes_.erase(iter);
+    } else if (willDeleteNode->m_info_.node_type == NodeType::STATIC) {
       m_dynamics_nodes_.erase(willDeleteNode->m_id_);
-      return true;
-    }else{
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点删除失败，此节点为动态节点或静态节点，请用另一种申请方式"));
+      std::string path = willDeleteNode->m_id_.id_path();
+      if (!fs::exists(path)) { throw std::logic_error("移除节点错误，节点不存在"); }
+      fs::remove_all(path);
+    } else {
+      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为静态节点，请用另一种申请方式"));
     }
+    return true;
   }
 
-  inline bool deleteNode(NodeType willDeleteType){
-    return m_const_node_.erase(willDeleteType)>0;
-  }
 
-  bool saveNode(Node*willSaveNode) {
-    if (willSaveNode->m_info_.node_type==NodeType::DYNAMIC)
-    {
-      throw std::logic_error(std::string("local:class_") + typeid(decltype(*this)).name() + " line_" + std::to_string(__LINE__) + ("Error:节点申请失败，此节点为常态节点，请用另一种申请方式"));
+  bool deleteNode(NodeType willDeleteType) {
+    if (willDeleteType > NodeType::DYNAMIC) {
     }
-    
-    std::string path = willSaveNode->m_id_.id_path() + "node.dat";
-    if (!fs::exists(path)) {
-      fs::create_directory(path);
-    }
-    std::ofstream outFile;
-    outFile.open(path, std::ios::out | std::ios::binary);
-    if (outFile.is_open()) {
-      outFile.write(reinterpret_cast<const char *>(&m_info_), sizeof(NodeInfo));
-      outFile.write(reinterpret_cast<const char *>(m_links_->const_links.data()),
-                    static_cast<std::streamsize>(m_links_->const_links.size() * sizeof(EleInfo)));
-      outFile.write(reinterpret_cast<const char *>(m_links_->static_links.data()),
-                    static_cast<std::streamsize>(m_links_->static_links.size() * sizeof(EleInfo)));
-      outFile.write(reinterpret_cast<const char *>(m_links_->dynamic_links.data()),
-                    static_cast<std::streamsize>(m_links_->dynamic_links.size() * sizeof(EleInfo)));
-      outFile.close();
+    std::string path = willDeleteNode->m_id_.id_path();
+    if (fs::exists(path)) {
+      fs::remove_all(path);
       return true;
     }
     return false;
   }
 
+  bool saveNode() {
+    std::string path = m_id_.id_path() + "node.dat";
     bool saveNode(Node*willSaveNode) {
     if (willSaveNode->m_info_.node_type==NodeType::DYNAMIC)
     {
