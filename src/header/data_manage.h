@@ -252,7 +252,7 @@ public:
       std::vector<ConstInfo> ciList;
       ciList.reserve(tmpSize);
       for (const auto &i : m_const_node_){
-        ciList.emplace_back({});
+        ciList.emplace_back({})
       }
       
 
