@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"string_view": "cpp",
+			"filesystem": "cpp",
+			"fstream": "cpp"
+		}
+	}
+}
