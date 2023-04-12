@@ -41,42 +41,42 @@ include CMakeFiles\rules.ninja
 
 cmake_ninja_workdir = D$:\Users\HanHaocheng\Documents\Program$ Projects\c++\Auto\Think\out\build\x64-Debug\
 # =============================================================================
-# Object build statements for EXECUTABLE target ThinkStart
+# Object build statements for EXECUTABLE target ThinkSystem
 
 
 #############################################
-# Order-only phony target for ThinkStart
+# Order-only phony target for ThinkSystem
 
-build cmake_object_order_depends_target_ThinkStart: phony || CMakeFiles\ThinkStart.dir
+build cmake_object_order_depends_target_ThinkSystem: phony || CMakeFiles\ThinkSystem.dir
 
-build CMakeFiles\ThinkStart.dir\src\main.cpp.obj: CXX_COMPILER__ThinkStart_Debug D$:\Users\HanHaocheng\Documents\Program$ Projects\c++\Auto\Think\src\main.cpp || cmake_object_order_depends_target_ThinkStart
+build CMakeFiles\ThinkSystem.dir\src\main.cpp.obj: CXX_COMPILER__ThinkSystem_Debug D$:\Users\HanHaocheng\Documents\Program$ Projects\c++\Auto\Think\src\main.cpp || cmake_object_order_depends_target_ThinkSystem
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -I"C:\Program Files\MySQL\Connector C++ 8.0\include" -I"C:\Program Files\MySQL\MySQL Server 8.0\include" -I"D:\Users\HanHaocheng\Documents\Program Projects\lib\boost_1_79_0\include"
-  OBJECT_DIR = CMakeFiles\ThinkStart.dir
-  OBJECT_FILE_DIR = CMakeFiles\ThinkStart.dir\src
-  TARGET_COMPILE_PDB = CMakeFiles\ThinkStart.dir\
-  TARGET_PDB = ThinkStart.pdb
+  OBJECT_DIR = CMakeFiles\ThinkSystem.dir
+  OBJECT_FILE_DIR = CMakeFiles\ThinkSystem.dir\src
+  TARGET_COMPILE_PDB = CMakeFiles\ThinkSystem.dir\
+  TARGET_PDB = ThinkSystem.pdb
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target ThinkStart
+# Link build statements for EXECUTABLE target ThinkSystem
 
 
 #############################################
-# Link the executable ThinkStart.exe
+# Link the executable ThinkSystem.exe
 
-build ThinkStart.exe: CXX_EXECUTABLE_LINKER__ThinkStart_Debug CMakeFiles\ThinkStart.dir\src\main.cpp.obj
+build ThinkSystem.exe: CXX_EXECUTABLE_LINKER__ThinkSystem_Debug CMakeFiles\ThinkSystem.dir\src\main.cpp.obj
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   LINK_PATH = -LIBPATH:C:\PROGRA~1\MySQL\CONNEC~2.0\lib64   -LIBPATH:C:\PROGRA~1\MySQL\MYSQLS~1.0\lib   -LIBPATH:"D:\Users\HanHaocheng\Documents\Program Projects\lib\boost_1_79_0\stage\lib"
-  OBJECT_DIR = CMakeFiles\ThinkStart.dir
+  OBJECT_DIR = CMakeFiles\ThinkSystem.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_COMPILE_PDB = CMakeFiles\ThinkStart.dir\
-  TARGET_FILE = ThinkStart.exe
-  TARGET_IMPLIB = ThinkStart.lib
-  TARGET_PDB = ThinkStart.pdb
+  TARGET_COMPILE_PDB = CMakeFiles\ThinkSystem.dir\
+  TARGET_FILE = ThinkSystem.exe
+  TARGET_IMPLIB = ThinkSystem.lib
+  TARGET_PDB = ThinkSystem.pdb
 
 
 #############################################
@@ -104,7 +104,7 @@ build rebuild_cache: phony CMakeFiles\rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build ThinkStart: phony ThinkStart.exe
+build ThinkSystem: phony ThinkSystem.exe
 
 # =============================================================================
 # Folder targets.
@@ -114,7 +114,7 @@ build ThinkStart: phony ThinkStart.exe
 #############################################
 # Folder: D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/out/build/x64-Debug
 
-build all: phony ThinkStart.exe
+build all: phony ThinkSystem.exe
 
 # =============================================================================
 # Built-in targets

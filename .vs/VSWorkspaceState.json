@@ -6,8 +6,10 @@
     ]
   },
   "ExpandedNodes": [
-    ""
+    "",
+    "\\src",
+    "\\src\\header"
   ],
-  "SelectedNode": "\\Think.sln",
+  "SelectedNode": "\\src\\header\\data_manage.h",
   "PreviewInSolutionExplorer": false
 }

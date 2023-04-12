@@ -11,16 +11,16 @@
 
 
 namespace think {
-using ActFun = bool (*)(EleInfo::link_type);
+using ActFun = bool (*)(LinkInfo::link_type);
 
 class MemorySystem {
   std::vector<NodeInfo>m_tmp_nodes_;
 public:
-  void getActionInfo(std::vector<EleInfo> &out) {
+  void getActionInfo(std::vector<LinkInfo> &out) {
   }
-  void getSenseInfo(std::vector<EleInfo> &out) {
+  void getSenseInfo(std::vector<LinkInfo> &out) {
   }
-  void runAct(const std::vector<EleInfo> &in) {
+  void runAct(const std::vector<LinkInfo> &in) {
 
   }
 
