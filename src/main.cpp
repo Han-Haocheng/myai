@@ -9,3 +9,4 @@ int main() {
   std::cout<< test.erase(1)<<std::endl;
   return 0;
 }
+
