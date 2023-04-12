@@ -212,11 +212,26 @@ public:
     }
   }
 
-  void removeNotConstNode(NodeType type, NodeID &id);
+  bool removeNode(NodeType type, NodeID &id){
+    if (type ==NodeType::DYNAMIC)
+    {
+      return m_dynamics_nodes_.erase(id)!=0;
+    }else if (type == NodeType::STATIC)
+    {
+      m_tmp_static_nodes_.erase(id);
+      std::string path = id.id_path();
+      if (fs::exists(path)){fs::remove_all(path+"node.dat");}
+      return true;
+    }else{
+      
+    }
+    
+    
+  }
 
   void removeConstType(NodeType type);
 
-  const Node &getNotConstNode(NodeType type, NodeID &id);
+  const Node &getNode(NodeType type, NodeID &id);
 
   const NodeList &getConstNode(NodeType type);
 
