@@ -8,7 +8,7 @@
 #include <string>
 
 class Except {
-  unsigned int m_link_;
+  unsigned int m_link_{};
 
   std::string m_except_info_;
   enum class Level{
