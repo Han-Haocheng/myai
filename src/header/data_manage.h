@@ -18,11 +18,11 @@ namespace fs = std::filesystem;
 
 namespace think {
 
+
 class NodeIDAllocator {
 private:
   using NodeRange = Range<NodeID>;
   std::forward_list<NodeRange> m_id_datas_;
-
 
   constexpr static const char *allocator_path = "id_allocator.dat";
 
@@ -43,6 +43,8 @@ public:
   /// 申请节点（时间复杂度O(1)）
   /// \param out
   NodeID allocate() {
+
+
     NodeID out = m_id_datas_.front().begin()++;
     if (m_id_datas_.front().is_empty()) {
       m_id_datas_.pop_front();
@@ -158,79 +160,236 @@ private:
 
 //============================================================================================================
 
-
-//============================================================================================================
-
 //节点管理
 //申请节点，查找节点，删除节点，修改节点
 class NodeManageSystem {
+protected:
   static const ::size_t COUNT_ID_MAX_NUM = 0x1000000000000;
-  NodeIDAllocator m_id_alloc_;
-
-  std::map<NodeType, NodeList> m_const_node_;
-  std::map<NodeID, Node> m_dynamics_nodes_;
-  std::map<NodeID, Node> m_tmp_static_nodes_;
+  NodeIDAllocator m_id_alloc_{COUNT_ID_MAX_NUM};
 
 public:
-  NodeManageSystem() : m_id_alloc_(COUNT_ID_MAX_NUM) {
-    std::string path = "CONST_ID_LIST.dat";
-    if (fs::exists(path)) {
-      read_const_id_list(path);
+  virtual NodePtr createNode(NodeType type)                            = 0;
+  virtual void createType(NodePtrList &out, NodeType type, size_t num) = 0;
+  virtual void remove(NodeType type)                                   = 0;
+  virtual void remove(NodeType type, NodeID &id)                       = 0;
+  virtual void remove(NodeType type, std::vector<NodeID> &ids)         = 0;
+  virtual const Node &getNode(NodeType type, NodeID &id)               = 0;
+  virtual const NodePtrList &getNode(NodeType type)                    = 0;
+  virtual void setNode(NodeID &id, Node *newNode)                      = 0;
+  virtual void setNode(NodeType type, const NodePtrList &newNodes)     = 0;
+  virtual void saveData()                                              = 0;
+
+protected:
+  static bool read_node(Node *const node) {
+    if (node->isNull()) {
+      throw std::logic_error("读取节点为空位置");
     }
-    for (auto &item: m_const_node_) {
-      for (auto &cNode: item.second) {
-        read_node(cNode);
+
+    std::string path = node->m_id_.id_path();
+    if (!fs::exists(path)) {
+      return false;
+    }
+
+    std::ifstream file(path, std::ios::binary | std::ios::in);
+    if (file.is_open()) {
+      Node::Info tmpInfo;
+      file.read(reinterpret_cast<char *>(&tmpInfo), sizeof(Node::Info));
+      node->node_type = tmpInfo.type;
+
+      // node->m_links_.static_link.link_val = tmpInfo.static_link_val;
+      // node->m_links_.const_link.link_val  = tmpInfo.const_link_val;
+      // decltype(node->m_links_.const_link.link) tmpLink(tmpInfo.const_link_count + tmpInfo.static_link_count);
+      // file.read(reinterpret_cast<char *>(tmpLink.data()), tmpLink.size() * sizeof(LinkInfo));
+      // node->m_links_.const_link.link  = {tmpLink.begin(), tmpLink.begin() + tmpInfo.const_link_count};
+      // node->m_links_.static_link.link = {tmpLink.begin() + tmpInfo.const_link_count, tmpLink.end()};
+
+      node->m_links_.static_link.link_val = tmpInfo.static_link_val;
+      node->m_links_.const_link.link_val  = tmpInfo.const_link_val;
+      node->m_links_.static_link.link.reserve(tmpInfo.static_link_count);
+      node->m_links_.const_link.link.reserve(tmpInfo.const_link_count);
+      LinkInfo tmpLI;
+      for (int i = 0; i < tmpInfo.static_link_count; ++i) {
+        file.read(reinterpret_cast<char *>(&tmpLI), sizeof(LinkInfo));
+        node->m_links_.static_link.link.emplace_back(tmpLI);
+      }
+      for (int i = 0; i < tmpInfo.const_link_count; ++i) {
+        file.read(reinterpret_cast<char *>(&tmpLI), sizeof(LinkInfo));
+        node->m_links_.const_link.link.emplace_back(tmpLI);
+      }
+      file.close();
+      return true;
+    }
+    return false;
+  }
+
+  static bool write_node(const Node *const node) {
+    if (node->isNull()) {
+      throw std::logic_error("读取节点为空位置");
+    }
+    std::string path = node->m_id_.id_path();
+    if (!fs::exists(path)) {
+      fs::create_directories(path);
+    }
+    std::ofstream file(path, std::ios::binary | std::ios::out);
+    if (file.is_open()) {
+      Node::Info tmpInfo{node->node_type,
+                         node->m_links_.const_link.link.size(),
+                         node->m_links_.static_link.link.size(),
+                         node->m_links_.const_link.link_val,
+                         node->m_links_.static_link.link_val};
+      file.write(reinterpret_cast<const char *>(&tmpInfo), sizeof(Node::Info));
+      file.write(reinterpret_cast<const char *>(node->m_links_.const_link.link.data()), sizeof(LinkInfo) * tmpInfo.const_link_count);
+      file.write(reinterpret_cast<const char *>(node->m_links_.static_link.link.data()), sizeof(LinkInfo) * tmpInfo.static_link_count);
+
+      file.close();
+      return true;
+    }
+    return false;
+  }
+};//! virtual class NodeManageSystem
+
+
+class DynamicManageSystem : public NodeManageSystem {
+  friend class StaticManageSystem;
+
+  std::map<NodeID, NodePtr> m_dynamics_nodes_;
+
+public:
+  NodePtr createNode(NodeType type) override {
+    NodeID id     = m_id_alloc_.allocate();
+    auto &tmpNode = m_dynamics_nodes_[id];
+    tmpNode.reset(new Node(type, id));
+    return tmpNode;
+  }
+
+  void createType(NodePtrList &out, NodeType type, size_t num) override {
+    std::vector<NodeID> tmpIds;
+    m_id_alloc_.allocate(tmpIds, num);
+
+    out.reserve(num);
+    for (const auto &id: tmpIds) {
+      auto &tmpNode = m_dynamics_nodes_[id];
+      tmpNode.reset(new Node(type, id));
+      out.emplace_back(tmpNode);
+    }
+  }
+
+  void saveData() override {
+    for (auto &dNode: m_dynamics_nodes_) {
+      dNode.second->saveDynamicData();
+    }
+  }
+
+  void remove(NodeType type) override;
+  void remove(NodeType type, NodeID &id) override;
+  void remove(NodeType type, std::vector<NodeID> &ids) override;
+  const Node &getNode(NodeType type, NodeID &id) override;
+  const NodePtrList &getNode(NodeType type) override;
+  void setNode(NodeType type, const NodePtrList &newNodes) override;
+};//! class DynamicManageSystem
+
+class StaticManageSystem : public NodeManageSystem {
+
+  std::map<NodeID, NodePtr> m_tmp_static_nodes_;
+
+public:
+  NodePtr createNode(NodeType type) override {
+    NodeID id     = m_id_alloc_.allocate();
+    auto &tmpNode = m_tmp_static_nodes_[id];
+    tmpNode.reset(new Node(type, id));
+    return tmpNode;
+  }
+  void createType(NodePtrList &out, NodeType type, size_t num) override {
+    std::vector<NodeID> tmpIds;
+    m_id_alloc_.allocate(tmpIds, num);
+    out.reserve(num);
+    for (const auto &id: tmpIds) {
+      out.emplace_back((m_tmp_static_nodes_[id] = {type, id}));
+    }
+  }
+
+  void remove(NodeType type) override;
+  void remove(NodeType type, NodeID &id) override;
+  void remove(NodeType type, std::vector<NodeID> &ids) override;
+  const Node &getNode(NodeType type, NodeID &id) override;
+  const NodePtrList &getNode(NodeType type) override;
+  void setNode(NodeID &id, const Node &newNode) override;
+  void setNode(NodeType type, const NodePtrList &newNodes) override;
+
+  void saveData() override {
+    for (auto &sNode: m_tmp_static_nodes_) {
+      sNode.second.saveDynamicData();
+    }
+  }
+
+  void dynamicCastStatic(DynamicManageSystem &dms) {
+    for (const auto &item: dms.m_dynamics_nodes_) {
+      m_tmp_static_nodes_[item.first] = item.second;
+    }
+  }
+};//! class DynamicManageSystem;
+
+
+class ConstManageSystem : public NodeManageSystem {
+  std::map<NodeType, NodeList> m_const_node_;
+  constexpr const static char *PATH_CONST_ID = "CONST_ID_LIST.dat";
+
+public:
+  ConstManageSystem() {
+    if (!get_id_list(PATH_CONST_ID)) {
+      for (auto &item: m_const_node_) {
+        for (auto &node: item.second) {
+          read_node(&node);
+        }
       }
     }
   }
 
-  ~NodeManageSystem() {
-    std::string path = "CONST_ID_LIST.dat";
-    write_const_id_list(path);
+  ~ConstManageSystem() {
+    save_id_list(PATH_CONST_ID);
   }
 
-  Node &createDynamicNode() {
-    NodeID id                    = m_id_alloc_.allocate();
-    return m_dynamics_nodes_[id] = {NodeType::DYNAMIC, id};
+  Node &createNode(NodeType type) override {
+    NodeID id = m_id_alloc_.allocate();
+    return m_const_node_[type].emplace_back(type, id);
   }
 
-  void dynamicCastStatic();
-
-  NodeList &createConstType(NodeType type, size_t num) {
+  void createType(NodeType type, size_t num, NodeList &out) override {
+    std::vector<NodeID> tmpIds;
+    m_id_alloc_.allocate(tmpIds, num);
     auto res = m_const_node_.try_emplace(type);
     if (res.second) {
-      auto &nodeList = res.first->second;
-      nodeList.reserve(num);
-      std::vector<NodeID> new_id_list;
-      m_id_alloc_.allocate(new_id_list, num);
-      for (const auto &id: new_id_list) {
-        nodeList.emplace_back(type, id);
+      out = res.first->second;
+      out.reserve(num);
+      for (const auto &id: tmpIds) {
+        out.emplace_back(type, id);
       }
-      return nodeList;
     } else {
-      throw ;
+      throw;
     }
   }
 
-  void removeNotConstNode(NodeType type, NodeID &id);
+  void remove(NodeType type) override;
+  void remove(NodeType type, NodeID &id) override;
+  void remove(NodeType type, std::vector<NodeID> &ids) override;
+  const Node &getNode(NodeType type, NodeID &id) override;
+  const NodePtrList &getNode(NodeType type) override;
+  void setNode(NodeID &id, const Node &newNode) override;
+  void setNode(NodeType type, const NodePtrList &newNodes) override;
 
-  void removeConstType(NodeType type);
-
-  const Node &getNotConstNode(NodeType type, NodeID &id);
-
-  const NodeList &getConstNode(NodeType type);
-
-  void setNotConstNode(NodeID &id, const Node &newNode);
-
-  void setConstNode(NodeType type, const NodeList &newNodes);
+  void saveData() override {
+    for (auto &nodeList: m_const_node_) {
+      for (auto &cNode: nodeList.second) {
+        cNode.saveDynamicData();
+      }
+    }
+  }
 
 private:
-  void read_const_id_list(const std::string &path);
-  void write_const_id_list(const std::string &path);
-
-  bool read_node(Node &node);
-  bool write_node(const Node &node);
+  bool get_id_list(const std::string &path);
+  void save_id_list(const std::string &path);
 };
+
 
 }// namespace think
 

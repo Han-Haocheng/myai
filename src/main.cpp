@@ -1,11 +1,25 @@
 
 #include <iostream>
 #include <map>
+#include <thread>
+#include <unistd.h>
 
+[[noreturn]] void tr(){
+label:
+
+sleep(1);
+
+
+  goto label;
+}
 
 int main() {
-  std::map<int,int>test{{1,1},{2,2},{3,3}};
- 
-  std::cout<< test.erase(1)<<std::endl;
-  return 0;
+std::thread t(tr);
+std::thread t2(tr);
+std::thread t3(tr);
+std::thread t4(tr);
+t.join();
+t2.join();
+t3.join();
+t4.join();
 }

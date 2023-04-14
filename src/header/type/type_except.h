@@ -2,8 +2,8 @@
 // Created by HanHaocheng on 2023/04/12.
 //
 
-#ifndef THINKSYSTEM__EXCEPT_H
-#define THINKSYSTEM__EXCEPT_H
+#ifndef THINKSYSTEM_TYPE_EXCEPT_H
+#define THINKSYSTEM_TYPE_EXCEPT_H
 
 #include <string>
 
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif//THINKSYSTEM__EXCEPT_H
+#endif//THINKSYSTEM_TYPE_EXCEPT_H

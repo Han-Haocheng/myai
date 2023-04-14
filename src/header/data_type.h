@@ -11,9 +11,6 @@
 #include <vector>
 
 
-namespace think {
-#pragma pack(push, 2)
-
 typedef unsigned char byte_t;
 typedef unsigned short ushort_t;
 typedef unsigned int uint_t;
@@ -24,8 +21,12 @@ constexpr const static byte_t COUNT_BYTE_BITS = 8;
 template<size_t Bits>
 constexpr static const size_t GET_SPECIFIC_NUM_BITS = (1 << Bits) - 1;
 
+
+namespace think {
+#pragma pack(push, 2)
+
 //max = 17,5921,8604,4416
-typedef struct NodeIDType {
+struct NodeID {
   using tab_type = ushort_t;
   using col_type = ushort_t;
   using row_type = ushort_t;
@@ -43,45 +44,45 @@ typedef struct NodeIDType {
   constexpr static const byte_t COUNT_COL_OFFSET_BIT = (sizeof(col_id) + sizeof(row_id)) * COUNT_BYTE_BITS;
   constexpr static const byte_t COUNT_ROW_OFFSET_BIT = (sizeof(col_id) + sizeof(row_id)) * COUNT_BYTE_BITS;
 
-  NodeIDType() : tab_id(), col_id(), row_id() {}
-  explicit NodeIDType(id_type id)
+  NodeID() : tab_id(), col_id(), row_id() {}
+  explicit NodeID(id_type id)
       : tab_id(static_cast<tab_type>(id >> COUNT_TAB_OFFSET_BIT & GET_SPECIFIC_NUM_BITS<sizeof(tab_id) * COUNT_BYTE_BITS>)),
         col_id(static_cast<col_type>(id >> COUNT_COL_OFFSET_BIT & GET_SPECIFIC_NUM_BITS<sizeof(tab_id) * COUNT_BYTE_BITS>)),
         row_id(static_cast<row_type>(id >> COUNT_ROW_OFFSET_BIT & GET_SPECIFIC_NUM_BITS<sizeof(tab_id) * COUNT_BYTE_BITS>)) {}
 
-  NodeIDType &operator=(id_type id) {
+  NodeID &operator=(id_type id) {
     reset(id);
     return *this;
   }
 
-  bool operator<(const NodeIDType &rhs) const { return static_cast<id_type>(*this) < static_cast<id_type>(rhs); }
-  bool operator>(const NodeIDType &rhs) const { return rhs < *this; }
-  bool operator<=(const NodeIDType &rhs) const { return !(rhs < *this); }
-  bool operator>=(const NodeIDType &rhs) const { return !(*this < rhs); }
-  bool operator==(const NodeIDType &rhs) const { return static_cast<id_type>(*this) == static_cast<id_type>(rhs); }
-  bool operator!=(const NodeIDType &rhs) const { return !(rhs == *this); }
+  bool operator<(const NodeID &rhs) const { return static_cast<id_type>(*this) < static_cast<id_type>(rhs); }
+  bool operator>(const NodeID &rhs) const { return rhs < *this; }
+  bool operator<=(const NodeID &rhs) const { return !(rhs < *this); }
+  bool operator>=(const NodeID &rhs) const { return !(*this < rhs); }
+  bool operator==(const NodeID &rhs) const { return static_cast<id_type>(*this) == static_cast<id_type>(rhs); }
+  bool operator!=(const NodeID &rhs) const { return !(rhs == *this); }
 
-  NodeIDType operator+(id_type num) const { return NodeIDType{static_cast<id_type>(*this) + num}; }
-  NodeIDType operator-(id_type num) const { return NodeIDType{static_cast<id_type>(*this) - num}; }
-  size_t operator-(const NodeIDType &other) const { return static_cast<id_type>(*this) - static_cast<id_type>(other); }
+  NodeID operator+(id_type num) const { return NodeID{static_cast<id_type>(*this) + num}; }
+  NodeID operator-(id_type num) const { return NodeID{static_cast<id_type>(*this) - num}; }
+  size_t operator-(const NodeID &other) const { return static_cast<id_type>(*this) - static_cast<id_type>(other); }
 
-  NodeIDType &operator+=(id_type num) {
+  NodeID &operator+=(id_type num) {
     this->reset(static_cast<id_type>(*this) + num);
     return *this;
   }
-  NodeIDType &operator-=(id_type num) {
+  NodeID &operator-=(id_type num) {
     this->reset(static_cast<id_type>(*this) - num);
     return *this;
   }
-  NodeIDType &operator++() { return (*this) += 1; }
-  NodeIDType &operator--() { return (*this) -= 1; }
-  NodeIDType operator++(int) {
-    NodeIDType tmp = *this;
+  NodeID &operator++() { return (*this) += 1; }
+  NodeID &operator--() { return (*this) -= 1; }
+  NodeID operator++(int) {
+    NodeID tmp = *this;
     ++*this;
     return tmp;
   }
-  NodeIDType operator--(int) {
-    NodeIDType tmp = *this;
+  NodeID operator--(int) {
+    NodeID tmp = *this;
     --*this;
     return tmp;
   }
@@ -107,66 +108,82 @@ typedef struct NodeIDType {
     }
     return res;
   }
-} NodeID;//!struct NodeIDType
+};//!struct NodeID
 
 
-typedef enum class NodeTypeEnum : unsigned short {
+enum class NodeType : unsigned short {
   STATIC,
   DYNAMIC,
   CONST_IN_VISION,
   CONST_OUT_VISION,
-} NodeType;
+};
 
-typedef struct ElementInformationType {
+struct LinkInfo {
   using link_type = ushort_t;
 
   NodeID node_id;
   link_type link_val = 0;
+};
 
-} LinkInfo;
-
+constexpr static LinkInfo::link_type CONTROL_REMOVE_STANDARD = 1.0;
+constexpr static double CONTROL_SAVE_WEIGHT                  = 1.0;
 
 #pragma pack(push, 2)
 
 
 class Node {
-  //  friend class NodeManageSystem;
+  friend class NodeManageSystem;
 
   struct LinkList {
     size_t link_val = 0;
     std::vector<LinkInfo> link;
     [[nodiscard]] inline size_t size() const { return link.size(); }
+    void clear() {
+      link_val = 0;
+      link.clear();
+    }
+    [[nodiscard]] inline bool isEmpty() const { return link_val == 0; }
   };
   struct Link {
     LinkList const_link;
     LinkList static_link;
     LinkList dynamic_link;
+    [[nodiscard]] inline bool isEmpty() const { return const_link.isEmpty() && static_link.isEmpty() && dynamic_link.isEmpty(); }
   };
   struct Info {
-    NodeID id{0};
-    NodeType type;
-    size_t const_link_count   = 0;
-    size_t static_link_count  = 0;
-    size_t dynamic_link_count = 0;
-    size_t const_link_val     = 0;
-    size_t static_link_val    = 0;
-    size_t dynamic_link_val   = 0;
+    NodeType type{};
+    size_t const_link_count  = 0;
+    size_t static_link_count = 0;
+    size_t const_link_val    = 0;
+    size_t static_link_val   = 0;
   };
 
 private:
   NodeType node_type = NodeType::DYNAMIC;
   NodeID m_id_{0};
 
-  std::shared_ptr<Link> m_links_ = nullptr;
+  Link m_links_ = {};
 
 public:
-  Node() : node_type(NodeType::DYNAMIC), m_id_(0), m_links_(nullptr) {}
-  Node(NodeType type, NodeID id) : node_type(type), m_id_(id), m_links_(nullptr) {}
+  Node() : node_type(NodeType::DYNAMIC), m_id_(0), m_links_() {}
+  Node(NodeType type, NodeID id) : node_type(type), m_id_(id), m_links_() {}
   NodeID getId() { return m_id_; }
   NodeType getType() { return node_type; }
-  const std::shared_ptr<Link> &linkPtr() { return m_links_; }
+  //  const std::shared_ptr<Link> &linkPtr() { return m_links_; }
   [[nodiscard]] bool isNull() const { return static_cast<size_t>(m_id_) == 0ULL; }
-  [[nodiscard]] bool isEmpty() const { return m_links_ == nullptr; }
+  [[nodiscard]] bool isEmpty() const { return m_links_.isEmpty(); }
+
+  //T = O(n)
+  void saveDynamicData() {
+    m_links_.static_link.link.reserve(m_links_.static_link.link.size() + m_links_.dynamic_link.link.size());
+    for (const auto &dyEle: m_links_.dynamic_link.link) {
+      auto tmpVal = static_cast<LinkInfo::link_type>(dyEle.link_val * CONTROL_SAVE_WEIGHT);
+      if (CONTROL_REMOVE_STANDARD < tmpVal) {
+        m_links_.static_link.link.emplace_back(LinkInfo{dyEle.node_id, tmpVal});
+        m_links_.static_link.link_val += tmpVal;
+      }
+    }
+  }
 
   bool emplace(NodeType type, LinkInfo links);
 
@@ -174,9 +191,9 @@ public:
 };
 #pragma pack(pop)
 
-using NodePtr  = Node *;
-using NodeList = std::vector<Node>;
-
+using NodePtr     = std::shared_ptr<Node>;
+using NodePtrList = std::vector<NodePtr>;
+using NodeList    = std::vector<Node>;
 
 /*class Node {
   friend class ThinkCore;
