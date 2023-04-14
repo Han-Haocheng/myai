@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\define.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\IdAllocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MyaiController.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MyaiDao.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MyaiFileIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MyaiNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MyaiService.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="driver\Driver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="driver\DriverManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="driver\StatusDriver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="core\IdAllocator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+<<<<<<< HEAD
+<<<<<<< HEAD:src/src.vcxproj.filters
+=======
+>>>>>>> a3a28bf (2025年2月24日 20:19:05)
+    <ClCompile Include="core\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MyaiController.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MyaiDao.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MyaiFileIO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MyaiNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MyaiService.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="driver\Driver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="driver\DriverManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="driver\StatusDriver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+<<<<<<< HEAD
+<<<<<<< HEAD:src/src.vcxproj.filters
+    <ClCompile Include="src\header\inout\interface.h">
+      <Filter>头文件\inout</Filter>
+    </ClCompile>
+  </ItemGroup>
+<<<<<<< HEAD:src/src.vcxproj.filters
+=======
+  <ItemGroup>
+    <ClInclude Include="src\main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\4_think_core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\1_node_info.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\2_id_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\2_io_node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\3_io_manage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\include.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\0_think_type.h">
+      <Filter>头文件\bases</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\range.h">
+      <Filter>头文件\bases</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Think.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+=======
+>>>>>>> 55d935f (v0.40):Think.vcxproj.filters
+=======
+>>>>>>> e7ce4b8 (v0.40):Think.vcxproj.filters
+  </ItemGroup>
+>>>>>>> 8e86c1c (v0.34):Think.vcxproj.filters
+=======
+  </ItemGroup>
+>>>>>>> a3a28bf (2025年2月24日 20:19:05)
+</Project>

@@ -1,3 +1,0 @@
-"C:\Program Files\cmake\cmake-3.26.2-windows-x86_64\bin\cmake.exe" -E rm -f CMakeFiles\ThinkSystem.dir/objects.a
-C:\PROGRA~1\mingw64\bin\ar.exe qc CMakeFiles\ThinkSystem.dir/objects.a @CMakeFiles\ThinkSystem.dir\objects1.rsp
-C:\PROGRA~1\mingw64\bin\G__~1.EXE -g -Wl,--whole-archive CMakeFiles\ThinkSystem.dir/objects.a -Wl,--no-whole-archive -o ThinkSystem.exe -Wl,--out-implib,libThinkSystem.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\ThinkSystem.dir\linkLibs.rsp

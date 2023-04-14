@@ -1,11 +1,8 @@
 # Generated from CLion C/C++ Code Style settings
-BasedOnStyle: Microsoft
+BasedOnStyle: LLVM
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments:
-  Enabled: true
-  AcrossEmptyLines: true
-  AcrossComments: false
+AlignConsecutiveAssignments: None
 AlignOperands: Align
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
@@ -18,18 +15,15 @@ AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: Yes
-
-
-
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
   AfterControlStatement: Never
-  AfterEnum: false
+  AfterEnum: true
   AfterFunction: false
   AfterNamespace: false
-  AfterUnion: false
+  AfterUnion: true
   BeforeCatch: false
   BeforeElse: false
   IndentBraces: false
@@ -41,23 +35,17 @@ BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 ColumnLimit: 0
 CompactNamespaces: false
-ContinuationIndentWidth: 8
-
+ContinuationIndentWidth: 4
 IndentCaseLabels: true
 IndentPPDirectives: None
 IndentWidth: 2
-IndentAccessModifiers: false
-IndentCaseBlocks: false
-
-
 KeepEmptyLinesAtTheStartOfBlocks: true
-MaxEmptyLinesToKeep: 2
-NamespaceIndentation: Inner
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PointerAlignment: Right
 ReflowComments: false
-
 SpaceAfterCStyleCast: true
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
@@ -76,6 +64,3 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 TabWidth: 2
 UseTab: Never
-
-
-FixNamespaceComments: true
