@@ -6,7 +6,7 @@
 			[
 				{
 					"build" : ".",
-					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.1"
@@ -19,7 +19,7 @@
 					]
 				}
 			],
-			"name" : "Release",
+			"name" : "Debug",
 			"projects" : 
 			[
 				{
@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "ThinkSystem::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-ThinkSystem-Release-97f85586e55d4126daac.json",
+					"jsonFile" : "target-ThinkSystem-Debug-53227083dd1e674283a3.json",
 					"name" : "ThinkSystem",
 					"projectIndex" : 0
 				}
@@ -49,7 +49,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/cmake-build-release",
+		"build" : "D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/cmake-build-debug",
 		"source" : "D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think"
 	},
 	"version" : 

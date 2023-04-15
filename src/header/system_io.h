@@ -2,10 +2,10 @@
 // Created by HanHaocheng on 2023/04/05.
 //
 
-#ifndef THINKSYSTEM_THINK_IO_H
-#define THINKSYSTEM_THINK_IO_H
-#include "data_manage.h"
-#include "data_type.h"
+#ifndef THINKSYSTEM_SYSTEM_IO_H
+#define THINKSYSTEM_SYSTEM_IO_H
+#include "system_manage.h"
+#include "type_node.h"
 #include <list>
 #include <map>
 
@@ -40,4 +40,4 @@ public:
 
 }// namespace think
 
-#endif//THINKSYSTEM_THINK_IO_H
+#endif//THINKSYSTEM_SYSTEM_IO_H

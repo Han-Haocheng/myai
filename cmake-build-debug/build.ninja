@@ -51,7 +51,8 @@ build cmake_object_order_depends_target_ThinkSystem: phony || CMakeFiles/ThinkSy
 
 build CMakeFiles/ThinkSystem.dir/src/main.cpp.obj: CXX_COMPILER__ThinkSystem_Debug D$:/Users/HanHaocheng/Documents/Program$ Projects/c++/Auto/Think/src/main.cpp || cmake_object_order_depends_target_ThinkSystem
   DEP_FILE = CMakeFiles\ThinkSystem.dir\src\main.cpp.obj.d
-  FLAGS = -g -fdiagnostics-color=always -std=gnu++17
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++20
+  INCLUDES = -I"C:/Program Files/MySQL/Connector C++ 8.0/include" -I"C:/Program Files/MySQL/MySQL Server 8.0/include" -I"D:/Users/HanHaocheng/Documents/Program Projects/lib/boost_1_79_0/include"
   OBJECT_DIR = CMakeFiles\ThinkSystem.dir
   OBJECT_FILE_DIR = CMakeFiles\ThinkSystem.dir\src
 
@@ -66,6 +67,7 @@ build CMakeFiles/ThinkSystem.dir/src/main.cpp.obj: CXX_COMPILER__ThinkSystem_Deb
 build ThinkSystem.exe: CXX_EXECUTABLE_LINKER__ThinkSystem_Debug CMakeFiles/ThinkSystem.dir/src/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_PATH = -LC:/PROGRA~1/MySQL/CONNEC~2.0/lib64   -LC:/PROGRA~1/MySQL/MYSQLS~1.0/lib   -L"D:/Users/HanHaocheng/Documents/Program Projects/lib/boost_1_79_0/stage/lib"
   OBJECT_DIR = CMakeFiles\ThinkSystem.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
