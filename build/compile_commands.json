@@ -1,8 +1,0 @@
-[
-{
-  "directory": "C:/Users/HT/Desktop/Think/ThinkSystem/build",
-  "command": "C:\\PROGRA~1\\mingw64\\bin\\G__~1.EXE   -g -std=gnu++17 -o CMakeFiles\\ThinkSystem.dir\\src\\main.cpp.obj -c C:\\Users\\HT\\Desktop\\Think\\ThinkSystem\\src\\main.cpp",
-  "file": "C:/Users/HT/Desktop/Think/ThinkSystem/src/main.cpp",
-  "output": "CMakeFiles/ThinkSystem.dir/src/main.cpp.obj"
-}
-]

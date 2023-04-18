@@ -49,7 +49,7 @@ std::string operator""_r(const char *str, size_t size) {
 
 void test2() {
   int c = 017;
-  std::cout << "123455"_r
+  std::cout << "123455"_r<<__cplusplus
             << "\n";
   ;
 }

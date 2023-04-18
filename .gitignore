@@ -30,3 +30,19 @@
 *.exe
 *.out
 *.app
+
+# Customization
+
+x64
+out
+.vs
+.vscode
+.idea
+build
+cmake-build-debug
+cmake-build-release
+Think.sln
+Think.vcxproj
+Think.vcxproj.filters
+Think.vcxproj.user
+
