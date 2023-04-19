@@ -2,8 +2,8 @@
 // Created by HanHaocheng on 2023/04/17.
 //
 
-#ifndef THINKSYSTEM_SYSTEM_ALLOCATOR_H
-#define THINKSYSTEM_SYSTEM_ALLOCATOR_H
+#ifndef THINKSYSTEM_ALLOCATOR_H
+#define THINKSYSTEM_ALLOCATOR_H
 #include "../type/type_node_id.h"
 #include "../type/type_range.h"
 #include <forward_list>
@@ -16,7 +16,6 @@ namespace fs = std::filesystem;
 namespace think {
 
 
-static const ::size_t COUNT_ID_MAX_NUM = 0x1000000000000;
 class NodeIDAllocator {
 private:
   using NodeRange = Range<NodeID>;
@@ -26,11 +25,10 @@ private:
 
 public:
   explicit NodeIDAllocator(size_t nodeCount) {
-    NodeRange tmp{NodeID{0}, NodeID{nodeCount}};
     if (fs::exists(allocator_path)) {
       read_null_id(allocator_path);
     } else {
-      m_id_datas_.emplace_front(tmp);
+      m_id_datas_.emplace_front(NodeID{1}, NodeID{nodeCount});
     }
   }
 
@@ -156,4 +154,4 @@ private:
   }
 };//! class NodeIDAllocator
 }// namespace think
-#endif//THINKSYSTEM_SYSTEM_ALLOCATOR_H
+#endif//THINKSYSTEM_ALLOCATOR_H

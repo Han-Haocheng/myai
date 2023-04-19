@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <utility>
 
-//using Ty = int;
+/// 区间，表示方法[begin,end)
 template<typename Ty>
 class Range : private std::pair<Ty, Ty> {
 public:
@@ -24,7 +24,7 @@ public:
 
   bool operator<(const Range &rhs) const { return this->first < rhs.first; }
   bool operator>(const Range &rhs) const { return rhs < *this; }
-  bool operator>=(const Range &rhs) const { return !(*this < rhs); }
+  bool operator>=(const Range &rhs) const { return !(rhs > *this); }
   bool operator<=(const Range &rhs) const { return !(rhs < *this); }
 
   Ty& begin() { return this->first; }

@@ -20,6 +20,8 @@ constexpr static const size_t GET_SPECIFIC_NUM_BITS = (1 << Bits) - 1;
 
 namespace think {
 
+constexpr const static size_t COUNT_MAX_ID_SIZE = 0x1000000000000U;
+
 //max = 17,5921,8604,4416
 struct NodeID {
   using tab_type = ushort_t;
@@ -32,8 +34,6 @@ struct NodeID {
   col_type col_id;//列id  max:0x0fff
   row_type row_id;//行id  max:0xffff
 
-  constexpr static const char *CSTR_TAB_PREFIX       = "DATA_TAB_";
-  constexpr static const char *CSTR_COL_PREFIX       = "COL_";
 
   constexpr static const byte_t COUNT_TAB_OFFSET_BIT = (sizeof(col_id) + sizeof(row_id)) * COUNT_BYTE_BITS;
   constexpr static const byte_t COUNT_COL_OFFSET_BIT = (sizeof(col_id) + sizeof(row_id)) * COUNT_BYTE_BITS;
