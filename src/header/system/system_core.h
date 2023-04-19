@@ -8,7 +8,6 @@
 #include "system_manage.h"
 
 namespace think {
-constexpr const static size_t COUNT_MAX_ID_SIZE = 0x1000000000000U;
 
 class ThinkCore {
   NodeManageSystem* m_const_nms_ = new ConstManageSystem();

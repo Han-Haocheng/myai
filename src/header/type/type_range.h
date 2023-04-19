@@ -24,7 +24,7 @@ public:
 
   bool operator<(const Range &rhs) const { return this->first < rhs.first; }
   bool operator>(const Range &rhs) const { return rhs < *this; }
-  bool operator>=(const Range &rhs) const { return !(*this < rhs); }
+  bool operator>=(const Range &rhs) const { return !(rhs > *this); }
   bool operator<=(const Range &rhs) const { return !(rhs < *this); }
 
   Ty& begin() { return this->first; }

@@ -6,7 +6,7 @@
 #define THINKSYSTEM_SYSTEM_IO_H
 #include "../type/type_node.h"
 #include "system_manage.h"
-#include <format>
+
 #include <list>
 #include <map>
 

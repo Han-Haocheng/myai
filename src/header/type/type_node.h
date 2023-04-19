@@ -14,13 +14,28 @@
 
 namespace think {
 
-
 enum class NodeType : unsigned short {
   NULL_TYPE,
   STATIC,
   DYNAMIC,
   CONST_IN_VISION,
   CONST_OUT_VISION,
+};
+
+const static std::unordered_map<NodeType, std::string> MAP_CONST_TYPE_TO_STRING{
+        //        {NodeType::NULL_TYPE, "null_type"},
+        //        {NodeType::STATIC, "static"},
+        //        {NodeType::DYNAMIC, "dynamic"},
+        {NodeType::CONST_IN_VISION, "const_in_vision"},
+        {NodeType::CONST_OUT_VISION, "const_out_vision"},
+};
+
+const static std::unordered_map<std::string, NodeType> MAP_STRING_TO_NODE_TYPE{
+        //        {"null_type", NodeType::NULL_TYPE},
+        //        {"static", NodeType::STATIC},
+        //        {"dynamic", NodeType::DYNAMIC},
+        {"const_in_vision", NodeType::CONST_IN_VISION},
+        {"const_out_vision", NodeType::CONST_OUT_VISION},
 };
 
 //==========================================================================================//
@@ -36,9 +51,6 @@ struct LinkInfo {
 
 
 //==========================================================================================//
-
-constexpr static LinkInfo::link_type CONTROL_REMOVE_STANDARD = 1.0;
-//constexpr static double CONTROL_SAVE_WEIGHT                  = 1.0;
 
 
 class LinkList {
@@ -115,11 +127,19 @@ public:
   }
 };
 
-struct LinkListArray{
+struct LinkListArray {
+  NodeType m_node_type_;
   LinkList m_const_link_;
   LinkList m_static_link_;
   LinkList m_dynamic_link_;
-
+  explicit LinkListArray(NodeType type = NodeType::NULL_TYPE)
+      : m_node_type_(type), m_const_link_(), m_static_link_(), m_dynamic_link_() {}
+  LinkListArray(NodeType mNodeType, LinkList mConstLink, LinkList mStaticLink, LinkList mDynamicLink)
+      : m_node_type_(mNodeType),
+        m_const_link_(std::move(mConstLink)),
+        m_static_link_(std::move(mStaticLink)),
+        m_dynamic_link_(std::move(mDynamicLink)) {
+  }
   void saveDynamicData(double saveWeight) {
     m_dynamic_link_.proofread(saveWeight);
     m_static_link_.insert(m_dynamic_link_);
