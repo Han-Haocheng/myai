@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <BrowseInformation>true</BrowseInformation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,8 +135,19 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\header\data_manage.h" />
-    <ClInclude Include="src\header\data_type.h" />
+    <ClInclude Include="3_think_io.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\header\0_include.h" />
+    <ClInclude Include="src\header\0_range.h" />
+    <ClInclude Include="src\header\1_think_enum.h" />
+    <ClInclude Include="src\header\1_think_type.h" />
+    <ClInclude Include="src\header\2_think_idalloc.h" />
+    <ClInclude Include="src\header\3_think_manage.h" />
+    <ClInclude Include="src\header\4_think_core.h" />
+    <ClInclude Include="src\main.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Think.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

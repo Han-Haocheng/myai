@@ -20,11 +20,40 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\header\data_type.h">
+    <ClInclude Include="src\header\0_include.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\header\data_manage.h">
+    <ClInclude Include="src\header\0_range.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\header\1_think_enum.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\1_think_type.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\2_think_idalloc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\3_think_manage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="3_think_io.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\4_think_core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Think.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
