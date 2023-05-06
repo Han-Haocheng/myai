@@ -2,35 +2,32 @@
 // Created by HanHaocheng on 2023/04/17.
 //
 
-#ifndef THINKSYSTEM_2_THINK_IDALLOC_H
-#define THINKSYSTEM_2_THINK_IDALLOC_H
-#include "0_range.h"
-#include "1_think_type.h"
-
-
+#ifndef THINKSYSTEM_2_ID_ALLOCATOR_H
+#define THINKSYSTEM_2_ID_ALLOCATOR_H
+#include "0_think_type.h"
+#include "range.h"
 
 
 namespace think {
 
-
 class CNodeIDAllocator {
 private:
-  using __IdRange = Range<NODE_ID>;
-  std::forward_list<__IdRange> m_cListUnassignedIDs;
+  using IdRange = Range<NODE_ID>;
+  std::forward_list<IdRange> m_cListUnassignedIDs;
 
   constexpr static const char *STR_UNASSIGNED_PATH = "id_allocator.dat";
 
 public:
   explicit CNodeIDAllocator(size_t nodeCount) {
     if (fs::exists(STR_UNASSIGNED_PATH)) {
-      __getUnassignedId(STR_UNASSIGNED_PATH);
+      _getUnassignedId(STR_UNASSIGNED_PATH);
     } else {
       m_cListUnassignedIDs.emplace_front(NODE_ID{1}, NODE_ID{nodeCount});
     }
   }
 
   ~CNodeIDAllocator() {
-    __saveUnassignedId(STR_UNASSIGNED_PATH);
+    _saveUnassignedId(STR_UNASSIGNED_PATH);
   }
 
   /// 申请节点（时间复杂度O(1)）
@@ -71,7 +68,7 @@ public:
 
     //判断释放节点是否在最前面
     auto itBeg = m_cListUnassignedIDs.begin();
-    __IdRange installRange(in, in + 1);
+    IdRange installRange(in, in + 1);
     if (in < itBeg->begin()) {
       if (installRange.end() == itBeg->begin()) {
         --itBeg->begin();
@@ -127,26 +124,26 @@ public:
   }
 
 private:
-  void __getUnassignedId(const std::string &path) {
+  void _getUnassignedId(const std::string &path) {
     std::ifstream file;
-    __IdRange tmp;
+    IdRange tmp;
     file.open(path, std::ios::binary | std::ios::in);
     if (file.is_open()) {
-      while (file.read(reinterpret_cast<char *>(&tmp), sizeof(__IdRange))) {
+      while (file.read(reinterpret_cast<char *>(&tmp), sizeof(IdRange))) {
         m_cListUnassignedIDs.emplace_front(tmp);
       }
       file.close();
     }
   }
-  void __saveUnassignedId(const std::string &path) {
+  void _saveUnassignedId(const std::string &path) {
     std::ofstream file(path, std::ios::binary | std::ios::out);
     if (file.is_open()) {
       for (const auto &id: m_cListUnassignedIDs) {
-        file.write(reinterpret_cast<const char *>(&id), sizeof(__IdRange));
+        file.write(reinterpret_cast<const char *>(&id), sizeof(IdRange));
       }
       file.close();
     }
   }
 };//! class CNodeIDAllocator
 }// namespace think
-#endif//THINKSYSTEM_2_THINK_IDALLOC_H
+#endif//THINKSYSTEM_2_ID_ALLOCATOR_H

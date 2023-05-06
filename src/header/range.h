@@ -2,8 +2,8 @@
 // Created by HanHaocheng on 2023/04/10.
 //
 
-#ifndef THINKSYSTEM_0_RANGE_H
-#define THINKSYSTEM_0_RANGE_H
+#ifndef THINKSYSTEM_RANGE_H
+#define THINKSYSTEM_RANGE_H
 
 
 #include <algorithm>
@@ -66,4 +66,4 @@ public:
 };
 
 
-#endif//THINKSYSTEM_0_RANGE_H
+#endif//THINKSYSTEM_RANGE_H

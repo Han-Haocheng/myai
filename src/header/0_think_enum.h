@@ -2,9 +2,9 @@
 // Created by HanHaocheng on 2023/04/27.
 //
 
-#ifndef THINKSYSTEM_1_THINK_ENUM_H
-#define THINKSYSTEM_1_THINK_ENUM_H
-#include "0_include.h"
+#ifndef THINKSYSTEM_0_THINK_ENUM_H
+#define THINKSYSTEM_0_THINK_ENUM_H
+#include "include.h"
 
 namespace think {
 
@@ -32,4 +32,4 @@ const static std::unordered_map<CONSTTYPE, std::string> MAP_CONST_TYPE_TO_STRING
 
 }// namespace think
 
-#endif//THINKSYSTEM_1_THINK_ENUM_H
+#endif//THINKSYSTEM_0_THINK_ENUM_H

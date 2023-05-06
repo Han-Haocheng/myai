@@ -20,34 +20,43 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\header\0_include.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\0_range.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\1_think_enum.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\1_think_type.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\2_think_idalloc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\3_think_manage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\main.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="3_think_io.h">
+    <ClInclude Include="src\header\4_think_core.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\header\4_think_core.h">
+    <ClInclude Include="src\header\0_think_enum.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\0_think_type.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\1_link_list.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\1_node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\1_node_info.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\2_id_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\2_io_node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\3_io_manage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\include.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\header\range.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

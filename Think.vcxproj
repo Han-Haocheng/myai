@@ -135,15 +135,18 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="3_think_io.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\header\0_include.h" />
-    <ClInclude Include="src\header\0_range.h" />
-    <ClInclude Include="src\header\1_think_enum.h" />
-    <ClInclude Include="src\header\1_think_type.h" />
-    <ClInclude Include="src\header\2_think_idalloc.h" />
-    <ClInclude Include="src\header\3_think_manage.h" />
+    <ClInclude Include="src\header\0_think_enum.h" />
+    <ClInclude Include="src\header\0_think_type.h" />
+    <ClInclude Include="src\header\1_link_list.h" />
+    <ClInclude Include="src\header\1_node.h" />
+    <ClInclude Include="src\header\1_node_info.h" />
+    <ClInclude Include="src\header\2_id_allocator.h" />
+    <ClInclude Include="src\header\2_io_node.h" />
+    <ClInclude Include="src\header\3_io_manage.h" />
     <ClInclude Include="src\header\4_think_core.h" />
+    <ClInclude Include="src\header\include.h" />
+    <ClInclude Include="src\header\range.h" />
     <ClInclude Include="src\main.h" />
   </ItemGroup>
   <ItemGroup>
