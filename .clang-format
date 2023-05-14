@@ -1,5 +1,6 @@
 # Generated from CLion C/C++ Code Style settings
-BasedOnStyle: Microsoft
+Language: Cpp
+BasedOnStyle: Google
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments:
@@ -11,29 +12,33 @@ AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Always
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
+
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: Yes
 
 
 
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman
 BraceWrapping:
-  AfterCaseLabel: false
-  AfterClass: false
-  AfterControlStatement: Never
-  AfterEnum: false
-  AfterFunction: false
-  AfterNamespace: false
-  AfterUnion: false
-  BeforeCatch: false
-  BeforeElse: false
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: false
   IndentBraces: false
-  SplitEmptyFunction: false
+  IndentBraces: true
+  SplitEmptyFunction: true
   SplitEmptyRecord: true
 BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
@@ -50,8 +55,8 @@ IndentAccessModifiers: false
 IndentCaseBlocks: false
 
 
-KeepEmptyLinesAtTheStartOfBlocks: true
-MaxEmptyLinesToKeep: 2
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
 NamespaceIndentation: Inner
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
@@ -79,3 +84,6 @@ UseTab: Never
 
 
 FixNamespaceComments: true
+Cpp11BracedListStyle: true
+ConstructorInitializerIndentWidth: 0
+ColumnLimit: 120
