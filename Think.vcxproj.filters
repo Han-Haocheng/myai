@@ -13,53 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\bases">
-      <UniqueIdentifier>{da8c4634-4d8b-4b28-b29e-94243be48dcf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\inout">
-      <UniqueIdentifier>{232fae2b-f2b9-42c2-876a-2d572f41e186}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\header\inout\interface.h">
-      <Filter>头文件\inout</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\main.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\4_think_core.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\1_node_info.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\2_id_allocator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\2_io_node.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\3_io_manage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\include.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\0_think_type.h">
-      <Filter>头文件\bases</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\range.h">
-      <Filter>头文件\bases</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Think.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

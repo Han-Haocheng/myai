@@ -28,21 +28,15 @@ public:
 
 public:
   constexpr static const char *STR_CONST_ID_FOLDER = "./const_id/";
-  static InterferenceFactorTable interferenceFactorTable;//干扰系数表
-
-protected:
-  static std::unordered_map<node_id, std::shared_ptr<NodeInfo>> NodeBuffer;//节点缓存
-  static std::unordered_map<node_id, ActFunc> OutputAct;
-  static NodeIdAllocator IdAlloc;
-
-public:
-  static size_t getNodeBufferSize() { return NodeBuffer.size(); }
-
+  static InterferenceFactorTable interference;//干扰系数表
 protected:
   const ENodeType m_eIoType_;
   const const_node_info m_constNodeInfo_;
+
   std::vector<node_id> m_lstInputId_;
   std::vector<node_id> m_lstOutputId_;
+
+  std::shared_ptr<LinkList> m_lpListInputLink_;
 
   //TODO 需要定义一个天生条件反射类型，用于将输入直接转为相应输出
 
@@ -51,20 +45,11 @@ public:
   : m_eIoType_(nType),
     m_constNodeInfo_({inSize, outSize})
   {
-    if (!initConstId())
-    {
-      IdAlloc.allocate(m_lstInputId_, m_constNodeInfo_.in_size);
-      IdAlloc.allocate(m_lstOutputId_, m_constNodeInfo_.out_size);
-    }
   }
   virtual ~IOInterface() { saveConstId(); }
+  virtual const std::shared_ptr<LinkList> &inputActInfo()                    = 0;
+  virtual void loadActFunc(std::unordered_map<node_id, ActFunc> &OutputAct) = 0;
 
-  virtual void getInputList(LinkList &out) = 0;
-
-private:
-  virtual void loadActFunc() = 0;
-
-protected:
   bool saveConstId()
   {
     fs::path cIdPath = std::string(STR_CONST_ID_FOLDER) + ARRAY_TYPE_TO_STRING[(int) m_eIoType_];
@@ -88,31 +73,41 @@ protected:
     idFile.close();
   }
 
-private:
-  bool initConstId()
+  void initConstId(NodeIdAllocator &IdAlloc, std::unordered_map<node_id, std::shared_ptr<NodeInfo>> &NodeBuffer)
   {
     std::string csPath = std::string(STR_CONST_ID_FOLDER) + ARRAY_TYPE_TO_STRING[(int) m_eIoType_];
 
     std::ifstream csFile{STR_CONST_ID_FOLDER, std::ios::binary | std::ios::in};
     if (!csFile.is_open())
     {
-      if (!fs::exists(csPath)) std::cerr << "文件不存在，静态节点id文件读取时打开失败！" << std::endl;
+      if (!fs::exists(csPath))
+      {
+        std::cerr << "文件不存在，静态节点id文件读取时打开失败！" << std::endl;
+        IdAlloc.allocate(m_lstInputId_, m_constNodeInfo_.in_size);
+        IdAlloc.allocate(m_lstOutputId_, m_constNodeInfo_.out_size);
+        std::cerr << "节点已经分配。" << std::endl;
+      }
       else std::cerr << "产生未知错误，静态节点id文件读取时打开失败！" << std::endl;
-      return false;
+
+      return;
     }
 
     const_node_info fileHeader{};
     csFile.read(reinterpret_cast<char *>(&fileHeader), sizeof(const_node_info));
+    m_lpListInputLink_ = std::make_unique<LinkList>(fileHeader.in_size);
 
-    m_lstInputId_ = std::vector<node_id>(fileHeader.in_size);
+    m_lstInputId_      = std::vector<node_id>(fileHeader.in_size);
     csFile.read(reinterpret_cast<char *>(m_lstInputId_.data()),
                 static_cast<std::streamsize>(fileHeader.in_size * sizeof(node_id)));
+    for (auto &[id, val]: (*m_lpListInputLink_))
+    {
+      csFile.read(reinterpret_cast<char *>(&id), sizeof(node_id));
+      NodeBuffer.emplace(id, std::make_unique<NodeInfo>(id));
+    }
 
-    for (const node_id &id: m_lstInputId_) { NodeBuffer.emplace(id, std::make_unique<NodeInfo>(id)); }
     m_lstOutputId_ = std::vector<node_id>(fileHeader.out_size);
     csFile.read(reinterpret_cast<char *>(m_lstOutputId_.data()),
                 static_cast<std::streamsize>(fileHeader.out_size * sizeof(node_id)));
-    for (const node_id &id: m_lstOutputId_) { OutputAct.emplace(id, nullptr); }
     csFile.close();
   }
 

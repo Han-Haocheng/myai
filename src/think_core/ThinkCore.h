@@ -5,12 +5,10 @@
 #ifndef THINKSYSTEM_THINKCORE_H
 #define THINKSYSTEM_THINKCORE_H
 
+#include "inout/IOInterface.h"
 namespace think
 {
 
-class ThinkCore
-{
-};
 
 }// namespace think
 
