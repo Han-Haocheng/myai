@@ -125,7 +125,6 @@ constexpr const static char *ARRAY_TYPE_TO_STRING[]{
 #pragma pack(push, 2)
 struct link_t
 {
-
   node_id id             = NUM_NODE_ID_MIN;
   link_val linkVal       = NUM_LINK_VAL_MIN;
   link_t()               = default;
@@ -153,3 +152,6 @@ struct LinkHash
 }// namespace think
 
 #endif//THINKSYSTEM_THINKTYPE_H
+
+
+

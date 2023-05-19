@@ -15,31 +15,30 @@ public:
   const static unsigned int NUM_INPUT = 4, NUM_OUTPUT = 4;
   constexpr const static IO_INFO MEMORY_INFO = IO_INFO{12, 12};
 
-  IOMemory() : IOInterface(ENodeType::CONST_MEMORY) {}
+  IOMemory() : IOInterface(ENodeType::CONST_MEMORY, 4, 4) {}
   ~IOMemory() final { this->saveConstId(); }
   void setActStaticNode(LinkList &stLinks) {}
   void setActDynamicNode(LinkList &dyLinks) {}
 
-  void getInputList(LinkList &out) final
+  const std::shared_ptr<LinkList> &inputActInfo() final
   {
-    // TODO 需要定义思维的直接感知，例如对于喜怒哀惧等情绪的感知
-    out.emplace_back(m_lstInputId_[0], static_cast<link_val>(interferenceFactorTable.emotionActive * NUM_LINK_VAL_MAX));
+    m_lpListInputLink_->emplace_back(m_lstInputId_[0], static_cast<link_val>(interference.emotionActive * NUM_LINK_VAL_MAX));
   }
 
-  void loadActFunc() final
+  void loadActFunc(std::unordered_map<node_id, ActFunc> &OutputAct) final
   {
     OutputAct.emplace(m_lstOutputId_[0],
                       [](active_t actVal) -> void
-                      { interferenceFactorTable.emotionActive += actVal / (NUM_LINK_VAL_MAX + 1); });
+                      { interference.emotionActive += actVal / (NUM_LINK_VAL_MAX + 1); });
     OutputAct.emplace(m_lstOutputId_[1],
                       [](active_t actVal) -> void
-                      { interferenceFactorTable.emotionActive -= actVal / (NUM_LINK_VAL_MAX + 1); });
+                      { interference.emotionActive -= actVal / (NUM_LINK_VAL_MAX + 1); });
     OutputAct.emplace(m_lstOutputId_[2],
                       [](active_t actVal) -> void
-                      { interferenceFactorTable.mentalConcentration += actVal / (NUM_LINK_VAL_MAX + 1); });
+                      { interference.mentalConcentration += actVal / (NUM_LINK_VAL_MAX + 1); });
     OutputAct.emplace(m_lstOutputId_[3],
                       [](active_t actVal) -> void
-                      { interferenceFactorTable.mentalConcentration -= actVal / (NUM_LINK_VAL_MAX + 1); });
+                      { interference.mentalConcentration -= actVal / (NUM_LINK_VAL_MAX + 1); });
   }
 
 private:

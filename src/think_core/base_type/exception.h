@@ -15,7 +15,7 @@ class think_error : public std::exception
   std::error_code m_ec_;
 
 public:
-  think_error(std::string what, std::error_code ec) : m_what_(std::move(what)), m_ec_(ec) {}
+  think_error(std::string what, std::error_code ec = std::error_code()) : m_what_(std::move(what)), m_ec_(ec) {}
   [[nodiscard]] const char *what() const noexcept final { return m_what_.c_str(); }
   std::error_code error_code() { return m_ec_; }
 };
