@@ -22,9 +22,9 @@ private:
   };
   enum node_state : unsigned int
   {
-    IS_INITIALIZED = 0b0001,//æ˜¯åˆå§‹åŒ–çš„
-    IS_STABLE      = 0b0010,//æ˜¯ç¨³å®šçš„
-    IS_DUPLICATED  = 0b0100,//æ˜¯å»é‡çš„
+    IS_INITIALIZED = 0b0001,//ÊÇ³õÊ¼»¯µÄ
+    IS_STABLE      = 0b0010,//ÊÇÎÈ¶¨µÄ
+    IS_DUPLICATED  = 0b0100,//ÊÇÈ¥ÖØµÄ
   };
 
 private:
@@ -44,20 +44,22 @@ public:
 
   void clear();
 
-  //ç¨³å®šé“¾æ¥
+  void emplace(LinkList&other) { return; }
+
+  //ÎÈ¶¨Á´½Ó
   void stableLink(const WEIGHT<link_val> &dySaveWeight);
 
-  //å‰Šå‡é“¾æ¥
+  //Ï÷¼õÁ´½Ó
   void reduceLink(link_val stand);
 
-  /// ä»æ–‡ä»¶ä¸­åˆå§‹åŒ–èŠ‚ç‚¹ä¿¡æ¯
-  /// \param id ä½¿ç”¨çš„åˆå§‹åŒ–id
-  /// \return è¿”å›æ˜¯å¦åˆå§‹åŒ–æˆåŠŸ
+  /// ´ÓÎÄ¼şÖĞ³õÊ¼»¯½ÚµãĞÅÏ¢
+  /// \param id Ê¹ÓÃµÄ³õÊ¼»¯id
+  /// \return ·µ»ØÊÇ·ñ³õÊ¼»¯³É¹¦
   bool initNodeInfo(node_id id) noexcept(false);
 
-  /// å°†ä¿¡æ¯ä¿å­˜å…¥æ–‡ä»¶
-  /// \param id è¦ä¿å­˜çš„èŠ‚ç‚¹id
-  /// \return æ˜¯å¦ä¿å­˜æˆåŠŸ
+  /// ½«ĞÅÏ¢±£´æÈëÎÄ¼ş
+  /// \param id Òª±£´æµÄ½Úµãid
+  /// \return ÊÇ·ñ±£´æ³É¹¦
   bool writeNodeInfo(node_id id);
 
 };// class NodeInfo
@@ -67,7 +69,7 @@ using UP_NODE_INFO = std::unique_ptr<NodeInfo>;
 using SP_NODE_INFO = std::shared_ptr<NodeInfo>;
 using WPLINKGROUP  = std::weak_ptr<NodeInfo>;
 
-using node_type    = std::pair<const node_id, std::shared_ptr<NodeInfo>>;//èŠ‚ç‚¹
+using node_type    = std::pair<const node_id, std::shared_ptr<NodeInfo>>;//½Úµã
 using node_list    = std::vector<node_type>;
 
 NodeInfo::NodeInfo(ENodeType nodetype, LinkList ctLks, LinkList scLks, LinkList dyLks)
@@ -89,7 +91,7 @@ bool NodeInfo::writeNodeInfo(node_id id)
   std::ofstream file{path + STR_NODE_FILE_NAME, std::ios ::binary | std::ios ::out};
   if (!file.is_open())
   {
-    throw think_error{"å†™å…¥èŠ‚ç‚¹ä¿¡æ¯é”™è¯¯ï¼Œé”™è¯¯åŸå› æœªçŸ¥ï¼Œæ–‡ä»¶æ‰“å¼€å¤±è´¥",
+    throw think_error{"Ğ´Èë½ÚµãĞÅÏ¢´íÎó£¬´íÎóÔ­ÒòÎ´Öª£¬ÎÄ¼ş´ò¿ªÊ§°Ü",
                       std::make_error_code(std::errc::no_such_file_or_directory)};
   }
 
@@ -110,19 +112,12 @@ bool NodeInfo::initNodeInfo(node_id id) noexcept(false)
 {
   if (m_state_ & IS_INITIALIZED) { return false; }
   std::string path = GetNodeParentPath(id) + STR_NODE_FILE_NAME;
+  if (!fs::exists(path)) return false;
+
   std::ifstream file{path, std::ios ::binary | std::ios ::in};
   if (!file.is_open())
-  {
-    if (!fs::exists(path))
-    {
-      throw think_error("åˆå§‹åŒ–èŠ‚ç‚¹ä¿¡æ¯é”™è¯¯ï¼Œæ–‡ä»¶ä¸å­˜åœ¨", std::make_error_code(std::errc::no_such_file_or_directory));
-    }
-    else
-    {
-      throw think_error{"åˆå§‹åŒ–èŠ‚ç‚¹ä¿¡æ¯é”™è¯¯ï¼Œé”™è¯¯åŸå› æœªçŸ¥ï¼Œæ–‡ä»¶æ‰“å¼€å¤±è´¥",
-                        std::make_error_code(std::errc::no_such_file_or_directory)};
-    }
-  }
+    throw think_error{"³õÊ¼»¯½ÚµãĞÅÏ¢´íÎó£¬´íÎóÔ­ÒòÎ´Öª£¬ÎÄ¼ş´ò¿ªÊ§°Ü",
+                      std::make_error_code(std::errc::no_such_file_or_directory)};
   ConstFileInfo tmpInfo{};
   file.read(reinterpret_cast<char *>(&tmpInfo), sizeof(ConstFileInfo));
   m_lsConstLink.resize(tmpInfo.const_count);
@@ -170,7 +165,12 @@ void NodeInfo::clear()
   m_lsDynamicLink.clear();
   m_state_ &= ~IS_INITIALIZED;
 }
-NodeInfo::NodeInfo(node_id id) { initNodeInfo(id); }
+NodeInfo::NodeInfo(node_id id)
+{
+  if (!initNodeInfo(id)) {
+
+  }
+}
 
 }// namespace think
 

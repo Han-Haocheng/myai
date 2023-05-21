@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <utility>
 
-/// åŒºé—´ï¼Œè¡¨ç¤ºæ–¹æ³•[begin,end)
+/// Çø¼ä£¬±íÊ¾·½·¨[begin,end)
 template<typename Ty>
 class Range
 {
@@ -33,22 +33,22 @@ public:
   reference begin() { return m_begin_; }
   reference end() { return m_end_; }
 
-  // åˆ¤æ–­åŒºé—´æ˜¯å¦ä¸ºç©º
+  // ÅÐ¶ÏÇø¼äÊÇ·ñÎª¿Õ
   [[nodiscard]] bool is_empty() const { return this->m_begin_ == this->m_end_; }
 
-  // èŽ·å–åŒºé—´é•¿åº¦
+  // »ñÈ¡Çø¼ä³¤¶È
   [[nodiscard]] size_type length() const { return this->m_end_ - this->m_begin_; }
 
-  // åˆ¤æ–­ä¸€ä¸ªå€¼æ˜¯å¦åœ¨åŒºé—´å†…
+  // ÅÐ¶ÏÒ»¸öÖµÊÇ·ñÔÚÇø¼äÄÚ
   [[nodiscard]] bool contains(const_reference value) const { return value >= this->m_begin_ && value < this->m_end_; }
 
-  // åˆ¤æ–­ä¸¤ä¸ªåŒºé—´æ˜¯å¦ç›¸äº¤
+  // ÅÐ¶ÏÁ½¸öÇø¼äÊÇ·ñÏà½»
   [[nodiscard]] bool intersects(const Range &other) const
   {
     return this->m_begin_ < other.m_end_ && other.m_begin_ < this->m_end_;
   }
 
-  // è®¡ç®—ä¸¤ä¸ªåŒºé—´çš„äº¤é›†
+  // ¼ÆËãÁ½¸öÇø¼äµÄ½»¼¯
   [[nodiscard]] Range intersection(const Range &other) const
   {
     int start = std::max(this->m_begin_, other.m_begin_);
@@ -56,7 +56,7 @@ public:
     return {start, end};
   }
 
-  // è®¡ç®—ä¸¤ä¸ªåŒºé—´çš„å¹¶é›†
+  // ¼ÆËãÁ½¸öÇø¼äµÄ²¢¼¯
   [[nodiscard]] Range merge(const Range &other) const
   {
     int start = std::min(this->m_begin_, other.m_begin_);

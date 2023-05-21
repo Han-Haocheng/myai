@@ -20,25 +20,32 @@ public:
   void setActStaticNode(LinkList &stLinks) {}
   void setActDynamicNode(LinkList &dyLinks) {}
 
-  const std::shared_ptr<LinkList> &inputActInfo() final
+  const std::unique_ptr<LinkList> &inputActInfo() final
   {
-    m_lpListInputLink_->emplace_back(m_lstInputId_[0], static_cast<link_val>(interference.emotionActive * NUM_LINK_VAL_MAX));
+    m_lpListInputLink_ = std::make_unique<LinkList>();
+    m_lpListInputLink_->emplace_back(m_lstInputId_[0],
+                                     static_cast<link_val>(interference.emotionActive * NUM_LINK_VAL_MAX));
+    return this->m_lpListInputLink_;
   }
 
   void loadActFunc(std::unordered_map<node_id, ActFunc> &OutputAct) final
   {
     OutputAct.emplace(m_lstOutputId_[0],
-                      [](active_t actVal) -> void
-                      { interference.emotionActive += actVal / (NUM_LINK_VAL_MAX + 1); });
+                      [](active_t actVal) -> void {
+                        interference.emotionActive += actVal / (static_cast<unsigned long long>(NUM_LINK_VAL_MAX) + 1);
+                      });
     OutputAct.emplace(m_lstOutputId_[1],
-                      [](active_t actVal) -> void
-                      { interference.emotionActive -= actVal / (NUM_LINK_VAL_MAX + 1); });
-    OutputAct.emplace(m_lstOutputId_[2],
-                      [](active_t actVal) -> void
-                      { interference.mentalConcentration += actVal / (NUM_LINK_VAL_MAX + 1); });
-    OutputAct.emplace(m_lstOutputId_[3],
-                      [](active_t actVal) -> void
-                      { interference.mentalConcentration -= actVal / (NUM_LINK_VAL_MAX + 1); });
+                      [](active_t actVal) -> void {
+                        interference.emotionActive -= actVal / (static_cast<unsigned long long>(NUM_LINK_VAL_MAX) + 1);
+                      });
+    OutputAct.emplace(
+            m_lstOutputId_[2],
+            [](active_t actVal) -> void
+            { interference.mentalConcentration += actVal / (static_cast<unsigned long long>(NUM_LINK_VAL_MAX) + 1); });
+    OutputAct.emplace(
+            m_lstOutputId_[3],
+            [](active_t actVal) -> void
+            { interference.mentalConcentration -= actVal / (static_cast<unsigned long long>(NUM_LINK_VAL_MAX) + 1); });
   }
 
 private:

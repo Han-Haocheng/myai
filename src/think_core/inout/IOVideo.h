@@ -12,10 +12,10 @@ namespace think::io
 class IOVideo final : public IOInterface
 {
 public:
-  IOVideo() : IOInterface(ENodeType::CONST_VIDEO, (2048 * 2048 * 4), 6) {}
+  IOVideo() : IOInterface(ENodeType::CONST_VIDEO, (/*2048 * 2048 **/ 4), 6) {}
   ~IOVideo() final = default;
 
-  const std::shared_ptr<LinkList>& inputActInfo() final {}
+  const std::unique_ptr<LinkList>& inputActInfo() final { return this->m_lpListInputLink_; }
 
 
   void loadActFunc(std::unordered_map<node_id, ActFunc>& OutputAct) final {}

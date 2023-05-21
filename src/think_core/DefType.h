@@ -49,7 +49,7 @@ class WEIGHT
 public:
   using weight_type = double;
   using other_type  = OtherType;
-  static_assert(std::is_arithmetic_v<OtherType>, "æƒé‡ç±»å‹åªèƒ½å’ŒåŸºæœ¬æ•°æ®ç±»å‹è¿›è¡Œè®¡ç®—");
+  static_assert(std::is_arithmetic_v<OtherType>, "È¨ÖØÀàĞÍÖ»ÄÜºÍ»ù±¾Êı¾İÀàĞÍ½øĞĞ¼ÆËã");
 
   constexpr WEIGHT() = default;
   constexpr WEIGHT(weight_type val) : m_val_(val) {}
@@ -112,10 +112,10 @@ enum class ENodeType
   STATIC_TYPE,
   CONST_TYPE,
 
-  CONST_MEMORY,//æ€ç»´çš„æ„ŸçŸ¥
-  CONST_VIDEO, //å›¾åƒçš„æ„ŸçŸ¥
-  CONST_AUDIO, //å£°éŸ³çš„æ„ŸçŸ¥
-  CONST_ACTION,//è¡Œä¸ºçš„æ„ŸçŸ¥
+  CONST_MEMORY,//Ë¼Î¬µÄ¸ĞÖª
+  CONST_VIDEO, //Í¼ÏñµÄ¸ĞÖª
+  CONST_AUDIO, //ÉùÒôµÄ¸ĞÖª
+  CONST_ACTION,//ĞĞÎªµÄ¸ĞÖª
 };
 
 constexpr const static char *ARRAY_TYPE_TO_STRING[]{

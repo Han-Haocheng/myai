@@ -10,7 +10,7 @@
 namespace think
 {
 
-///\brief èŠ‚ç‚¹idåˆ†é…å™¨
+///\brief ½Úµãid·ÖÅäÆ÷
 class NodeIdAllocator
 {
 private:
@@ -24,20 +24,20 @@ public:
 
   ~NodeIdAllocator();
 
-  /// ç”³è¯·èŠ‚ç‚¹ï¼ˆæ—¶é—´å¤æ‚åº¦O(1)ï¼‰
+  /// ÉêÇë½Úµã£¨Ê±¼ä¸´ÔÓ¶ÈO(1)£©
   /// \param out
   node_id allocate();
 
-  /// ç”³è¯·èŠ‚ç‚¹ï¼ˆæ—¶é—´å¤æ‚åº¦O(n)ï¼‰
+  /// ÉêÇë½Úµã£¨Ê±¼ä¸´ÔÓ¶ÈO(n)£©
   /// \param out
   /// \param count
   void allocate(std::vector<node_id> &out, size_t count);
 
-  /// é‡Šæ”¾èŠ‚ç‚¹idï¼ˆæ—¶é—´å¤æ‚åº¦ O(n)ï¼‰
+  /// ÊÍ·Å½Úµãid£¨Ê±¼ä¸´ÔÓ¶È O(n)£©
   /// \param in
   void release(const node_id &in);
 
-  /// é‡Šæ”¾èŠ‚ç‚¹ï¼ˆæ—¶é—´å¤æ‚åº¦ O(n^2)ï¼‰
+  /// ÊÍ·Å½Úµã£¨Ê±¼ä¸´ÔÓ¶È O(n^2)£©
   /// \param in
   void release(const std::vector<node_id> &in);
 
@@ -46,17 +46,8 @@ private:
   void _saveUnassignedId(const std::string &path);
 };// class NodeIdAllocator
 
-
-
-
-
-
-
-
-
 NodeIdAllocator::NodeIdAllocator(size_t nodeCount)
 {
-
   if (fs::exists(STR_UNASSIGNED_PATH)) { _getUnassignedId(STR_UNASSIGNED_PATH); }
   else { m_cListUnassignedIDs.emplace_front(node_id{1}, node_id{nodeCount}); }
 }
@@ -67,25 +58,29 @@ node_id NodeIdAllocator::allocate()
   if (m_cListUnassignedIDs.front().is_empty()) { m_cListUnassignedIDs.pop_front(); }
   return out;
 }
+
 void NodeIdAllocator::allocate(std::vector<node_id> &out, size_t count)
 {
-  if (!out.empty()) { out.clear(); }
+  if (count == 0) { return; }
   out.reserve(count);
-  auto itBeg = m_cListUnassignedIDs.before_begin();
-  while (itBeg != m_cListUnassignedIDs.end())
+  auto beg = m_cListUnassignedIDs.begin(), bfBeg = m_cListUnassignedIDs.before_begin();
+  size_t i = 0;
+  while (beg != m_cListUnassignedIDs.end())
   {
-    do {
-      out.emplace_back(itBeg->begin()++);
-      --count;
-      if (count == 0) { return; }
-    } while (itBeg->begin() != itBeg->end());
-    m_cListUnassignedIDs.erase_after(itBeg++);
+    for (; beg->begin() < beg->end(); ++beg->begin())
+    {
+      out.emplace_back(beg->begin()++);
+      if (--count == 0) { return; }
+    }
+    m_cListUnassignedIDs.erase_after(bfBeg);
+    beg = ++bfBeg;
   }
-  throw std::overflow_error("Error:ç©ºé—²èŠ‚ç‚¹æ•°é‡ä¸ºç©ºï¼Œè¯·æ‰©å……èŠ‚ç‚¹ï¼");
+  throw std::overflow_error("Error:¿ÕÏĞ½ÚµãÊıÁ¿Îª¿Õ£¬ÇëÀ©³ä½Úµã£¡");
 }
+
 void NodeIdAllocator::release(const node_id &in)
 {
-  //åˆ¤æ–­é‡Šæ”¾èŠ‚ç‚¹æ˜¯å¦åœ¨æœ€å‰é¢
+  //ÅĞ¶ÏÊÍ·Å½ÚµãÊÇ·ñÔÚ×îÇ°Ãæ
   auto itBeg = m_cListUnassignedIDs.begin();
   IdRange installRange(in, in + 1);
   if (in < itBeg->begin())
@@ -97,16 +92,16 @@ void NodeIdAllocator::release(const node_id &in)
   {
     auto itBfBeg = m_cListUnassignedIDs.before_begin();
 
-    //æŸ¥æ‰¾ç¬¬ä¸€ä¸ªbegin_å¤§äºinçš„ä½ç½®
+    //²éÕÒµÚÒ»¸öbegin_´óÓÚinµÄÎ»ÖÃ
     for (; itBeg != m_cListUnassignedIDs.end(); ++itBeg, ++itBfBeg)
     {
       if (itBeg->begin() > in)
       {
-        //inåœ¨ä¸Šä¸€ä¸ªèŒƒå›´ä¸­
-        ////æŠ›å‡ºå¼‚å¸¸
-        //inåœ¨ä¸Šä¸€ä¸ªèŒƒå›´ç»“æŸå’Œè¿™ä¸ªèŒƒå›´èµ·å§‹çš„ä½ç½®
+        //inÔÚÉÏÒ»¸ö·¶Î§ÖĞ
+        ////Å×³öÒì³£
+        //inÔÚÉÏÒ»¸ö·¶Î§½áÊøºÍÕâ¸ö·¶Î§ÆğÊ¼µÄÎ»ÖÃ
         ////
-        if (itBfBeg->contains(in)) { throw std::runtime_error("Error:èŠ‚ç‚¹é‡Šæ”¾å¼‚å¸¸ï¼Œ"); }
+        if (itBfBeg->contains(in)) { throw std::runtime_error("Error:½ÚµãÊÍ·ÅÒì³££¬"); }
         if (itBfBeg->end() == installRange.begin())
         {
           if (installRange.end() == itBeg->begin())
@@ -121,7 +116,7 @@ void NodeIdAllocator::release(const node_id &in)
       }
     }
 
-    //å‡å¦‚é‡Šæ”¾ä½ç½®æœªæ‰¾åˆ°ï¼Œè¯´æ˜é‡Šæ”¾ä½ç½®ä¸ºæœ€åä¸€ä¸ªèŒƒå›´å
+    //¼ÙÈçÊÍ·ÅÎ»ÖÃÎ´ÕÒµ½£¬ËµÃ÷ÊÍ·ÅÎ»ÖÃÎª×îºóÒ»¸ö·¶Î§ºó
     if (itBfBeg->end() == in) { ++itBfBeg->end(); }
     else { m_cListUnassignedIDs.insert_after(itBfBeg, {in, in + 1}); }
   }

@@ -1,0 +1,5 @@
+"E:\Programming\CLion 2022.2.3\bin\cmake\win\x64\bin\cmake.exe" -G "Visual Studio 17 2022" -DCMAKE_CXX_FLAGS:STRING=-std=c++17 -S "D:\Users\HanHaocheng\Documents\Program Projects\c++\Auto\Think" -B "D:\Users\HanHaocheng\Documents\Program Projects\c++\Auto\Think\cmake-build-debug-visual-studio"
+-- Selecting Windows SDK version 10.0.22000.0 to target Windows 10.0.22621.
+-- Configuring done
+-- Generating done
+-- Build files have been written to: D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/cmake-build-debug-visual-studio

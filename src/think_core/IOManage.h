@@ -13,7 +13,7 @@
 namespace think
 {
 
-/// \b å¤šè¾“å…¥è¾“å‡º æ„ŸçŸ¥-å•èŠ‚ç‚¹-å¤šèŠ‚ç‚¹-è¡Œä¸º åŒå±‚èŠ‚ç‚¹æ¶æ„
+/// \b ¶àÊäÈëÊä³ö ¸ĞÖª-µ¥½Úµã-¶à½Úµã-ĞĞÎª Ë«²ã½Úµã¼Ü¹¹
 class IOManage
 {
 private:
@@ -41,7 +41,7 @@ private:
   std::unordered_map<node_id, ActFunc> m_mapAction_;
   std::vector<std::shared_ptr<io::IOInterface>> m_lstIOS_;
 
-  std::unordered_map<node_id, std::shared_ptr<NodeInfo>> m_nodeBuffer_;//èŠ‚ç‚¹ç¼“å­˜
+  std::unordered_map<node_id, std::shared_ptr<NodeInfo>> m_nodeBuffer_;//½Úµã»º´æ
 
   LinkList m_actedDynamic_;
   LinkList m_actedStatic_;
@@ -63,6 +63,7 @@ public:
     m_lstIOS_.emplace_back(std::make_unique<io::IOVideo>());
     m_lstIOS_.emplace_back(std::make_unique<io::IOAudio>());
     m_lstIOS_.emplace_back(std::make_unique<io::IOAction>());
+    int i = 0;
     for (const auto &item: m_lstIOS_)
     {
       item->initConstId(m_idAlloca, m_nodeBuffer_);
@@ -72,8 +73,9 @@ public:
 
   size_t runLoop()
   {
-    std::unordered_map<node_id, ActNodeInfo> m_mapActiveNode;//æ¿€æ´»èŠ‚ç‚¹ç¼“å­˜
-    auto loadLink = [&](const link_t &lk) -> void
+    std::unordered_map<node_id, ActNodeInfo> m_mapActiveNode;//¼¤»î½Úµã»º´æ
+
+    auto loadLink = [&,this](const link_t &lk) -> void
     {
       auto findRes = m_mapActiveNode.find(lk.id);
       if (findRes != m_mapActiveNode.end()) { findRes->second.actVal += lk.linkVal; }
@@ -91,16 +93,23 @@ public:
         }
       }
     };
+
     node_type firstNode = {m_idAlloca.allocate(), std::make_unique<NodeInfo>()};
-
     m_nodeBuffer_.emplace(firstNode);
-
     for (const auto &item: m_lstIOS_)
-      for (const link_t &lk: (*item->inputActInfo())) loadLink(lk);
+    {
+      for (const link_t &lk: (*item->inputActInfo())) { 
+        loadLink(lk); 
+      }
+    }
+
     for (const link_t &lk: m_actedStatic_) loadLink(lk);
+
     for (const link_t &lk: m_actedDynamic_) loadLink(lk);
-    firstNode.second->m_lsConstLink   = std::move(m_actedConst_);
-    firstNode.second->m_lsStaticLink  = std::move(m_actedStatic_);
+    firstNode.second->m_lsConstLink = std::move(m_actedConst_);
+
+    firstNode.second->m_lsStaticLink = std::move(m_actedStatic_);
+
     firstNode.second->m_lsDynamicLink = std::move(m_actedDynamic_);
 
     for (const auto &[id, info]: m_mapActiveNode)
@@ -110,7 +119,6 @@ public:
                io::IOInterface::interference.mentalConcentration * m_focusStand_,
                io::IOInterface::interference.emotionActive);
     }
-
     return m_mapActiveNode.size();
   }
 

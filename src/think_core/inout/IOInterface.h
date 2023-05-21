@@ -17,8 +17,8 @@ class IOInterface
 public:
   struct InterferenceFactorTable
   {
-    WEIGHT<link_val> emotionActive       = 1.0;//æƒ…ç»ªæ´»è·ƒæƒé‡
-    WEIGHT<link_val> mentalConcentration = 1.0;//ç²¾ç¥é›†ä¸­æƒé‡
+    WEIGHT<link_val> emotionActive       = 1.0;//ÇéĞ÷»îÔ¾È¨ÖØ
+    WEIGHT<link_val> mentalConcentration = 1.0;//¾«Éñ¼¯ÖĞÈ¨ÖØ
   };
   struct const_node_info
   {
@@ -28,7 +28,7 @@ public:
 
 public:
   constexpr static const char *STR_CONST_ID_FOLDER = "./const_id/";
-  static InterferenceFactorTable interference;//å¹²æ‰°ç³»æ•°è¡¨
+  static InterferenceFactorTable interference;//¸ÉÈÅÏµÊı±í
 protected:
   const ENodeType m_eIoType_;
   const const_node_info m_constNodeInfo_;
@@ -36,9 +36,9 @@ protected:
   std::vector<node_id> m_lstInputId_;
   std::vector<node_id> m_lstOutputId_;
 
-  std::shared_ptr<LinkList> m_lpListInputLink_;
+  std::unique_ptr<LinkList> m_lpListInputLink_;
 
-  //TODO éœ€è¦å®šä¹‰ä¸€ä¸ªå¤©ç”Ÿæ¡ä»¶åå°„ç±»å‹ï¼Œç”¨äºå°†è¾“å…¥ç›´æ¥è½¬ä¸ºç›¸åº”è¾“å‡º
+  //TODO ĞèÒª¶¨ÒåÒ»¸öÌìÉúÌõ¼ş·´ÉäÀàĞÍ£¬ÓÃÓÚ½«ÊäÈëÖ±½Ó×ªÎªÏàÓ¦Êä³ö
 
 public:
   explicit IOInterface(ENodeType nType, size_t inSize, size_t outSize)
@@ -47,7 +47,7 @@ public:
   {
   }
   virtual ~IOInterface() { saveConstId(); }
-  virtual const std::shared_ptr<LinkList> &inputActInfo()                    = 0;
+  virtual const std::unique_ptr<LinkList> &inputActInfo()                   = 0;
   virtual void loadActFunc(std::unordered_map<node_id, ActFunc> &OutputAct) = 0;
 
   bool saveConstId()
@@ -58,7 +58,7 @@ public:
 
     if (!idFile.is_open())
     {
-      std::cerr << "äº§ç”ŸæœªçŸ¥é”™è¯¯ï¼Œé™æ€èŠ‚ç‚¹idæ–‡ä»¶å†™å…¥æ—¶æ‰“å¼€å¤±è´¥ï¼" << std::endl;
+      std::cerr << "²úÉúÎ´Öª´íÎó£¬¾²Ì¬½ÚµãidÎÄ¼şĞ´ÈëÊ±´ò¿ªÊ§°Ü£¡" << std::endl;
       return false;
     }
     const_node_info fileHeader{m_lstInputId_.size(), m_lstOutputId_.size()};
@@ -82,12 +82,13 @@ public:
     {
       if (!fs::exists(csPath))
       {
-        std::cerr << "æ–‡ä»¶ä¸å­˜åœ¨ï¼Œé™æ€èŠ‚ç‚¹idæ–‡ä»¶è¯»å–æ—¶æ‰“å¼€å¤±è´¥ï¼" << std::endl;
+        std::cerr << "ÎÄ¼ş²»´æÔÚ£¬¾²Ì¬½ÚµãidÎÄ¼ş¶ÁÈ¡Ê±´ò¿ªÊ§°Ü£¡" << std::endl;
         IdAlloc.allocate(m_lstInputId_, m_constNodeInfo_.in_size);
         IdAlloc.allocate(m_lstOutputId_, m_constNodeInfo_.out_size);
-        std::cerr << "èŠ‚ç‚¹å·²ç»åˆ†é…ã€‚" << std::endl;
+        std::cerr << "½ÚµãÒÑ¾­·ÖÅä¡£" << std::endl;
+        return ;
       }
-      else std::cerr << "äº§ç”ŸæœªçŸ¥é”™è¯¯ï¼Œé™æ€èŠ‚ç‚¹idæ–‡ä»¶è¯»å–æ—¶æ‰“å¼€å¤±è´¥ï¼" << std::endl;
+      else std::cerr << "²úÉúÎ´Öª´íÎó£¬¾²Ì¬½ÚµãidÎÄ¼ş¶ÁÈ¡Ê±´ò¿ªÊ§°Ü£¡" << std::endl;
 
       return;
     }
@@ -112,6 +113,8 @@ public:
   }
 
 };//class IOInterface
+
+IOInterface::InterferenceFactorTable IOInterface::interference = {};
 
 }// namespace think::io
 #endif// THINKSYSTEM_IOINTERFACE_H

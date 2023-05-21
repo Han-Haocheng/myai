@@ -1,4 +1,4 @@
-ï»¿//#include <windows.h>
+//#include <windows.h>
 //#include <dwmapi.h>
 //#include <gdiplus.h>
 //#include <strsafe.h>
@@ -139,17 +139,17 @@
 //  return 0;
 //}
 //
-////1. å±å¹•çš„hwndä¸ºNULL,è¿™æ—¶æˆªå›¾çš„åŒºåŸŸç”±rectæŒ‡å®š
-////2. çª—å£çš„hwndä¸ä¸ºç©º,è¿™æ—¶å¯ä»¥æ ¹æ®APIè·å–çª—å£çš„å¤§å°
-//// ä¸ºäº†å°†å±å¹•å’Œçª—å£è¿›è¡Œç»Ÿä¸€,å› æ­¤ä½¿ç”¨äº†ç»“æ„ä½“
+////1. ÆÁÄ»µÄhwndÎªNULL,ÕâÊ±½ØÍ¼µÄÇøÓòÓÉrectÖ¸¶¨
+////2. ´°¿ÚµÄhwnd²»Îª¿Õ,ÕâÊ±¿ÉÒÔ¸ù¾İAPI»ñÈ¡´°¿ÚµÄ´óĞ¡
+//// ÎªÁË½«ÆÁÄ»ºÍ´°¿Ú½øĞĞÍ³Ò»,Òò´ËÊ¹ÓÃÁË½á¹¹Ìå
 //struct WindowInfo
 //{
-//  HWND hwnd;             /* ä¸ºç©ºè¡¨ç¤ºå±å¹•æˆªå›¾ */
-//  std::string desc;      // çª—å£æ ‡é¢˜
-//  RECT rect{0, 0, 0, 0}; /* hwndä¸ä¸ºç©ºæ—¶,æ­¤å‚æ•°æ— æ•ˆ */
+//  HWND hwnd;             /* Îª¿Õ±íÊ¾ÆÁÄ»½ØÍ¼ */
+//  std::string desc;      // ´°¿Ú±êÌâ
+//  RECT rect{0, 0, 0, 0}; /* hwnd²»Îª¿ÕÊ±,´Ë²ÎÊıÎŞĞ§ */
 //};
 //
-//// åˆ¤æ–­å½“å‰é¼ æ ‡æŒ‡å‘å“ªä¸ªçª—å£
+//// ÅĞ¶Ïµ±Ç°Êó±êÖ¸ÏòÄÄ¸ö´°¿Ú
 //HWND GetCurPointedWindow()
 //{
 //  POINT point;
@@ -169,38 +169,38 @@
 //
 //  static bool EnumMonitor(EnumCallback callback)
 //  {
-//    // è°ƒç”¨Win32Apiè¿›è¡Œæ˜¾ç¤ºå™¨éå†
+//    // µ÷ÓÃWin32Api½øĞĞÏÔÊ¾Æ÷±éÀú
 //    return ::EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM) &callback);
 //  }
 //
 //  static bool EnumWindow(EnumCallback callback)
 //  {
-//    // è°ƒç”¨Win32Apiè¿›è¡Œçª—å£éå†
+//    // µ÷ÓÃWin32Api½øĞĞ´°¿Ú±éÀú
 //    return ::EnumWindows(EnumWindowsProc, (LPARAM) &callback);
 //  }
 //
 //private:
 //  static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 //  {
-//    //::GetParentè·å–çš„æœ‰å¯èƒ½æ˜¯æ‰€æœ‰è€…çª—å£,å› æ­¤ä½¿ç”¨GetAncestorè·å–çˆ¶çª—å£å¥æŸ„
+//    //::GetParent»ñÈ¡µÄÓĞ¿ÉÄÜÊÇËùÓĞÕß´°¿Ú,Òò´ËÊ¹ÓÃGetAncestor»ñÈ¡¸¸´°¿Ú¾ä±ú
 //    HWND parent             = ::GetAncestor(hwnd, GA_PARENT);
-//    HWND desktop            = ::GetDesktopWindow();// è·å–æ¡Œé¢çš„å¥æŸ„
+//    HWND desktop            = ::GetDesktopWindow();// »ñÈ¡×ÀÃæµÄ¾ä±ú
 //    TCHAR szTitle[MAX_PATH] = {0};
-//    ::GetWindowText(hwnd, szTitle, MAX_PATH);// è·å–æ ‡é¢˜
+//    ::GetWindowText(hwnd, szTitle, MAX_PATH);// »ñÈ¡±êÌâ
 //
-//    // æ’é™¤çˆ¶çª—å£ä¸æ˜¯æ¡Œé¢çš„
+//    // ÅÅ³ı¸¸´°¿Ú²»ÊÇ×ÀÃæµÄ
 //    if (parent != nullptr && parent != desktop) return TRUE;
 //
-//    // æ’é™¤æ ‡é¢˜ä¸ºç©ºçš„
+//    // ÅÅ³ı±êÌâÎª¿ÕµÄ
 //    if (wcscmp(szTitle, L"") == 0) return TRUE;
 //
-//    // æ’é™¤æœ€å°åŒ–çª—å£(å› ä¸ºè·å–æœ€å°åŒ–çª—å£çš„åŒºåŸŸæ•°æ®æ˜¯ä¸å¯¹çš„,å› æ­¤ä¹Ÿæ²¡åŠæ³•è¿›è¡Œæˆªå›¾ç­‰æ“ä½œ)
+//    // ÅÅ³ı×îĞ¡»¯´°¿Ú(ÒòÎª»ñÈ¡×îĞ¡»¯´°¿ÚµÄÇøÓòÊı¾İÊÇ²»¶ÔµÄ,Òò´ËÒ²Ã»°ì·¨½øĞĞ½ØÍ¼µÈ²Ù×÷)
 //    if (::IsIconic(hwnd)) return TRUE;
 //
-//    // æ’é™¤ä¸å¯è§çª—å£,è¢«å…¶ä»–çª—å£é®æŒ¡çš„æƒ…å†µæ˜¯å¯è§çš„
+//    // ÅÅ³ı²»¿É¼û´°¿Ú,±»ÆäËû´°¿ÚÕÚµ²µÄÇé¿öÊÇ¿É¼ûµÄ
 //    if (!::IsWindowVisible(hwnd)) return TRUE;
 //
-//    // æ’é™¤å¯¹ç”¨æˆ·éšå½¢çš„çª—å£,å‚è€ƒ[https://docs.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute]
+//    // ÅÅ³ı¶ÔÓÃ»§ÒşĞÎµÄ´°¿Ú,²Î¿¼[https://docs.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute]
 //    DWORD flag = 0;
 //    DwmGetWindowAttribute(hwnd, DWMWA_CLOAKED, &flag, sizeof(flag));
 //    if (flag) return TRUE;
@@ -223,7 +223,7 @@
 //    {
 //
 //      std::string device_name = (LPCSTR) CT2A(mi.szDevice, CP_ACP);
-//      if (mi.dwFlags == MONITORINFOF_PRIMARY) device_name += "(Primary)";// ä¸»æ˜¾ç¤ºå™¨,å¯æ ¹æ®éœ€è¦è¿›è¡Œæ“ä½œ
+//      if (mi.dwFlags == MONITORINFOF_PRIMARY) device_name += "(Primary)";// Ö÷ÏÔÊ¾Æ÷,¿É¸ù¾İĞèÒª½øĞĞ²Ù×÷
 //      WindowInfo wnd_info{nullptr, device_name, mi.rcMonitor};
 //
 //      EnumCallback *callback = reinterpret_cast<EnumCallback *>(dwData);
@@ -241,9 +241,9 @@
 //  static BitmapPtr Capture(const WindowInfo &wnd_info)
 //  {
 //    HDC hWndDC = GetWindowDC(wnd_info.hwnd);
-//    RECT capture_rect{0, 0, 0, 0};// æœ€ç»ˆè¦æˆªå–çš„åŒºåŸŸ
-//    RECT wnd_rect;                // çª—å£åŒºåŸŸ
-//    RECT real_rect;               // çœŸå®çš„çª—å£åŒºåŸŸ,å®é™…ä¸Šä¹Ÿä¸æ˜¯ç™¾åˆ†ç™¾å‡†ç¡®
+//    RECT capture_rect{0, 0, 0, 0};// ×îÖÕÒª½ØÈ¡µÄÇøÓò
+//    RECT wnd_rect;                // ´°¿ÚÇøÓò
+//    RECT real_rect;               // ÕæÊµµÄ´°¿ÚÇøÓò,Êµ¼ÊÉÏÒ²²»ÊÇ°Ù·Ö°Ù×¼È·
 //
 //    if (wnd_info.hwnd)
 //    {
@@ -264,9 +264,9 @@
 //    SelectObject(hMemDC, hBitmap);
 //
 //    BitmapPtr bitmap;
-//    // è·å–æŒ‡å®šåŒºåŸŸçš„rgbæ•°æ®
+//    // »ñÈ¡Ö¸¶¨ÇøÓòµÄrgbÊı¾İ
 //    bool ok = BitBlt(hMemDC, 0, 0, width, height, hWndDC, capture_rect.left, capture_rect.top, SRCCOPY);
-//    // hBitmapå°±æ˜¯å¾—åˆ°çš„å›¾ç‰‡å¯¹è±¡,è½¬GDIçš„Bitmapè¿›è¡Œä¿å­˜
+//    // hBitmap¾ÍÊÇµÃµ½µÄÍ¼Æ¬¶ÔÏó,×ªGDIµÄBitmap½øĞĞ±£´æ
 //    if (ok) bitmap = std::make_shared<Gdiplus::Bitmap>(hBitmap, nullptr);
 //
 //    DeleteDC(hWndDC);
@@ -279,25 +279,25 @@
 //
 //void run()
 //{
-//  std::vector<WindowInfo> window_vec;// ç”¨æ¥ä¿å­˜çª—å£ä¿¡æ¯
-//  // æšä¸¾æ˜¾ç¤ºå™¨
+//  std::vector<WindowInfo> window_vec;// ÓÃÀ´±£´æ´°¿ÚĞÅÏ¢
+//  // Ã¶¾ÙÏÔÊ¾Æ÷
 //  Enumerator::EnumMonitor([&window_vec](const WindowInfo &wnd_info) { window_vec.push_back(wnd_info); });
-//  // è®¡ç®—ç”Ÿæˆæ‰€æœ‰å±å¹•åŠ åœ¨ä¸€èµ·çš„åŒºåŸŸå¤§å°
+//  // ¼ÆËãÉú³ÉËùÓĞÆÁÄ»¼ÓÔÚÒ»ÆğµÄÇøÓò´óĞ¡
 //  if (window_vec.size() > 0)
-//  {// ä¹Ÿå¯å¤§äº1,è¿™æ ·åªæœ‰ä¸€ä¸ªæ˜¾ç¤ºå™¨æ—¶ä¸ä¼šæ˜¾ç¤ºå…¨å±é€‰é¡¹
+//  {// Ò²¿É´óÓÚ1,ÕâÑùÖ»ÓĞÒ»¸öÏÔÊ¾Æ÷Ê±²»»áÏÔÊ¾È«ÆÁÑ¡Ïî
 //    int width = 0, height = 0;
 //    for (const auto &wnd_info: window_vec)
 //    {
 //      width += wnd_info.rect.right - wnd_info.rect.left;
 //      int h = wnd_info.rect.bottom - wnd_info.rect.top;
-//      if (h > height) height = h;// é«˜åº¦å¯èƒ½ä¸ä¸€æ ·,éœ€è¦ä»¥æœ€é«˜çš„ä¸ºå‡†
+//      if (h > height) height = h;// ¸ß¶È¿ÉÄÜ²»Ò»Ñù,ĞèÒªÒÔ×î¸ßµÄÎª×¼
 //    }
 //    WindowInfo wnd_info{nullptr, "FullScreen", {0, 0, width, height}};
 //    window_vec.push_back(wnd_info);
 //  }
-//  // æšä¸¾çª—å£
+//  // Ã¶¾Ù´°¿Ú
 //  Enumerator::EnumWindow([&window_vec](const WindowInfo &wnd_info) { window_vec.push_back(wnd_info); });
-//  // ç¤ºä¾‹: éå†æ‰¾åˆ°çš„æ‰€æœ‰çª—å£,å°†æ¯ä¸€ä¸ªéƒ½æˆªå›¾åˆ°æŒ‡å®šè·¯å¾„,æ–‡ä»¶å¤¹éœ€å­˜åœ¨,ç¨‹åºä¸ä¼šè‡ªå·±åˆ›å»ºæ–‡ä»¶å¤¹
+//  // Ê¾Àı: ±éÀúÕÒµ½µÄËùÓĞ´°¿Ú,½«Ã¿Ò»¸ö¶¼½ØÍ¼µ½Ö¸¶¨Â·¾¶,ÎÄ¼ş¼ĞĞè´æÔÚ,³ÌĞò²»»á×Ô¼º´´½¨ÎÄ¼ş¼Ğ
 //  int cnt = 1;
 //  for (const auto &window: window_vec)
 //  {
@@ -310,9 +310,9 @@
 //  }
 //}
 
-//#include "think_core/IOManage.h"
-#include <filesystem>
-namespace fs = std::filesystem;
+#include "think_core/IOManage.h"
+//#include <filesystem>
+//namespace fs = std::filesystem;
 
 int main()
 {
@@ -324,14 +324,15 @@ int main()
   //
   //  std::cout << (GetTickCount() - time_start) << "ms\n";
 
-/*  think::IOManage t;
+  think::IOManage t = think::IOManage();
   for (size_t i = 0U; i < 1; ++i)
   {
     do {
+      
       t.runLoop();
     } while (t.getNodeBufferSize() < 0x100);
     t.stableThink();
-  }*/
+  }
 
   fs::path a("123");
   return 0;

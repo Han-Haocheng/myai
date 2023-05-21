@@ -133,6 +133,23 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\think_core\base_type\exception.h" />
+    <ClInclude Include="src\think_core\base_type\Graph.h" />
+    <ClInclude Include="src\think_core\base_type\range.h" />
+    <ClInclude Include="src\think_core\CoreInclude.h" />
+    <ClInclude Include="src\think_core\DefType.h" />
+    <ClInclude Include="src\think_core\inout\IOAction.h" />
+    <ClInclude Include="src\think_core\inout\IOAudio.h" />
+    <ClInclude Include="src\think_core\inout\IOInterface.h" />
+    <ClInclude Include="src\think_core\inout\IOMemory.h" />
+    <ClInclude Include="src\think_core\inout\IOVideo.h" />
+    <ClInclude Include="src\think_core\IOManage.h" />
+    <ClInclude Include="src\think_core\LinkList.h" />
+    <ClInclude Include="src\think_core\NodeIdAllocator.h" />
+    <ClInclude Include="src\think_core\NodeInfo.h" />
+    <ClInclude Include="src\think_core\ThinkCore.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

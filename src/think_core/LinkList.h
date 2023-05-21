@@ -8,13 +8,13 @@
 
 namespace think
 {
-/* é“¾æ¥åˆ—è¡¨å®¹å™¨
- *  æ˜¯vectorç±»å‹å®¹å™¨çš„æ‰©å±•
- * å®šä¹‰äº†é“¾æ¥åˆ—è¡¨ä¸æƒé‡ä¹‹é—´çš„è¿ç®—
+/* Á´½ÓÁĞ±íÈİÆ÷
+ *  ÊÇvectorÀàĞÍÈİÆ÷µÄÀ©Õ¹
+ * ¶¨ÒåÁËÁ´½ÓÁĞ±íÓëÈ¨ÖØÖ®¼äµÄÔËËã
  *  operator + - * /
- * å®šä¹‰äº†å»é‡
+ * ¶¨ÒåÁËÈ¥ÖØ
  *  void deduplicate()
- * å®šä¹‰æŒ‰ç…§ç‰¹æ®Šå€¼ç§»é™¤å…ƒç´ çš„æ–¹æ³•
+ * ¶¨Òå°´ÕÕÌØÊâÖµÒÆ³ıÔªËØµÄ·½·¨
  *  void erase(link_val standardValue)
  * */
 class LinkList : public std::vector<link_t>
@@ -57,8 +57,8 @@ public:
 
   void erase(link_val standardValue);
 
-  /// @brief å»é‡
-  /// å°†ç›¸åŒçš„å…ƒç´ åˆå¹¶ï¼Œé“¾æ¥å€¼ç›¸åŠ 
+  /// @brief È¥ÖØ
+  /// ½«ÏàÍ¬µÄÔªËØºÏ²¢£¬Á´½ÓÖµÏà¼Ó
   void deduplicate();
 };// class LinkList
 

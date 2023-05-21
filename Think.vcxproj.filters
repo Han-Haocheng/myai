@@ -13,6 +13,59 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\bases">
+      <UniqueIdentifier>{2643c8c4-9731-451d-b6bb-a59319e2b776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\io">
+      <UniqueIdentifier>{5ce7aa0e-8801-4c29-9344-9a8a40ac42a2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\think_core\ThinkCore.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\LinkList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\NodeIdAllocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\NodeInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\DefType.h">
+      <Filter>头文件\bases</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\base_type\exception.h">
+      <Filter>头文件\bases</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\inout\IOAction.h">
+      <Filter>头文件\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\inout\IOAudio.h">
+      <Filter>头文件\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\inout\IOInterface.h">
+      <Filter>头文件\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\inout\IOMemory.h">
+      <Filter>头文件\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\inout\IOVideo.h">
+      <Filter>头文件\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\IOManage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\base_type\Graph.h">
+      <Filter>头文件\bases</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\base_type\range.h">
+      <Filter>头文件\bases</Filter>
+    </ClInclude>
+    <ClInclude Include="src\think_core\CoreInclude.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

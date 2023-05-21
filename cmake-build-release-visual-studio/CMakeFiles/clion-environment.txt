@@ -1,0 +1,4 @@
+ToolSet: 17.0 (local)@E:\Programming\Microsoft Visual Studio\2022
+Options: 
+
+Options:-DCMAKE_MAKE_PROGRAM=E:/Programming/CLion 2022.2.3/bin/ninja/win/x64/ninja.exe
