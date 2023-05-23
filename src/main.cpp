@@ -311,6 +311,8 @@
 //}
 
 #include "think_core/IOManage.h"
+#include <iostream>
+
 //#include <filesystem>
 //namespace fs = std::filesystem;
 
@@ -324,16 +326,17 @@ int main()
   //
   //  std::cout << (GetTickCount() - time_start) << "ms\n";
 
-  think::IOManage t = think::IOManage();
-  for (size_t i = 0U; i < 1; ++i)
-  {
-    do {
-      
-      t.runLoop();
-    } while (t.getNodeBufferSize() < 0x100);
-    t.stableThink();
-  }
+    think::IOManage t = think::IOManage();
+    for (size_t i = 0U; i < 1; ++i)
+    {
+      do {
+  
+        t.runLoop();
+      } while (t.getNodeBufferSize() < 0x100);
+      t.stableThink();
+    }
+  
+    fs::path a("123");
 
-  fs::path a("123");
   return 0;
 }

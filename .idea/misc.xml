@@ -11,6 +11,7 @@
       <file path="$PROJECT_DIR$/.vscode" />
       <file path="$PROJECT_DIR$/build" />
       <file path="$PROJECT_DIR$/out" />
+      <file path="$PROJECT_DIR$/packages" />
       <file path="$PROJECT_DIR$/x64" />
     </excludeRoots>
   </component>

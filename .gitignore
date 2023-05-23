@@ -41,8 +41,8 @@ out
 build
 cmake-build-debug
 cmake-build-release
-Think.sln
+
 Think.vcxproj
 Think.vcxproj.filters
-Think.vcxproj.user
+
 

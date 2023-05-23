@@ -17,7 +17,6 @@ public:
 
   const std::unique_ptr<LinkList>& inputActInfo() final { return this->m_lpListInputLink_; }
 
-
   void loadActFunc(std::unordered_map<node_id, ActFunc>& OutputAct) final {}
 };
 

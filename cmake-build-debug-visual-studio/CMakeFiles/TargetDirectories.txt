@@ -1,3 +1,0 @@
-D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/cmake-build-debug-visual-studio/CMakeFiles/think.dir
-D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/cmake-build-debug-visual-studio/CMakeFiles/ALL_BUILD.dir
-D:/Users/HanHaocheng/Documents/Program Projects/c++/Auto/Think/cmake-build-debug-visual-studio/CMakeFiles/ZERO_CHECK.dir

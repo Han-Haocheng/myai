@@ -11,12 +11,12 @@ namespace think::io
 class IOAudio : public IOInterface
 {
 public:
-  IOAudio() noexcept : IOInterface(ENodeType::CONST_AUDIO, 2000, 0) { }
+  IOAudio() noexcept : IOInterface(ENodeType::CONST_AUDIO, 2000, 0) {}
 
 public:
   const std::unique_ptr<LinkList>& inputActInfo() final { return this->m_lpListInputLink_; }
 
-  void loadActFunc(std::unordered_map<node_id, ActFunc>& OutputAct) final{}
+  void loadActFunc(std::unordered_map<node_id, ActFunc>& OutputAct) final {}
 };
 
 }// namespace think::io
