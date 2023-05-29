@@ -67,7 +67,8 @@
 //  SelectObject(hdcMemDC, hbmScreen);
 //
 //  // Bit block transfer into our compatible memory DC.
-//  if (!BitBlt(hdcMemDC, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, hdcWindow, 0, 0, SRCCOPY))
+//  if (!BitBlt(hdcMemDC, 0, 0,
+//  rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, hdcWindow, 0, 0, SRCCOPY))
 //  {
 //    MessageBox(hWnd, TEXT("BitBlt has failed"), TEXT("Failed"), MB_OK);
 //    goto done;
@@ -310,33 +311,17 @@
 //  }
 //}
 
-#include "think_core/IOManage.h"
-#include <iostream>
-
-//#include <filesystem>
-//namespace fs = std::filesystem;
+#include "IOManage.h"
 
 int main()
 {
-  //  DWORD time_start = GetTickCount();
-  //  test1();
-  //  std::cout << (GetTickCount() - time_start) << "ms\n";
-  //
-  //  time_start = GetTickCount();
-  //
-  //  std::cout << (GetTickCount() - time_start) << "ms\n";
-
-    think::IOManage t = think::IOManage();
-    for (size_t i = 0U; i < 1; ++i)
-    {
-      do {
-  
-        t.runLoop();
-      } while (t.getNodeBufferSize() < 0x100);
-      t.stableThink();
-    }
-  
-    fs::path a("123");
-
+  think::IOManage t = think::IOManage();
+  for (size_t i = 0U; i < 2; ++i)
+  {
+    do {
+      t.runLoop();
+    } while (t.getNodeBufferSize() < 0x1000);
+    t.stableThink();
+  }
   return 0;
 }

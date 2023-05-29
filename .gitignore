@@ -40,7 +40,6 @@ out
 .idea
 build
 cmake-build-debug
-cmake-build-release
 
 Think.vcxproj
 Think.vcxproj.filters
