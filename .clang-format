@@ -37,14 +37,12 @@ BraceWrapping:
   BeforeLambdaBody: false
   BeforeWhile: false
   IndentBraces: false
-  IndentBraces: true
   SplitEmptyFunction: true
   SplitEmptyRecord: true
 BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
-ColumnLimit: 0
 CompactNamespaces: false
 ContinuationIndentWidth: 8
 
@@ -57,7 +55,7 @@ IndentCaseBlocks: false
 
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: Inner
+NamespaceIndentation: None
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PointerAlignment: Right
@@ -84,6 +82,7 @@ UseTab: Never
 
 
 FixNamespaceComments: true
+
 Cpp11BracedListStyle: true
 ConstructorInitializerIndentWidth: 0
 ColumnLimit: 120
