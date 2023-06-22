@@ -28,6 +28,7 @@ public:
   virtual self_type &operator++()                  = 0;
   virtual self_type &operator++(int)               = 0;
 };
+
 interface LinkIteratorInterface : public LinkConstIteratorInterface
 {
 public:
@@ -41,6 +42,9 @@ public:
 public:
   virtual reference operator*() = 0;
   virtual pointer operator->()  = 0;
+
+  LinkIteratorInterface &operator++()override {}
+  LinkIteratorInterface &operator++(int)override {}
 };
 
 interface LinkContainerInterface

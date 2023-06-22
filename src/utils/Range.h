@@ -30,7 +30,7 @@ private:
 
 public:
   Range() : m_begin_(), m_end_() {}
-  Range(value_type &&bg, value_type &&ed) : m_begin_(std::min(bg, ed)), m_end_(std::max(bg, ed)) {}
+  Range(value_type bg, value_type ed) : m_begin_(std::min(bg, ed)), m_end_(std::max(bg, ed)) {}
   Range(Range &&) noexcept = default;
   Range(const Range &)     = default;
 

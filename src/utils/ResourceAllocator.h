@@ -12,9 +12,9 @@
 #include "Range.h"
 namespace thinksystem::utils
 {
+using Ty = int;
 
-template<typename Ty>
-class ResourceAllocator
+class ResourceAllocator : public io::SerializationInterface
 {
   static_assert(is_arithmetic_extension<Ty>::value,
                 "Error:please take Ty to be dakaideyeshu type what can have arithmetic operator.");
@@ -31,19 +31,20 @@ private:
 
 public:
   explicit ResourceAllocator(block_type &&val) { m_unassigned_res_->emplace_front(val); }
+  explicit ResourceAllocator(value_type beg, value_type end) { m_unassigned_res_->emplace_front(beg, end); }
 
 public:
   block_iterator begin() { return m_unassigned_res_->begin(); }
   block_iterator end() { return m_unassigned_res_->end(); }
-  block_const_iterator cbegin() const { return m_unassigned_res_->cbegin(); }
-  block_const_iterator cend() const { return m_unassigned_res_->cend(); }
+  [[nodiscard]] block_const_iterator cbegin() const { return m_unassigned_res_->cbegin(); }
+  [[nodiscard]] block_const_iterator cend() const { return m_unassigned_res_->cend(); }
 
 public:
   bool allocate(value_type &out)
   {
     if (!m_unassigned_res_->empty()) throw("Type:type is empty", "Error:resource is empty,place increase resources.");
     block_type &beginBlock = m_unassigned_res_->front();
-    out                    = *beginBlock.begin();
+    out                    = beginBlock.begin();
     beginBlock.setBegin(out + 1);
     if (beginBlock.is_empty()) { m_unassigned_res_->pop_front(); }
     return true;
@@ -56,7 +57,7 @@ public:
 
     while (!m_unassigned_res_->empty())
     {
-      typename container_type::iterator bgBlock    = m_unassigned_res_->begin(),
+      auto bgBlock    = m_unassigned_res_->begin(),
                                         befBgBlock = m_unassigned_res_->before_begin();
       Ty i;
       for (i = bgBlock->cbegin(); i < bgBlock->cend(); ++i)
@@ -75,7 +76,7 @@ public:
 
   bool release(const value_type &in)
   {
-    block_iterator itBeg = m_unassigned_res_->begin();
+    auto itBeg = m_unassigned_res_->begin();
     block_type installRange(in, in + 1);
     if (in < itBeg->cbegin())
     {
@@ -84,7 +85,7 @@ public:
     }
     else
     {
-      block_iterator itBfBeg = m_unassigned_res_->before_begin();
+      auto itBfBeg = m_unassigned_res_->before_begin();
 
       for (; itBeg != m_unassigned_res_->end(); ++itBeg, ++itBfBeg)
       {
@@ -94,7 +95,7 @@ public:
           {
             throw("Type:param out of range", "Error:Param 'in' is not in Allocator range");
           }
-          if (itBfBeg->end == installRange.begin)
+          if (itBfBeg->end() == installRange.begin())
           {
             if (installRange.end() == itBeg->cbegin())
             {
@@ -111,10 +112,30 @@ public:
       if (itBfBeg->cend() == in) { itBfBeg->setEnd(itBfBeg->cend() + 1); }
       else { m_unassigned_res_->insert_after(itBfBeg, {in, in + 1}); }
     }
+    return true;
   }
   bool release(const result_list &in)
   {
     for (const auto &item: in) { release(item); }
+    return true;
+  }
+
+private:
+public:
+  void writeFunc(std::ofstream *ofPtr) const override
+  {
+    for (const block_type &item: *m_unassigned_res_)
+    {
+      ofPtr->write(reinterpret_cast<const char *>(&item), sizeof(block_type));
+    }
+  }
+  void readFunc(std::ifstream *ifPtr) override
+  {
+    block_type tmpBlock;
+    while (ifPtr->read(reinterpret_cast<char *>(&tmpBlock), sizeof(block_type)))
+    {
+      m_unassigned_res_->emplace_front(tmpBlock);
+    }
   }
 };//! class ResourceAllocator
 

@@ -25,7 +25,7 @@ private:
 public:
   LinkElement() : m_id_(VAL_DEFINE_ID_TYPE), m_val_(VAL_DEFINE_LINK_TYPE) {}
   LinkElement(const id_type id, link_type lk) : m_id_(id), m_val_(lk) {}
-  explicit LinkElement(link_pair &&lp) : m_id_(lp.first), m_val_(lp.second) {}
+  explicit LinkElement(link_pair lp) : m_id_(lp.first), m_val_(lp.second) {}
   LinkElement(LinkElement &&)      = default;
   LinkElement(const LinkElement &) = default;
 
@@ -34,17 +34,19 @@ public:
   LinkElement &operator=(const LinkElement &) = default;
   LinkElement &operator=(link_pair lp)
   {
-
     m_id_  = lp.first;
     m_val_ = lp.second;
     return *this;
   }
 
 public:
-  bool operator==(const LinkElement &rhs) const { return m_id_ == rhs.m_id_; }
-  bool operator!=(const LinkElement &rhs) const { return m_id_ != rhs.m_id_; }
-  bool operator==(id_type rhs) const { return m_id_ == rhs; }
-  bool operator!=(id_type rhs) const { return m_id_ != rhs; }
+  friend bool operator==(const LinkElement &lhs, const LinkElement &rhs) { return lhs.m_id_ == rhs.m_id_; }
+  friend bool operator==(const LinkElement &lhs, id_type rhs) { return lhs.m_id_ == rhs; }
+  friend bool operator==(id_type rhs, const LinkElement &lhs) { return lhs.m_id_ == rhs; }
+  friend bool operator!=(const LinkElement &lhs, const LinkElement &rhs) { return lhs.m_id_ != rhs.m_id_; }
+  friend bool operator!=(const LinkElement &lhs, id_type rhs) { return lhs.m_id_ != rhs; }
+  friend bool operator!=(id_type rhs, const LinkElement &lhs) { return lhs.m_id_ != rhs; }
+
   LinkElement operator+(link_type rhs) const { return {m_id_, m_val_ + rhs}; }
   LinkElement operator-(link_type rhs) const { return {m_id_, m_val_ + rhs}; }
   LinkElement operator*(const weight_t &rhs) const { return {m_id_, (link_type) ((double) (m_val_) *rhs.val())}; }

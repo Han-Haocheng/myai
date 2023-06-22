@@ -21,7 +21,5 @@ public:
 
 int main()
 {
-  Book* test = new Book(2132124412);
-  test->dakaideyeshu;
   return 0;
 }
