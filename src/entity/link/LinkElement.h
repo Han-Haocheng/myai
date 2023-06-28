@@ -49,7 +49,7 @@ public:
 
   LinkElement operator+(link_type rhs) const { return {m_id_, m_val_ + rhs}; }
   LinkElement operator-(link_type rhs) const { return {m_id_, m_val_ + rhs}; }
-  LinkElement operator*(const weight_t &rhs) const { return {m_id_, (link_type) ((double) (m_val_) *rhs.val())}; }
+  LinkElement operator*(const weight_t &rhs) const { return {m_id_, (link_type) ((double) (m_val_) *rhs.linkVal())}; }
   LinkElement &operator+=(link_type rhs) { return *this = (*this + rhs); }
   LinkElement &operator-=(link_type rhs) { return *this = (*this - rhs); }
   LinkElement &operator*=(const weight_t &rhs) { return *this = (*this * rhs); }
@@ -59,9 +59,9 @@ public:
 
 public:
   void setId(id_type id) { m_id_ = id; }
-  void setVal(link_type val) { m_val_ = val; }
+  void setVal(link_type linkVal) { m_val_ = linkVal; }
   [[nodiscard]] id_type id() const { return m_id_; }
-  [[nodiscard]] link_type val() const { return m_val_; }
+  [[nodiscard]] link_type linkVal() const { return m_val_; }
 
 public:
   [[nodiscard]] bool is_empty(link_type stand = 0) const { return m_val_ == stand; }

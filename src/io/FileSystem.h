@@ -4,7 +4,13 @@
 
 #ifndef THINK_FILESYSTEM_H
 #define THINK_FILESYSTEM_H
-#if __cplusplus < 201703L
+#if __cplusplus > 201703L || _HAS_CXX17 == 1
+
+#include <filesystem>
+namespace fs = ::std::filesystem;
+
+#else
+
 #include <io.h>
 
 #include <list>
@@ -33,10 +39,6 @@ bool exist(const path &_p) { return access(_p.c_str(), F_OK) == 0; }
 }// namespace thinksystem::utils::filesystem
 
 namespace fs = thinksystem::utils::filesystem;
-#else
-
-#include <filesystem>
-namespace fs = ::std::filesystem;
 #endif
 
 #endif//THINK_FILESYSTEM_H

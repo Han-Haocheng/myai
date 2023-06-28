@@ -4,62 +4,87 @@
 
 #ifndef THINK_BOUNDEDVALUE_H
 #define THINK_BOUNDEDVALUE_H
+#include <type_traits>
 
-#include "Range.h"
 namespace thinksystem::utils
 {
 
 /// This class is dakaideyeshu value with bounded.it can have add
 /// \tparam Ty
-template<typename Ty>
+template<typename Ty, std::uint64_t MIN, std::uint64_t MAX, typename = std::enable_if<std::is_arithmetic_v<Ty>>>
 class BoundedValue
 {
-  static_assert(is_arithmetic_extension<Ty>::value, "error: please take template param to be dakaideyeshu arithmetic type.");
+  static_assert(MIN < MAX, "error:min less max");
 
-#define LIMIT(_val, _min, _max) (std::max(std::min(_max, _val), _min))
+private:
+  using self = BoundedValue;
+
 public:
   using value_type = Ty;
   using references = Ty&;
   using const_ref  = const Ty&;
 
+public:
 private:
-  const value_type MIN, MAX;
   value_type m_val_;
 
 public:
-  BoundedValue() : MIN(), MAX(), m_val_() {}
-  BoundedValue(const_ref val, const_ref min, const_ref max) : MIN(min), MAX(max), m_val_(LIMIT(val, min, max)) {}
-  BoundedValue(BoundedValue&&) noexcept = default;
-  BoundedValue(const BoundedValue&)     = default;
+  static constexpr value_type LIMIT(const value_type& linkVal) noexcept { return linkVal < MIN ? MIN : linkVal > MAX ? MAX : linkVal; };
 
 public:
-  BoundedValue& operator=(BoundedValue&&) noexcept = default;
-  BoundedValue& operator=(const BoundedValue&)     = default;
-
-  BoundedValue operator+(const BoundedValue& rhs) const { return {LIMIT(rhs.m_val_ + m_val_, MIN, MAX)}; }
-  BoundedValue operator-(const BoundedValue& rhs) const { return {LIMIT(rhs.m_val_ - m_val_, MIN, MAX)}; }
-  BoundedValue operator*(const BoundedValue& rhs) const { return {LIMIT(rhs.m_val_ * m_val_, MIN, MAX)}; }
-  BoundedValue operator/(const BoundedValue& rhs) const { return {LIMIT(rhs.m_val_ / m_val_, MIN, MAX)}; }
-  BoundedValue& operator+=(const BoundedValue& rhs) { return *this = *this + rhs; }
-  BoundedValue& operator-=(const BoundedValue& rhs) { return *this = *this - rhs; }
-  BoundedValue& operator*=(const BoundedValue& rhs) { return *this = *this * rhs; }
-  BoundedValue& operator/=(const BoundedValue& rhs) { return *this = *this / rhs; }
-  bool operator==(const BoundedValue& rhs) const { return m_val_ == rhs.m_val_; }
-  bool operator!=(const BoundedValue& rhs) const { return m_val_ != rhs.m_val_; }
-  bool operator<(const BoundedValue& rhs) const { return m_val_ < rhs.m_val_; }
-  bool operator>(const BoundedValue& rhs) const { return m_val_ > rhs.m_val_; }
-  bool operator<=(const BoundedValue& rhs) const { return m_val_ <= rhs.m_val_; }
-  bool operator>=(const BoundedValue& rhs) const { return m_val_ >= rhs.m_val_; }
+  BoundedValue() : m_val_() {}
+  BoundedValue(const_ref linkVal) : m_val_(LIMIT(linkVal)) {}
+  BoundedValue(self&&) noexcept = default;
+  BoundedValue(const self&)     = default;
 
 public:
-  value_type val() const { return m_val_; }
-  references ref() { return m_val_; }
-  const_ref ref() const { return m_val_; }
+  self& operator=(const_ref linkVal) { m_val_ = LIMIT(linkVal); }
+  self& operator=(self&&) noexcept = default;
+  self& operator=(const self&)     = default;
+
+  friend self operator+(const self& lhs, const self& rhs) noexcept { return {LIMIT(lhs.m_val_ + rhs.m_val_)}; }
+  friend self operator-(const self& lhs, const self& rhs) noexcept { return {LIMIT(lhs.m_val_ - rhs.m_val_)}; }
+  friend self operator*(const self& lhs, const self& rhs) noexcept { return {LIMIT(lhs.m_val_ * rhs.m_val_)}; }
+  friend self operator/(const self& lhs, const self& rhs) noexcept { return {LIMIT(lhs.m_val_ / rhs.m_val_)}; }
+  friend self& operator+=(self& lhs, const self& rhs) noexcept { return lhs = lhs + rhs; }
+  friend self& operator-=(self& lhs, const self& rhs) noexcept { return lhs = lhs - rhs; }
+  friend self& operator*=(self& lhs, const self& rhs) noexcept { return lhs = lhs * rhs; }
+  friend self& operator/=(self& lhs, const self& rhs) noexcept { return lhs = lhs / rhs; }
+  friend self operator+(const self& lhs, const_ref rhs) noexcept { return {LIMIT(lhs.m_val_ + rhs)}; }
+  friend self operator-(const self& lhs, const_ref rhs) noexcept { return {LIMIT(lhs.m_val_ - rhs)}; }
+  friend self operator*(const self& lhs, const_ref rhs) noexcept { return {LIMIT(lhs.m_val_ * rhs)}; }
+  friend self operator/(const self& lhs, const_ref rhs) noexcept { return {LIMIT(lhs.m_val_ / rhs)}; }
+
+  friend bool operator==(const self& lhs, const self& rhs) noexcept { return lhs.m_val_ == rhs.m_val_; }
+  friend bool operator!=(const self& lhs, const self& rhs) noexcept { return lhs.m_val_ != rhs.m_val_; }
+  friend bool operator<(const self& lhs, const self& rhs) noexcept { return lhs.m_val_ < rhs.m_val_; }
+  friend bool operator>(const self& lhs, const self& rhs) noexcept { return lhs.m_val_ > rhs.m_val_; }
+  friend bool operator<=(const self& lhs, const self& rhs) noexcept { return lhs.m_val_ <= rhs.m_val_; }
+  friend bool operator>=(const self& lhs, const self& rhs) noexcept { return lhs.m_val_ >= rhs.m_val_; }
+
+  friend bool operator==(const self& lhs, const_ref rhs) noexcept { return lhs.m_val_ == rhs; }
+  friend bool operator!=(const self& lhs, const_ref rhs) noexcept { return lhs.m_val_ != rhs; }
+  friend bool operator<(const self& lhs, const_ref rhs) noexcept { return lhs.m_val_ < rhs; }
+  friend bool operator>(const self& lhs, const_ref rhs) noexcept { return lhs.m_val_ > rhs; }
+  friend bool operator<=(const self& lhs, const_ref rhs) noexcept { return lhs.m_val_ <= rhs; }
+  friend bool operator>=(const self& lhs, const_ref rhs) noexcept { return lhs.m_val_ >= rhs; }
+
+  friend bool operator==(const_ref lhs, const self& rhs) noexcept { return lhs == rhs.m_val_; }
+  friend bool operator!=(const_ref lhs, const self& rhs) noexcept { return lhs != rhs.m_val_; }
+  friend bool operator<(const_ref lhs, const self& rhs) noexcept { return lhs < rhs.m_val_; }
+  friend bool operator>(const_ref lhs, const self& rhs) noexcept { return lhs > rhs.m_val_; }
+  friend bool operator<=(const_ref lhs, const self& rhs) noexcept { return lhs <= rhs.m_val_; }
+  friend bool operator>=(const_ref lhs, const self& rhs) noexcept { return lhs >= rhs.m_val_; }
 
 public:
-  [[nodiscard]] bool is_max() const { return m_val_ == MAX; }
-  [[nodiscard]] bool is_min() const { return m_val_ == MIN; }
-};
+  inline value_type linkVal() const { return m_val_; }
+  inline const_ref ref() const { return m_val_; }
+  inline references ref() { return m_val_; }
+
+public:
+  [[nodiscard]] inline bool isMax() const { return m_val_ == MAX; }
+  [[nodiscard]] inline bool isMin() const { return m_val_ == MIN; }
+};//! class BoundedValue
 
 }// namespace thinksystem::utils
 

@@ -58,7 +58,7 @@ public:
   [[nodiscard]] bool is_empty() const { return this->m_begin_ == this->m_end_; }
 
   // 判断一个值是否在区间内
-  bool is_belong(const_reference val) const { return val < m_end_ && val >= m_begin_; }
+  bool is_belong(const_reference linkVal) const { return linkVal < m_end_ && linkVal >= m_begin_; }
 
   // 判断两个区间是否相交
   bool is_intersect(const Range &other) const { return m_begin_ <= other.m_end_ && other.m_begin_ <= m_end_; }

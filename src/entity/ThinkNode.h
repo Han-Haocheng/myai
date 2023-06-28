@@ -11,43 +11,48 @@
 #include <vector>
 
 #include "../io/Serialization.h"
+#include "../utils/BoundedValue.h"
 #include "../utils/Log.h"
+
 namespace thinksystem::entity
 {
+
+using attribute_t = uint32_t;
 
 class ThinkNode
 {
 public:
-  /// enum NodeAttribute
+  /// enum NodeAttributeEnum
   /// 节点状态类型
   ///
-  enum NodeAttribute
+  enum NodeAttributeEnum : attribute_t
   {
-
+    is_null       = 0b0000'0001,
+    is_empty      = 0b0000'0010,
+    is_repetitive = 0b0000'0100,
+    is_const      = 0b0000'1000,
+    is_static     = 0b0001'0000,
+    is_dynamic    = 0b0010'0000,
   };
 
-  /// class NodeId
+  /// class NodeIdType
   /// 节点编号 - 用于表示节点在结构中的位置
-  class NodeId
+  class NodeIdType
   {
   public:
-    using value_type = unsigned long long;
-    using hash_type  = unsigned long long;
-    using self       = NodeId;
+    using value_type = utils::BoundedValue<unsigned long long, 0x0000'0000'0001ULL, 0xffff'ffff'ffffULL>;
 
-  public:
-    constexpr static const value_type NULL_NODE_LOCATION = 0ULL;
-    constexpr static const value_type MAX_NODE_LOCATION  = 0xffff'ffff'ffffULL;
-    constexpr static const value_type MIN_NODE_LOCATION  = 0x0000'0000'0001ULL;
+  private:
+    using self = NodeIdType;
 
   private:
     value_type m_val_;
 
   public:
-    NodeId(self &&)      = default;
-    NodeId(const self &) = default;
-    NodeId() : m_val_(NULL_NODE_LOCATION) {}
-    explicit NodeId(value_type id) : m_val_(id)
+    NodeIdType(self &&)      = default;
+    NodeIdType(const self &) = default;
+    NodeIdType() : m_val_(value_type::MAX) {}
+    explicit NodeIdType(value_type id) : m_val_(id)
     {
 #ifdef DEBUG
       utils::Assert(id >= MAX_NODE_LOCATION || id == NULL_NODE_LOCATION,
@@ -86,9 +91,13 @@ public:
       return ss.str();
     }
 
-    // NodeId类型的哈希转换
-    static hash_type hash(const self &id) { return std::hash<value_type>{}(id.m_val_); }
-  };//! class NodeId
+    struct Hash
+    {
+      using hash_type = unsigned long long;
+      hash_type operator()(const self &id) { return std::hash<value_type>{}(id.m_val_); }
+    };
+
+  };//! class NodeIdType
 
   /*class LinkSet
    * 链接集
@@ -101,26 +110,36 @@ public:
      * */
     struct link_t
     {
-      using id_type                                   = NodeId;
-      using value_type                                = unsigned int;
-      constexpr static const value_type NULL_LINK_VAL = 0x0U;
-      constexpr static const value_type MIN_LINK_VAL  = 0x0000'0001U;
-      constexpr static const value_type MAX_LINK_VAL  = 0xffff'ffffU;
+      using id_type    = NodeIdType;
+      using value_type = utils::BoundedValue<std::uint32_t, 0x0000'0000U, 0xffff'ffffU>;
+      using self       = link_t;
 
     public:
       id_type id;
-      value_type link;
+      value_type linkVal;
 
     public:
-      link_t() : id(id_type::NULL_NODE_LOCATION), link(NULL_LINK_VAL) {}
-      link_t(id_type::value_type id, value_type val) : id(id), link(val) {}
+      link_t() : id(), linkVal() {}
+      link_t(id_type::value_type id, value_type _val) : id(id), linkVal(_val) {}
+
+    public:
+      self &operator=(const std::pair<id_type, value_type> &pr)
+      {
+        id      = pr.first;
+        linkVal = pr.second;
+      }
       bool operator==(const link_t &l) const { return l.id == id; }
       bool operator!=(const link_t &l) const { return l.id != id; }
 
     public:
-      inline constexpr static size_t hash(const link_t &lk) { return id_type::hash(lk.id); }
       char *data() { return reinterpret_cast<char *>(this); }
       [[nodiscard]] const char *data() const { return reinterpret_cast<const char *>(this); }
+      struct Hash
+      {
+        using hash_type = size_t;
+        hash_type operator()(const self &lk) { return id_type::Hash{}(lk.id); }
+      };
+
     };//! struct link_t
 
     /* class LinkArrayList
@@ -161,7 +180,7 @@ public:
 
   public:
     LinkSet() : m_const_(new array_list()), m_static_(new array_list()), m_dynamic_(new linked_list()) {}
-    LinkSet(NodeId id) : m_const_(nullptr), m_static_(nullptr), m_dynamic_(new linked_list())
+    LinkSet(NodeIdType id) : m_const_(nullptr), m_static_(nullptr), m_dynamic_(new linked_list())
     {
       io::Serialization(id.to_path() + "node.dat").deserialization(*this);
     }
@@ -177,7 +196,7 @@ public:
   public:
     [[nodiscard]] bool empty() const { return m_static_->empty() && m_dynamic_->empty(); }
 
-    void save(NodeId id) const { io::Serialization(id.to_path() + "node.dat").serialization(*this); }
+    void save(NodeIdType id) const { io::Serialization(id.to_path() + "node.dat").serialization(*this); }
 
     array_list::iterator normalBegin() { return m_static_->begin(); }
     array_list::iterator normalEnd() { return m_static_->end(); }
@@ -212,8 +231,8 @@ public:
     }
   };//! class LinkSet
 public:
-  using attribute_type = NodeAttribute;
-  using id_type        = NodeId;
+  using attribute_type = NodeAttributeEnum;
+  using id_type        = NodeIdType;
   using link_set_type  = LinkSet;
 
 private:

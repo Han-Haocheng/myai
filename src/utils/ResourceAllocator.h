@@ -12,8 +12,7 @@
 #include "Range.h"
 namespace thinksystem::utils
 {
-using Ty = int;
-
+template<typename Ty>
 class ResourceAllocator : public io::SerializationInterface
 {
   static_assert(is_arithmetic_extension<Ty>::value,
@@ -30,7 +29,7 @@ private:
   container_pointer m_unassigned_res_;
 
 public:
-  explicit ResourceAllocator(block_type &&val) { m_unassigned_res_->emplace_front(val); }
+  explicit ResourceAllocator(block_type &&linkVal) { m_unassigned_res_->emplace_front(linkVal); }
   explicit ResourceAllocator(value_type beg, value_type end) { m_unassigned_res_->emplace_front(beg, end); }
 
 public:
@@ -57,8 +56,7 @@ public:
 
     while (!m_unassigned_res_->empty())
     {
-      auto bgBlock    = m_unassigned_res_->begin(),
-                                        befBgBlock = m_unassigned_res_->before_begin();
+      auto bgBlock = m_unassigned_res_->begin(), befBgBlock = m_unassigned_res_->before_begin();
       Ty i;
       for (i = bgBlock->cbegin(); i < bgBlock->cend(); ++i)
       {

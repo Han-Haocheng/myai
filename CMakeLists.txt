@@ -1,5 +1,20 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.8)
+project(THINK)
 
-set(CMAKE_CXX_STANDARD 17)
-project(think)
-add_executable(think src/main.cpp)
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED NO)
+aux_source_directory("./src" SOURCES_DIRECTORY)
+
+
+if(CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+
+elseif(CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
+	
+endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+add_executable(THINK ${SOURCES_DIRECTORY})

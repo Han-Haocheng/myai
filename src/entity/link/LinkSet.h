@@ -60,7 +60,7 @@ public:
     for (auto &&item: *this)
     {
       auto findRes = tmpMap.find(item.id());
-      if (findRes != tmpMap.end()) { findRes->second += item.val(); }
+      if (findRes != tmpMap.end()) { findRes->second += item.linkVal(); }
       else { tmpMap.emplace((value_type::link_pair) item); }
     }
     this->assign(tmpMap.begin(), tmpMap.end());
@@ -93,7 +93,7 @@ public:
     for (auto &&item: *this)
     {
       auto findRes = tmpMap.find(item.id());
-      if (findRes != tmpMap.end()) { findRes->second += item.val(); }
+      if (findRes != tmpMap.end()) { findRes->second += item.linkVal(); }
       else { tmpMap.emplace((value_type::link_pair) item); }
     }
     this->assign(tmpMap.begin(), tmpMap.end());
@@ -243,7 +243,7 @@ public:
     for (auto &&item: *m_normal_)
     {
       auto findRes = tmpMap->find(item.id());
-      if (findRes != tmpMap->end()) { findRes->second += item.val(); }
+      if (findRes != tmpMap->end()) { findRes->second += item.linkVal(); }
       else { tmpMap->emplace((value_type::link_pair) item); }
     }
 

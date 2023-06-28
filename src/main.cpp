@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "core/ThinkControl.h"
+
 class Book
 {
   int dakaideyeshu = 0;
@@ -19,7 +21,4 @@ public:
   }
 };
 
-int main()
-{
-  return 0;
-}
+int main() { return 0; }

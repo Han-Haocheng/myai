@@ -95,9 +95,9 @@ struct range
   [[nodiscard]] bool is_empty() const { return this->begin == this->end; }
 
   // 判断一个值是否在区间内
-  [[nodiscard]] bool is_belong(const_reference val) const
+  [[nodiscard]] bool is_belong(const_reference linkVal) const
   {
-    return end > begin ? val < end && val >= begin : val >= end && val < begin;
+    return end > begin ? linkVal < end && linkVal >= begin : linkVal >= end && linkVal < begin;
   }
 
   // 判断两个区间是否相交
@@ -136,8 +136,8 @@ public:
 
   constexpr weight() = default;
 
-  constexpr explicit weight(RightTy val) : m_val_(val) {}
-  constexpr weight(weight_type val) : m_val_(val) {}
+  constexpr explicit weight(RightTy linkVal) : m_val_(linkVal) {}
+  constexpr weight(weight_type linkVal) : m_val_(linkVal) {}
   weight &operator=(weight &&) noexcept = default;
   weight &operator=(const weight &)     = default;
 
@@ -147,13 +147,13 @@ public:
     return *this;
   }
 
-  constexpr weight(weight_type val, weight_type weightMax, weight_type weightMin)
-  : m_val_(val),
+  constexpr weight(weight_type linkVal, weight_type weightMax, weight_type weightMin)
+  : m_val_(linkVal),
     m_max_(weightMax),
     m_min_(weightMin)
   {
   }
-  weight operator-() { return weight{-val()}; }
+  weight operator-() { return weight{-linkVal()}; }
 
   friend constexpr right_type operator+(const weight &lhs, const right_type &rhs)
   {
@@ -177,7 +177,7 @@ public:
   constexpr weight &operator*=(const right_type &rhs) { return *this = *this * rhs; }
   constexpr weight &operator/=(const right_type &rhs) { return *this = *this / rhs; }
 
-  [[nodiscard]] constexpr weight_type val() const { return m_val_; }
+  [[nodiscard]] constexpr weight_type linkVal() const { return m_val_; }
   [[nodiscard]] constexpr weight_type &ref() { return m_val_; }
   void setMax(weight_type mMax) { m_max_ = mMax; }
 
@@ -366,14 +366,14 @@ public:
   LinkList(const LinkList &)            = default;
   LinkList &operator=(LinkList &&)      = default;
   LinkList &operator=(const LinkList &) = default;
-  LinkList &operator+=(int val)
+  LinkList &operator+=(int linkVal)
   {
-    for (link_t &lk: *this) { lk.linkVal = std::min<int>(NUM_LINK_VAL_MAX, lk.linkVal + val); }
+    for (link_t &lk: *this) { lk.linkVal = std::min<int>(NUM_LINK_VAL_MAX, lk.linkVal + linkVal); }
     return *this;
   }
-  LinkList &operator-=(int val)
+  LinkList &operator-=(int linkVal)
   {
-    for (link_t &lk: *this) { lk.linkVal = std::max<int>(NUM_LINK_VAL_MIN, lk.linkVal - val); }
+    for (link_t &lk: *this) { lk.linkVal = std::max<int>(NUM_LINK_VAL_MIN, lk.linkVal - linkVal); }
     return *this;
   }
   LinkList &operator*=(const weight<link_type> &weight)
@@ -386,15 +386,15 @@ public:
     LinkList res = *this;
     return res *= weight;
   }
-  LinkList operator-(int val)
+  LinkList operator-(int linkVal)
   {
     LinkList res = *this;
-    return res -= val;
+    return res -= linkVal;
   }
-  LinkList operator+(int val)
+  LinkList operator+(int linkVal)
   {
     LinkList res = *this;
-    return res += val;
+    return res += linkVal;
   }
   reference operator[](size_t pos) { return m_datas_[pos]; }
 

@@ -64,7 +64,7 @@ namespace io
       }
 
       idFile.write(reinterpret_cast<const char *>(&io_size), sizeof(const_node_info));
-      for (const auto &[id, val]: m_lstInputLink_)
+      for (const auto &[id, linkVal]: m_lstInputLink_)
       {
         idFile.write(reinterpret_cast<const char *>(&id), sizeof(id_type));
       }
@@ -91,10 +91,10 @@ namespace io
         {
           std::cerr << "文件不存在，静态节点id文件读取时打开失败！" << std::endl;
 
-          for (auto &[id, val]: m_lstInputLink_)
+          for (auto &[id, linkVal]: m_lstInputLink_)
           {
             id  = IdAlloc.allocate();
-            val = 0;
+            linkVal = 0;
           }
           IdAlloc.allocate(m_lstOutputId_, io_size.out_size);
           std::cerr << "节点已经分配。" << std::endl;
@@ -106,12 +106,12 @@ namespace io
 
       csFile.read(reinterpret_cast<char *>(const_cast<const_node_info *>(&io_size)), sizeof(const_node_info));
 
-      for (auto &[id, val]: m_lstInputLink_)
+      for (auto &[id, linkVal]: m_lstInputLink_)
       {
         csFile.read(reinterpret_cast<char *>(&id), sizeof(id_type));
         auto *tmp = new NodeInfo(id);
         NodeBuffer.emplace(id, tmp);
-        val = 0;
+        linkVal = 0;
       }
 
       m_lstOutputId_ = std::vector<id_type>(io_size.out_size);
@@ -132,27 +132,27 @@ namespace io
 
     const LinkList &inputActInfo() final
     {
-      weight<link_type> emo = interference.emotionActive.val() - 1.0;
-      weight<link_type> men = interference.mentalConcentration.val() - 1.0;
-      if (emo.val() > 0)
+      weight<link_type> emo = interference.emotionActive.linkVal() - 1.0;
+      weight<link_type> men = interference.mentalConcentration.linkVal() - 1.0;
+      if (emo.linkVal() > 0)
       {
         m_lstInputLink_[0].linkVal = emo * 0x800;
-        interference.emotionActive.ref() -= interference.decayFrequency.val();
+        interference.emotionActive.ref() -= interference.decayFrequency.linkVal();
       }
       else
       {
         m_lstInputLink_[1].linkVal = (-emo) * 0x800;
-        interference.emotionActive.ref() += interference.decayFrequency.val();
+        interference.emotionActive.ref() += interference.decayFrequency.linkVal();
       }
-      if (men.val() > 0)
+      if (men.linkVal() > 0)
       {
         m_lstInputLink_[2].linkVal = men * 0x800;
-        interference.mentalConcentration.ref() -= interference.decayFrequency.val();
+        interference.mentalConcentration.ref() -= interference.decayFrequency.linkVal();
       }
       else
       {
         m_lstInputLink_[3].linkVal = (-men) * 0x800;
-        interference.mentalConcentration.ref() += interference.decayFrequency.val();
+        interference.mentalConcentration.ref() += interference.decayFrequency.linkVal();
       }
       return m_lstInputLink_;
     }
