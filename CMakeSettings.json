@@ -8,14 +8,12 @@
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "intelliSenseMode": "windows-msvc-x64",
       "variables": [
         {
           "name": "CMAKE_RC_FLAGS_DEBUG",
-          "value": "-D_DEBUG",
-          "type": "STRING"
+          "value": "-D_DEBUG"
         }
       ]
     },
