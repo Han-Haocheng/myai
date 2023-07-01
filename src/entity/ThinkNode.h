@@ -6,6 +6,7 @@
 #define THINK_THINKNODE_H
 #include <forward_list>
 #include <functional>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -18,7 +19,7 @@ namespace thinksystem::entity
 {
 
 using attribute_t = uint32_t;
-
+using weight_t    = utils::BoundedValue<double, -10, 10>;
 class ThinkNode
 {
 public:
@@ -37,55 +38,33 @@ public:
 
   /// class NodeIdType
   /// 节点编号 - 用于表示节点在结构中的位置
-  class NodeIdType
+  class NodeIdType : public utils::BoundedValue<unsigned long long, 0x0000'0000'0000ULL, 0xffff'ffff'ffffULL>
   {
-  public:
-    using value_type = utils::BoundedValue<unsigned long long, 0x0000'0000'0001ULL, 0xffff'ffff'ffffULL>;
-
-  private:
-    using self = NodeIdType;
-
-  private:
-    value_type m_val_;
+    using self  = NodeIdType;
+    using super = utils::BoundedValue<unsigned long long, 0x0000'0000'0000ULL, 0xffff'ffff'ffffULL>;
 
   public:
+    using super::super;
+    using super::operator=;
+
+  public:
+    NodeIdType() : super(super::MIN) {}
     NodeIdType(self &&)      = default;
     NodeIdType(const self &) = default;
-    NodeIdType() : m_val_(value_type::MAX) {}
-    explicit NodeIdType(value_type id) : m_val_(id)
-    {
-#ifdef DEBUG
-      utils::Assert(id >= MAX_NODE_LOCATION || id == NULL_NODE_LOCATION,
-                    {utils::LogLevel::ERROR, "未知的节点生成结果。"});
-#endif
-    }
 
   public:
     self &operator=(self &&)      = default;
     self &operator=(const self &) = default;
-    self &operator=(value_type id)
-    {
-#ifdef DEBUG
-      utils::Assert(id >= MAX_NODE_LOCATION || id == NULL_NODE_LOCATION,
-                    {utils::LogLevel::ERROR, "未知的节点生成结果。"});
-#endif
-      m_val_ = id;
-      return *this;
-    }
-
-    friend bool operator==(const self &lhs, const self &rhs) { return lhs.m_val_ == rhs.m_val_; }
-    friend bool operator==(const value_type &lhs, const self &rhs) { return lhs == rhs.m_val_; }
-    friend bool operator!=(const self &lhs, const self &rhs) { return !(lhs == rhs); }
-    friend bool operator!=(const value_type &lhs, const self &rhs) { return !(lhs == rhs); }
 
   public:
     //转换为物理位置
     [[nodiscard]] std::string to_path() const
     {
       std::stringstream ss{".\\NodeStruct\\"};
-      for (size_t i = sizeof(unsigned long long); i > 0; --i)
+      auto tmpVal = val();
+      for (size_t i = 0; i < sizeof(tmpVal); ++i)
       {
-        unsigned char byte = (m_val_ >> (8 * (i - 1))) & 0xFF;
+        unsigned char byte = (tmpVal >>= 8) & 0xFF;
         ss << static_cast<int>(byte) << "\\";
       }
       return ss.str();
@@ -93,8 +72,8 @@ public:
 
     struct Hash
     {
-      using hash_type = unsigned long long;
-      hash_type operator()(const self &id) { return std::hash<value_type>{}(id.m_val_); }
+      using hash_type = size_t;
+      hash_type operator()(const self &id) { return std::hash<hash_type>{}(id.val()); }
     };
 
   };//! class NodeIdType
@@ -105,34 +84,41 @@ public:
   class LinkSet : private io::SerializationInterface
   {
   public:
-    /* struct link_t
+    /* struct LinkType
      * 链接结构
      * */
-    struct link_t
+    using link_type = class LinkType
     {
+      using self = LinkType;
+
+    public:
       using id_type    = NodeIdType;
       using value_type = utils::BoundedValue<std::uint32_t, 0x0000'0000U, 0xffff'ffffU>;
-      using self       = link_t;
 
     public:
       id_type id;
       value_type linkVal;
 
     public:
-      link_t() : id(), linkVal() {}
-      link_t(id_type::value_type id, value_type _val) : id(id), linkVal(_val) {}
+      LinkType() : id(), linkVal(value_type::MIN) {}
+      LinkType(const id_type &id, const value_type &linkVal) : id(id), linkVal(linkVal) {}
+      LinkType(const std::pair<id_type, value_type> &pr) : id(pr.first), linkVal(pr.second) {}
 
     public:
+      bool operator==(const LinkType &l) const { return l.id == id; }
+      bool operator!=(const LinkType &l) const { return l.id != id; }
       self &operator=(const std::pair<id_type, value_type> &pr)
       {
         id      = pr.first;
         linkVal = pr.second;
       }
-      bool operator==(const link_t &l) const { return l.id == id; }
-      bool operator!=(const link_t &l) const { return l.id != id; }
 
     public:
-      char *data() { return reinterpret_cast<char *>(this); }
+      char *data()
+      {
+        sizeof(*this);
+        return reinterpret_cast<char *>(this);
+      }
       [[nodiscard]] const char *data() const { return reinterpret_cast<const char *>(this); }
       struct Hash
       {
@@ -140,33 +126,115 @@ public:
         hash_type operator()(const self &lk) { return id_type::Hash{}(lk.id); }
       };
 
-    };//! struct link_t
+    };//! struct LinkType
+
+    /* class LinkListBase
+    * 链接列表基类
+    */
+    class LinkListBase
+    {
+      using self = LinkListBase;
+
+    public:
+      using value_type      = LinkType;
+      using reference       = LinkType &;
+      using const_reference = const LinkType &;
+      using size_type       = size_t;
+      using stand_type      = value_type::value_type;
+
+    public:
+      virtual ~LinkListBase() {}
+
+    public:
+      virtual self &operator+=(const stand_type &) = 0;
+      virtual self &operator-=(const stand_type &) = 0;
+      virtual self &operator*=(const weight_t &)   = 0;
+
+    public:
+      virtual bool empty() const     = 0;
+      virtual size_type size() const = 0;
+
+    public:
+      virtual void for_each(std::function<void(value_type &)> func) = 0;
+      virtual void insert(std::initializer_list<value_type> _il)    = 0;
+      virtual void emplace(value_type &&)                           = 0;
+      virtual void emplace(const value_type &)                      = 0;
+      virtual bool remove_replication()                             = 0;
+      virtual bool remove_by_standard(const stand_type &_stand)     = 0;
+
+    };//! class LinkListBase
 
     /* class LinkArrayList
-     *
+     * 链接数组
      * */
-    class LinkArrayList : private std::vector<link_t>
+    class LinkArrayList : public LinkListBase
     {
+      using list_type = std::vector<LinkType>;
+      using self      = LinkArrayList;
+      using super     = LinkListBase;
+
+    private:
+      list_type m_list_;
+
+    public:
+      // 通过 LinkListBase 继承
+      virtual self &operator+=(const stand_type &) override {}
+
+      virtual self &operator-=(const stand_type &) override {}
+
+      virtual self &operator*=(const weight_t &) override {}
+
+    public:
+      virtual size_type size() const override { return m_list_.size(); }
+      bool empty() const { return m_list_.empty(); }
+
+    public:
+      virtual void for_each(std::function<void(value_type &)> func) override
+      {
+        std::for_each(m_list_.begin(), m_list_.end(), func);
+      }
+
+      virtual void insert(std::initializer_list<value_type> _il) override { m_list_.assign(_il); }
+
+      virtual void emplace(value_type &&val) override { m_list_.emplace_back(val); }
+
+      virtual void emplace(const value_type &val) override { m_list_.emplace_back(val); }
+
+      virtual bool remove_replication() override
+      {
+        if (empty()) return false;
+        std::unordered_map<id_type, link_type> tmpMap{m_list_.size()};
+        for (const auto &val: m_list_) { tmpMap.emplace(val);
+        }
+        
+      }
+
+      virtual bool remove_by_standard(const stand_type &_stand) override {}
+
     };//!class LinkArrayList
 
     /* class LinkLinkedList
-     *
+     * 链接链表
      * */
-    class LinkLinkedList : private std::forward_list<link_t>
+    class LinkLinkedList : public LinkListBase
     {
-    public:
-      using value_type = link_t;
-      using self       = LinkLinkedList;
-      using super      = std::forward_list<value_type>;
+      using list_type = std::forward_list<LinkType>;
+      using self      = LinkLinkedList;
+      using super     = LinkListBase;
 
     public:
-      using super::forward_list;
-      using super::operator=;
-      using super::begin;
-      using super::end;
+      using value_type = LinkType;
+
+      using size_type  = size_t;
+
+    private:
+      list_type m_list_;
+      size_type m_size_;
+
+    public:
     };//!class LinkLinkedList
   public:
-    using value_type      = struct link_t;
+    using value_type      = struct LinkType;
     using array_list      = std::vector<value_type>;
     using linked_list     = std::forward_list<value_type>;
     using size_type       = size_t;

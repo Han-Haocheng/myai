@@ -33,15 +33,13 @@
 
 # Customization
 
-x64
-out
 .vs
 .vscode
 .idea
+
+#Think.vcxproj
+#Think.vcxproj.filters
+
+
 build
-cmake-build-debug
-
-Think.vcxproj
-Think.vcxproj.filters
-
-
+lib

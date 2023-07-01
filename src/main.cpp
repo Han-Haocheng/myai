@@ -21,4 +21,4 @@ public:
   }
 };
 
-int main() { return 0; }
+int main() { printf("%d", static_cast<unsigned int>(-1)); }
