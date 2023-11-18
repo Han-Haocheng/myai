@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "singleton.h"
+
 
 namespace myai
 {
