@@ -73,7 +73,7 @@ public:
 
 public:
   BoundedValue() : m_val_() {}
-  BoundedValue(const_ref linkVal) : m_val_(LIMIT(linkVal)) {}
+  explicit BoundedValue(const_ref linkVal) : m_val_(LIMIT(linkVal)) {}
   BoundedValue(self&&) noexcept = default;
   BoundedValue(const self&)     = default;
 

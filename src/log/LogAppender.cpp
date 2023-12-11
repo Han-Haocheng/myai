@@ -10,7 +10,7 @@
 namespace myai
 {
 LogAppender::LogAppender(LogLevel appender_level, Type appender_type, LogFormatter::ptr formatter)
-    : m_level(appender_level), m_type(appender_type), m_formatter(formatter)
+    : m_level(appender_level), m_type(appender_type), m_formatter(std::move(formatter))
 {
 }
 std::string LogAppender::ToString(LogAppender::Type type)
@@ -26,7 +26,7 @@ std::string LogAppender::ToString(LogAppender::Type type)
 #undef XX
   }
 }
-LogAppender::Type LogAppender::FromString(std::string type)
+LogAppender::Type LogAppender::FromString(const std::string& type)
 {
   if (type == "CONSOLE" || type == "console" || type == "Console" || type == "ConsoleAppender" || type == "APD_CONSOLE" || type == "1") {
     return LogAppender::APD_CONSOLE;

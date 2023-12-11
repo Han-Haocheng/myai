@@ -25,30 +25,53 @@ public:
     TERMINATED = 1 << 4,
     EXCEPT = 1 << 5,
   };
-  static std::string to_string(Coroutine::State state);
+  static std::string toString(Coroutine::State state);
+  static size_t GetId() { return t_this_coroutine->m_id; }
+  static ptr GetThis()
+  {
+    if (!t_this_coroutine) {
+      Coroutine::ptr main_fiber{new Coroutine};
+      if (t_this_coroutine != t_main_coroutine){
+
+      }
+      t_this_coroutine = main_fiber;
+    }
+    return t_this_coroutine;
+  }
 
 public:
   explicit Coroutine(const std::function<void()> &cb, size_t stacksize = 0);
   ~Coroutine();
 
   void resume();
-  void yield();
+  static void Yield();
+
+  static void restart();
+
+  State state();
+  void reset(const std::function<void()> &cb);
 
 private:
   void run();
+  Coroutine();
+  void swap_out();
 
 private:
   uint64_t m_id = 0;
-  State m_state;
-  size_t m_stacksize = 0;
+  State m_state = Coroutine::INITIAL;
+  std::function<void()> m_cb = nullptr;
+
   void *m_stack = nullptr;
+  size_t m_stacksize = 0;
   ucontext_t m_ctx;
-  std::function<void()> m_cb;
 
   static const size_t DEF_STACK_SIZE = 1024 * 1024 * 4;
 
-  static size_t t_id_alloc;
-  static size_t t_fiber_count;
+  static thread_local ptr t_this_coroutine;
+  static thread_local ptr t_main_coroutine;
+  static size_t s_id_alloc;
+  static size_t s_fiber_count;
+  static void SetThis(Coroutine::ptr co);
 };
 }// namespace myai
 

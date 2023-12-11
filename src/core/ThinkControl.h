@@ -1,28 +1,34 @@
-﻿//
-// Created by HanHaocheng on 2023/06/17.
+//
+// Created by HanHaocheng on 2023/11/30.
 //
 
 #ifndef THINK_THINKCONTROL_H
 #define THINK_THINKCONTROL_H
-#include "../entity/ThinkNode.h"
-#include "../utils/ResourceAllocator.h"
-namespace thinksystem::entity
+
+#include "NodeFactory.h"
+#include "Noder.h"
+#include <unordered_map>
+namespace myai
 {
 
 class ThinkControl
 {
 public:
-  using id_type  = ThinkNode::NodeIdType;
-  using id_alloc = utils::ResourceAllocator<id_type::value_type>;
+  void init();
+  void run();
 
-public:
-  id_alloc* m_id_alloc_ = nullptr;
+  bool stop();
+  bool timeout();
 
-public:
-  ThinkControl() : m_id_alloc_(new id_alloc(id_type::value_type::MIN, id_type::value_type::MAX)) {}
-  ~ThinkControl() { io::Serialization("./IdAlloc").serialization(*m_id_alloc_); }
+private:
+  NodeIdAllocator::ptr m_idAlloc = nullptr;
+  NodeFactory::ptr m_nodeFactory = nullptr;
+  NodeDao::ptr m_nodeDao = nullptr;
+  size_t m_recordeNums = 0ULL;
+  std::forward_list<Node::ptr> m_recordes = {};
+  static std::unordered_map<Noder::Type, Noder::ptr> s_noderMap;
 };
 
-}// namespace thinksystem::entity
+}// namespace myai
 
 #endif//THINK_THINKCONTROL_H

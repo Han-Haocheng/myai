@@ -26,7 +26,7 @@ public:
     APD_FILE,
   };
   static std::string ToString(Type type);
-  static Type FromString(std::string type);
+  static Type FromString(const std::string& type);
 
   typedef std::shared_ptr<LogAppender> ptr;
   LogAppender(LogLevel appender_level, Type appender_type, LogFormatter::ptr formatter);
@@ -36,7 +36,6 @@ public:
   LogLevel getLevel() const { return m_level; }
   void setLevel(LogLevel level) { m_level = level; }
   Type getType() const { return m_type; }
-  void setType(Type type) { m_type = type; }
   const LogFormatter::ptr &getFormatter() const { return m_formatter; }
   void setFormatter(const LogFormatter::ptr &formatter) { m_formatter = formatter; }
 

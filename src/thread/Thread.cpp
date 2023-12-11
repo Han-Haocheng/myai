@@ -12,9 +12,11 @@
 
 namespace myai
 {
+thread_local Thread::ptr Thread::t_this_thread = nullptr;
 
 pid_t Thread::GetId() { return (pid_t) syscall(SYS_gettid); }
 std::string Thread::GetName() { return t_this_thread->m_name; }
+void Thread::SetName(std::string name) { t_this_thread->m_name = std::move(name); }
 void Thread::SetThis(Thread::ptr thread) { t_this_thread = std::move(thread); }
 Thread::ptr Thread::GetThis() { return t_this_thread; }
 
@@ -48,8 +50,10 @@ Thread::~Thread()
   }
 }
 
-void Thread::join() const { pthread_join(m_thread, nullptr); }
-
+void Thread::join() const
+{
+  pthread_join(m_thread, nullptr);
+}
 void *Thread::run(void *avg)
 {
   auto *thread = (Thread *) avg;

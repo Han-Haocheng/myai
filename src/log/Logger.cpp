@@ -9,8 +9,9 @@
 #include <utility>
 namespace myai
 {
-Logger::Logger(std::string name, LogLevel logger_level)
-    : m_name(std::move(name)), m_level(logger_level) {}
+Logger::Logger(std::string name, LogLevel logger_level) : m_name(std::move(name)), m_level(logger_level)
+{
+}
 Logger::~Logger() = default;
 
 void Logger::log(const LogEvent::ptr &event)
@@ -18,8 +19,9 @@ void Logger::log(const LogEvent::ptr &event)
   if (m_level > event->getLevel()) {
     return;
   }
-  if (MYAI_LOGGER_ROOT.get() != this && m_appenders.empty()) {
-    MYAI_LOGGER_ROOT->log(event);
+
+  if (m_appenders.empty()) {
+    std::cout << "<warning Logger::log>logger name=" << m_name << " do not have appender." << std::endl;
     return;
   }
 

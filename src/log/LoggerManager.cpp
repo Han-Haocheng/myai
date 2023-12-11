@@ -10,58 +10,71 @@
 namespace myai
 {
 
+Config<LogConfigVal>::ptr g_log_configs =
+    Configer::GetInstance()->setConfig<LogConfigVal>("log",
+                                                     {
+                                                         LogLevel::DEBUG,
+                                                         "%d{%Y-%m-%d %H:%M:%S} %m%n",
+                                                         {
+                                                             "root",
+                                                             LogLevel::DEBUG,
+                                                             "%d{%Y-%m-%d %H:%M:%S} %t%T%F%T%N [%p] [%c] %f:%l %M ==> %m%n",
+                                                             {
+                                                                 {
+                                                                     LogAppender::Type::APD_CONSOLE,
+                                                                     "",
+                                                                     LogLevel::DEBUG,
+                                                                     "",
+                                                                 },
+                                                             },
+                                                         },
+                                                         {},
+                                                     },
+                                                     "log");
 LoggerManager::ptr LoggerManager::GetInstance()
 {
-  static LoggerManager::ptr manager{new LoggerManager()};
+  static LoggerManager::ptr manager{new LoggerManager{}};
   if (manager == nullptr) {
     manager.reset(new LoggerManager{});
   }
+  if (!manager->isInitialized()) {
+    manager->init();
+  }
+
   return manager;
 }
 
-LoggerManager::LoggerManager()
-    : m_configer(new Configer),
-      m_defFormatter(new LogFormatter{"%d{%Y-%m-%d %H:%MutexType:%S} %t%T%F%T%N [%p] [%c] %f:%l %M->%m%n"}),
-      m_rootLogger(new Logger("root", LogLevel::DEBUG))
+LoggerManager::LoggerManager() = default;
+
+void LoggerManager::init()
 {
-  m_rootLogger->setFormatter(m_defFormatter);
-  m_rootLogger->addAppender(std::make_shared<ConsoleAppender>(LogLevel::DEBUG));
-  addLogger(m_rootLogger);
+  auto conf = g_log_configs->getValue();
+  m_defLoggerLevel = conf.def_level;
+  m_defLoggerFormater = conf.def_pattern.empty() ? nullptr : std::make_shared<LogFormatter>(conf.def_pattern);
+  m_rootLogger = config_logger(g_log_configs->getValue().root_logger);
 
-  //loadByYaml(std::string());
-}
+  this->addLogger(m_rootLogger);
 
-void LoggerManager::loadByYaml(const std::string &path)
-{
-  m_configer->loadByYaml(path);
-  auto getRt = m_configer->getConfig<std::vector<LoggerConfigVal>>("loggers");
-  if (getRt != nullptr) {
-    m_loggerConfigs = getRt->getValue();
-  }
+  g_log_configs->addListener([this](const LogConfigVal &oldConfs, const LogConfigVal &newConfs) {
+    m_defLoggerLevel = newConfs.def_level;
+    m_defLoggerFormater->setPattern(newConfs.def_pattern);
 
-  for (const auto &log_conf: m_loggerConfigs) {
-    std::vector<LogAppender::ptr> tmpAppenders;
-    for (const auto &app_conf: log_conf.appenders) {
-      switch (app_conf.type) {
-        case LogAppender::APD_UNDEFINE:
-          throw std::runtime_error{"appender type undefine"};
-          break;
-        case LogAppender::APD_CONSOLE:
-          tmpAppenders.emplace_back(std::make_shared<ConsoleAppender>(app_conf.level));
-          if (!app_conf.pattern.empty()) {
-            tmpAppenders.back()->setFormatter(std::make_shared<LogFormatter>(app_conf.pattern));
-          }
-          break;
-        case LogAppender::APD_FILE:
-          tmpAppenders.emplace_back(std::make_shared<FileAppender>(app_conf.level, app_conf.file));
-          if (!app_conf.pattern.empty()) {
-            tmpAppenders.back()->setFormatter(std::make_shared<LogFormatter>(app_conf.pattern));
-          }
-          break;
+    for (const auto &new_logger_conf: newConfs.loggers) {
+      auto fd_res = oldConfs.loggers.find(new_logger_conf);
+      if (fd_res != oldConfs.loggers.end()) {
+        this->setLogger(config_logger(new_logger_conf));
+      }
+      this->addLogger(config_logger(new_logger_conf));
+    }
+    for (const auto &old_conf: oldConfs.loggers) {
+      auto fd_res = newConfs.loggers.find(old_conf);
+      if (fd_res == newConfs.loggers.end()) {
+        this->delLogger(fd_res->name);
       }
     }
-    addLogger(log_conf.name, log_conf.level, std::make_shared<LogFormatter>(log_conf.pattern), tmpAppenders);
-  }
+  });
+  Configer::GetInstance()->loadByYaml("log.yml");
+  m_isInitialized = true;
 }
 
 Logger::ptr LoggerManager::getLogger(const std::string &name)
@@ -73,18 +86,31 @@ Logger::ptr LoggerManager::getLogger(const std::string &name)
   return find_rt->second;
 }
 
-bool LoggerManager::setLogger(const std::string &name, LogLevel logger_level, LogFormatter::ptr formatter, const std::vector<LogAppender::ptr> &appenders)
+Logger::ptr LoggerManager::setLogger(const std::string &name, LogLevel logger_level, LogFormatter::ptr formatter, const std::vector<LogAppender::ptr> &appenders)
 {
   auto logger = getLogger(name);
   if (!logger)
-    return false;
+    return logger;
   if (logger_level != LogLevel::UNKNOWN)
     logger->setLevel(logger_level);
   if (formatter)
     logger->setFormatter(std::move(formatter));
   for (const auto &appender: appenders)
     logger->addAppender(appender);
-  return true;
+  return logger;
+}
+
+bool LoggerManager::setLogger(const Logger::ptr &logger)
+{
+  if (logger == nullptr || logger->getName().empty()) {
+    return false;
+  }
+  auto fd_res = m_loggers.find(logger->getName());
+  if (fd_res == m_loggers.end()) {
+    return false;
+  }
+  fd_res->second = logger;
+  return false;
 }
 
 Logger::ptr LoggerManager::addLogger(const std::string &name, LogLevel logger_level, LogFormatter::ptr formatter, const std::vector<LogAppender::ptr> &appenders)
@@ -109,9 +135,6 @@ bool LoggerManager::addLogger(const Logger::ptr &logger)
   if (res) {
     return false;
   }
-  if (!logger->getFormatter()) {
-    logger->setFormatter(m_defFormatter);
-  }
   m_loggers.emplace(logger->getName(), logger);
   return true;
 }
@@ -124,6 +147,42 @@ bool LoggerManager::delLogger(const std::string &name)
   }
   m_loggers.erase(findRt);
   return true;
+}
+
+Logger::ptr LoggerManager::config_logger(const LoggerConfigVal &conf)
+{
+  if (conf.name.empty()) {
+    return nullptr;
+  }
+  auto level = conf.level == LogLevel::UNKNOWN ? m_defLoggerLevel : conf.level;
+
+  Logger::ptr ret = std::make_shared<Logger>(conf.name, level);
+  auto formatter = conf.pattern.empty() ? m_defLoggerFormater : std::make_shared<LogFormatter>(conf.pattern);
+  ret->setFormatter(formatter);
+  for (const auto &app_conf: conf.appenders) {
+    auto app = config_appender(level, formatter, app_conf);
+    if (app == nullptr) { continue; }
+    ret->addAppender(app);
+  }
+  return ret;
+}
+
+LogAppender::ptr LoggerManager::config_appender(LogLevel logger_level, LogFormatter::ptr logger_formatter, const AppenderConfigVal &conf)
+{
+  if (conf.type == LogAppender::APD_UNDEFINE) {
+    return nullptr;
+  }
+  auto formatter = conf.pattern.empty() ? std::move(logger_formatter) : std::make_shared<LogFormatter>(conf.pattern);
+  LogLevel level = conf.level == LogLevel::UNKNOWN ? logger_level : conf.level;
+  LogAppender::ptr ret = nullptr;
+  if (conf.type == LogAppender::APD_CONSOLE) {
+    ret = std::make_shared<ConsoleAppender>(level);
+    ret->setFormatter(formatter);
+  } else if (conf.type == LogAppender::APD_FILE) {
+    ret = std::make_shared<FileAppender>(level, conf.file);
+    ret->setFormatter(formatter);
+  }
+  return ret;
 }
 
 }// namespace myai

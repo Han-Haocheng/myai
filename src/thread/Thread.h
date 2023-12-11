@@ -20,6 +20,7 @@ public:
   static pid_t GetId();
   static Thread::ptr GetThis();
   static std::string GetName();
+  static void SetName(std::string name);
 
 public:
   Thread(std::string name, std::function<void()> cb);
@@ -35,7 +36,6 @@ public:
 
 private:
   static void SetThis(Thread::ptr thread);
-
   static void *run(void *avg);
 
 private:

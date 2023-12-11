@@ -3,32 +3,33 @@
 //
 
 #include "Mutex.h"
+#include "../log/LoggerManager.h"
 #include <stdexcept>
-
 namespace myai
 {
+Logger::ptr g_logger = MYAI_LOGGER_NAME("system");
 Semaphore::Semaphore(uint32_t count)
 {
   if (sem_init(&m_semaphore, 0, count)) {
-    throw std::runtime_error("sem_init failed");
+    MYAI_LOG_ERROR(g_logger) << "sem_init failed";
   }
 }
 Semaphore::~Semaphore()
 {
   if (sem_destroy(&m_semaphore)) {
-    throw std::runtime_error("sem_destroy failed");
+    MYAI_LOG_ERROR(g_logger) << "sem_destroy failed";
   }
 }
 void Semaphore::wait()
 {
   if (sem_wait(&m_semaphore)) {
-    throw std::runtime_error("sem_wait failed");
+    MYAI_LOG_ERROR(g_logger) << "sem_wait failed";
   }
 }
 void Semaphore::notify()
 {
   if (sem_post(&m_semaphore)) {
-    throw std::runtime_error("sem_post failed");
+    MYAI_LOG_ERROR(g_logger) << "sem_post failed";
   }
 }
 
