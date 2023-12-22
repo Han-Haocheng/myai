@@ -37,12 +37,36 @@ struct TTT {
 void test2()
 {
   TTT t{};
-  std::cout <<( t.t==Test::A?"A":"B | C") << std::endl;
+  std::cout << (t.t == Test::A ? "A" : "B | C") << std::endl;
+}
+void test3()
+{
+  uint64_t minx = 1, maxx = 2, x = 1, size = 100000, flag = 0;
+  clock_t start, ends;
+  start = clock();
+  for (uint64_t i = 0; i < size; ++i) {
+    if (minx <= x && x < maxx) {
+      ++flag;
+    }
+  }
+  ends = clock();
+  std::cout << "use time=" << ends - start << "ms;"
+            << "flag=" << flag << std::endl;
+  flag = 0;
+  start = clock();
+  for (uint64_t i = 0; i < size; ++i) {
+    if ((x - minx) < (maxx - minx)) {
+      ++flag;
+    }
+  }
+  ends = clock();
+  std::cout << "use time=" << ends - start << "ms;"
+            << "flag=" << flag << std::endl;
 }
 int main(int argc, char **argv)
 {
 
-  test2();
+  test3();
 
   return 0;
 }

@@ -13,14 +13,14 @@ std::string toString(LogLevel level)
 {
   switch (level) {
 #define XX(n)       \
-  case LogLevel::n: \
+  case LogLevel::LL_##n: \
     return #n
     XX(ERROR);
     XX(WARN);
     XX(INFO);
     XX(DEBUG);
     default:
-      return "UNKNOWN";
+      return "NT_UNKNOWN";
   }
 #undef XX
 }
@@ -38,12 +38,12 @@ LogLevel fromString(std::string level)
   std::transform(level.begin(), level.end(), level.begin(), ::toupper);
 #define XX(n)      \
   if (level == #n) \
-  return LogLevel::n
+  return LogLevel::LL_##n
   XX(ERROR);
   XX(WARN);
   XX(INFO);
   XX(DEBUG);
-  return LogLevel::UNKNOWN;
+  return LogLevel::LL_UNKNOWN;
 #undef XX
 }
 

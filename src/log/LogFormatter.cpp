@@ -241,7 +241,7 @@ void LogFormatter::parsePattern()
   } else if (str_state == FMT_EX) {
     auto &b = item_strs.back();
     b.state = DEF_STR;
-    std::cout << "<error LogFormatter::parsePattern> set fmt failed, fmt=`" << b.str << "`ex:`" << b.ex_str << "`"<< std::endl;
+    std::cout << "<error LogFormatter::parse_pattern> set fmt failed, fmt=`" << b.str << "`ex:`" << b.ex_str << "`"<< std::endl;
   } else {
     item_strs.emplace_back(infos_buf);
   }
@@ -253,7 +253,7 @@ void LogFormatter::parsePattern()
     } else {
       auto findRt = s_item_map.find(infos.str);
       if (findRt == s_item_map.end()) {
-        std::cout << "<error LogFormatter::parsePattern> find fmt:`" << infos.str << "`ex:`" << infos.ex_str << "`" << std::endl;
+        std::cout << "<error LogFormatter::parse_pattern> find fmt:`" << infos.str << "`ex:`" << infos.ex_str << "`" << std::endl;
       }
       m_items.emplace_back(findRt->second(infos.ex_str));
     }

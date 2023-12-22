@@ -15,7 +15,7 @@
 namespace myai
 {
 
-class Scheduler : std::enable_shared_from_this<Scheduler>
+class Scheduler : public std::enable_shared_from_this<Scheduler>
 {
 public:
   using ptr = std::shared_ptr<Scheduler>;

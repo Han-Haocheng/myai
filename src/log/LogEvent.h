@@ -13,11 +13,11 @@ namespace myai
 {
 enum class LogLevel
 {
-  UNKNOWN,
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
+  LL_UNKNOWN,
+  LL_DEBUG,
+  LL_INFO,
+  LL_WARN,
+  LL_ERROR,
 };
 
 std::string toString(LogLevel level);
@@ -50,7 +50,7 @@ private:
   int m_line = 0;          //行数
   std::string m_loggerName{};
 
-  LogLevel m_level = LogLevel::UNKNOWN;
+  LogLevel m_level = LogLevel::LL_UNKNOWN;
 
   std::string m_threadName{};
   int m_threadId = 0;    //线程id

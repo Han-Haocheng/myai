@@ -1,9 +1,9 @@
 //
-// Created by HanHaocheng on 2023/11/7.
+// Created by HanHaocheng on 2023/12/21.
 //
 
-#ifndef MY_AI_CONFIG_H
-#define MY_AI_CONFIG_H
+#ifndef THINK_CONFIG_H
+#define THINK_CONFIG_H
 
 #include <boost/lexical_cast.hpp>
 #include <cstddef>
@@ -16,14 +16,18 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace myai
+namespace mylib
 {
 
+//=====================================================================================================================
 template<class F, class T>
 class ConfigCast
 {
 public:
   T operator()(const F &v) { return boost::lexical_cast<T>(v); }
+
+  std::string toString(const T &v) { return boost::lexical_cast<std::string>(v); }
+  T fromString(const std::string &v) { return boost::lexical_cast<T>(v); }
 };
 
 template<typename T>
@@ -88,7 +92,7 @@ public:
     YAML::Node node = YAML::Load(v);
     typename std::forward_list<T> fd_list;
     for (auto &&i: node)
-      fd_list.emplace_front(ConfigCast<std::string, T>{}(YAML::Dump(i)));
+      fd_list.emplace_back(ConfigCast<std::string, T>()(YAML::Dump(i)));
     return fd_list;
   }
 };
@@ -219,6 +223,7 @@ public:
     return YAML::Dump(node);
   }
 };
+
 //=====================================================================================================================
 
 class ConfigBase
@@ -227,17 +232,19 @@ public:
   typedef std::shared_ptr<ConfigBase> ptr;
   ConfigBase(std::string name, std::string comment);
   virtual ~ConfigBase() = default;
-  const std::string &getName() const;
-  const std::string &getComment() const;
+  [[nodiscard]] const std::string &getName() const;
+  [[nodiscard]] const std::string &getComment() const;
 
-  virtual std::string getTypeName() const = 0;
-  virtual std::string toString() const = 0;
+  [[nodiscard]] virtual std::string getTypeName() const = 0;
+  [[nodiscard]] virtual std::string toString() const = 0;
   virtual void fromString(const std::string &str) = 0;
 
 private:
   std::string m_name;
   std::string m_comment;
 };
+
+//=====================================================================================================================
 //using ConfTy = int;
 template<typename ConfTy, typename ToStr = ConfigCast<ConfTy, std::string>, typename FromStr = ConfigCast<std::string, ConfTy>>
 class Config : public ConfigBase
@@ -251,9 +258,9 @@ public:
     m_val.reset(new ConfTy{confval});
   }
 
-  std::string getTypeName() const override { return typeid(*m_val).name(); }
+  [[nodiscard]] std::string getTypeName() const override { return typeid(*m_val).name(); }
 
-  std::string toString() const override
+  [[nodiscard]] std::string toString() const override
   {
     try {
       return ToStr{}(*(m_val));
@@ -305,6 +312,66 @@ private:
   std::shared_ptr<ConfTy> m_val = nullptr;
   std::vector<on_lisen_cb> m_cbs;
 };
-}// namespace myai
+//=====================================================================================================================
+class Configer
+{
+public:
+  typedef std::shared_ptr<Configer> ptr;
+  using YamlPair = std::pair<std::string, YAML::Node>;
+  typedef std::unordered_map<std::string, ConfigBase::ptr> ConfigMap;
 
-#endif//MY_AI_CONFIG_H
+  void loadByYaml(const std::string &path);
+  //void saveToYaml(const std::string &path);
+
+  template<typename ConfTy>
+  typename Config<ConfTy>::ptr setConfig(const std::string &name, const ConfTy &val, const std::string &comment)
+  {
+    try {
+      auto fd_rt = getConfig<ConfTy>(name);
+      if (!fd_rt) {
+        fd_rt = std::make_shared<Config<ConfTy>>(name, val, comment);
+        m_configs.emplace(name, fd_rt);
+      }
+
+      fd_rt->setValue(val);
+      return fd_rt;
+    } catch (std::exception &e) {
+      std::cout << e.what() << std::endl;
+    }
+    return nullptr;
+  }
+
+  template<typename ConfTy>
+  typename Config<ConfTy>::ptr getConfig(const std::string &name)
+  {
+    auto fd_rt = m_configs.find(name);
+    if (fd_rt == m_configs.end()) {
+      return nullptr;
+    }
+    if (fd_rt->second->getTypeName() != typeid(ConfTy).name()) {
+      throw std::logic_error{(std::stringstream{"<error Configer::getConfig>"}
+                              << "get config faild,config type is diffetent,"
+                              << "name=" << name << " "
+                              << "in type=" << typeid(ConfTy).name() << " "
+                              << "real type=" << fd_rt->second->getTypeName())
+                                 .str()};
+    }
+    return std::dynamic_pointer_cast<Config<ConfTy>>(fd_rt->second);
+  }
+
+  bool delConfig(const std::string &name);
+
+  static Configer::ptr GetInstance();
+
+private:
+  Configer();
+  static void list_all_yaml_node(YAML::Node &root_node, std::list<YamlPair> &out);
+  ConfigBase::ptr _getConfigBase(const std::string &name);
+
+private:
+  ConfigMap m_configs;
+  std::vector<std::function<void(ConfigBase::ptr, ConfigBase::ptr &)>> m_cbs;
+};
+}// namespace mylib
+
+#endif//THINK_CONFIG_H

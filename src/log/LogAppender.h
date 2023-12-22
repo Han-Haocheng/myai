@@ -40,7 +40,7 @@ public:
   void setFormatter(const LogFormatter::ptr &formatter) { m_formatter = formatter; }
 
 protected:
-  LogLevel m_level = LogLevel::DEBUG;
+  LogLevel m_level = LogLevel::LL_DEBUG;
   Type m_type = Type::APD_UNDEFINE;
   LogFormatter::ptr m_formatter = nullptr;
 };

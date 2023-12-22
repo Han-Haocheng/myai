@@ -5,25 +5,27 @@
 #ifndef MY_AI_LOGGERMANAGER_H
 #define MY_AI_LOGGERMANAGER_H
 
+#include "../asyn//Coroutine.h"
+#include "../asyn/Thread.h"
 #include "../config/Configer.h"
 #include "Logger.h"
 #include <memory>
 #include <unordered_map>
 
-#define MYAI_LOG_BASE(logger, level)                                                                                                              \
-  if (logger->getLevel() <= level)                                                                                                                \
-  myai::LogWarp{                                                                                                                                  \
-      logger, std::make_shared<myai::LogEvent>(myai::Timer::GetCurrentTime(), __FILE__, __LINE__, logger->getName(), level, "nonameThread", 0, 0, \
-                                               std::string{__PRETTY_FUNCTION__}.substr(std::string(__PRETTY_FUNCTION__).find(' ')))}              \
+#define MYAI_LOG_BASE(logger, level)                                                                                                                                                         \
+  if (logger->getLevel() <= level)                                                                                                                                                           \
+  myai::LogWarp{                                                                                                                                                                             \
+      logger, std::make_shared<myai::LogEvent>(myai::Timer::GetCurrentTime(), __FILE__, __LINE__, logger->getName(), level, "nonameThread", myai::Thread::GetId(), myai::Coroutine::GetId(), \
+                                               std::string{__PRETTY_FUNCTION__})}                                                                                                            \
       .msg()
 
-#define MYAI_LOG_DEBUG(logger) MYAI_LOG_BASE(logger, myai::LogLevel::DEBUG)
-#define MYAI_LOG_INFO(logger) MYAI_LOG_BASE(logger, myai::LogLevel::INFO)
-#define MYAI_LOG_WARN(logger) MYAI_LOG_BASE(logger, myai::LogLevel::WARN)
-#define MYAI_LOG_ERROR(logger) MYAI_LOG_BASE(logger, myai::LogLevel::ERROR)
+#define MYAI_LOG_DEBUG(logger) MYAI_LOG_BASE(logger, myai::LogLevel::LL_DEBUG)
+#define MYAI_LOG_INFO(logger) MYAI_LOG_BASE(logger, myai::LogLevel::LL_INFO)
+#define MYAI_LOG_WARN(logger) MYAI_LOG_BASE(logger, myai::LogLevel::LL_WARN)
+#define MYAI_LOG_ERROR(logger) MYAI_LOG_BASE(logger, myai::LogLevel::LL_ERROR)
 
 #define MYAI_LOGGER_ROOT myai::LoggerManager::GetInstance()->getRootLogger()
-#define MYAI_LOGGER_NAME(name) myai::LoggerManager::GetInstance()->addLogger(name, myai::LogLevel::DEBUG)
+#define MYAI_LOGGER_NAME(name) myai::LoggerManager::GetInstance()->addLogger(name, myai::LogLevel::LL_DEBUG)
 
 namespace myai
 {
@@ -48,7 +50,7 @@ public:
     if (val.type == LogAppender::APD_UNDEFINE) { throw std::runtime_error("Appender type is undefined."); }
     node["type"] = LogAppender::ToString(val.type);
     if (val.type == LogAppender::APD_FILE) { node["file"] = val.file.empty() ? "./log.txt" : val.file; }
-    if (val.level != LogLevel::UNKNOWN) { node["level"] = toString(val.level); }
+    if (val.level != LogLevel::LL_UNKNOWN) { node["level"] = toString(val.level); }
     if (!val.pattern.empty()) { node["pattern"] = val.pattern; }
     return YAML::Dump(node);
   }
@@ -68,7 +70,7 @@ public:
       ret.file = node["file"].IsDefined() ? node["file"].as<std::string>() : "";
     }
 
-    ret.level = node["level"].IsDefined() ? fromString(node["level"].as<std::string>()) : LogLevel::UNKNOWN;
+    ret.level = node["level"].IsDefined() ? fromString(node["level"].as<std::string>()) : LogLevel::LL_UNKNOWN;
     ret.pattern = node["pattern"].IsDefined() ? node["pattern"].as<std::string>() : "";
     return ret;
   }
@@ -100,7 +102,7 @@ public:
     YAML::Node node;
     if (val.name.empty()) { throw std::runtime_error("Logger name is undefined."); }
     node["name"] = val.name;
-    if (val.level != LogLevel::UNKNOWN) { node["level"] = toString(val.level); }
+    if (val.level != LogLevel::LL_UNKNOWN) { node["level"] = toString(val.level); }
     if (!val.pattern.empty()) { node["pattern"] = val.pattern; }
     if (val.appenders.empty()) { node.push_back(YAML::Load(ConfigCast<std::vector<AppenderConfigVal>, std::string>()(val.appenders))); }
     return YAML::Dump(node);
@@ -120,7 +122,7 @@ public:
     LoggerConfigVal ret{};
 
     ret.name = node["name"].as<std::string>();
-    ret.level = node["level"].IsDefined() ? fromString(node["level"].as<std::string>()) : LogLevel::UNKNOWN;
+    ret.level = node["level"].IsDefined() ? fromString(node["level"].as<std::string>()) : LogLevel::LL_UNKNOWN;
     ret.pattern = node["pattern"].IsDefined() ? node["pattern"].as<std::string>() : "";
     if (node["appenders"].IsDefined()) {
       ret.appenders = ConfigCast<std::string, std::vector<AppenderConfigVal>>{}(Dump(node["appenders"]));
@@ -170,7 +172,7 @@ public:
     YAML::Node node = YAML::Load(val);
     LogConfigVal ret{};
 
-    ret.def_level = node["def_level"].IsDefined() ? fromString(node["def_level"].as<std::string>()) : LogLevel::UNKNOWN;
+    ret.def_level = node["def_level"].IsDefined() ? fromString(node["def_level"].as<std::string>()) : LogLevel::LL_UNKNOWN;
     ret.def_pattern = node["def_pattern"].IsDefined() ? node["def_pattern"].as<std::string>() : "";
     if (node["root_logger"].IsDefined()) {
       ret.root_logger = ConfigCast<std::string, LoggerConfigVal>{}(Dump(node["root_logger"]));
@@ -232,7 +234,7 @@ private:
   std::vector<LoggerConfigVal> m_loggerConfigs{};
   std::unordered_map<std::string, Logger::ptr> m_loggers{};
 
-  LogLevel m_defLoggerLevel = LogLevel::UNKNOWN;
+  LogLevel m_defLoggerLevel = LogLevel::LL_UNKNOWN;
   LogFormatter::ptr m_defLoggerFormater = nullptr;
 };
 

@@ -1,15 +1,19 @@
 //
-// Created by HanHaocheng on 2023/11/7.
+// Created by HanHaocheng on 2023/12/21.
 //
 
-#include "Configer.h"
-#include "../log/LoggerManager.h"
-#include <iostream>
-#include <iterator>
+#include "../config.h"
 #include <stack>
-#include <utility>
-namespace myai
+
+namespace mylib
 {
+//=====================================================================================================================
+ConfigBase::ConfigBase(std::string name, std::string comment)
+    : m_name(std::move(name)), m_comment(std::move(comment)) {}
+const std::string &ConfigBase::getName() const { return m_name; }
+const std::string &ConfigBase::getComment() const { return m_comment; }
+//=====================================================================================================================
+Configer::Configer() = default;
 Configer::ptr Configer::GetInstance()
 {
   static Configer::ptr configer{new Configer{}};
@@ -18,7 +22,6 @@ Configer::ptr Configer::GetInstance()
   }
   return configer;
 }
-
 void Configer::list_all_yaml_node(YAML::Node &root_node, std::list<YamlPair> &out)
 {
   std::stack<YamlPair> node_stack;
@@ -42,7 +45,6 @@ void Configer::list_all_yaml_node(YAML::Node &root_node, std::list<YamlPair> &ou
     }
   }
 }
-
 void Configer::loadByYaml(const std::string &path)
 {
   YAML::Node root_nd;
@@ -69,7 +71,6 @@ void Configer::loadByYaml(const std::string &path)
                         : YAML::Dump(nd_pair.second));
   }
 }
-
 ConfigBase::ptr Configer::_getConfigBase(const std::string &name)
 {
   auto fd_rt = m_configs.find(name);
@@ -78,7 +79,6 @@ ConfigBase::ptr Configer::_getConfigBase(const std::string &name)
   }
   return fd_rt->second;
 }
-
 bool Configer::delConfig(const std::string &name)
 {
   auto fd_rt = getConfig<ConfigBase>(name);
@@ -90,7 +90,4 @@ bool Configer::delConfig(const std::string &name)
   m_configs.erase(name);
   return true;
 }
-
-Configer::Configer() = default;
-
-}// namespace myai
+}// namespace mylib

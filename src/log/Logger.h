@@ -41,7 +41,7 @@ public:
 
 private:
   std::string m_name;
-  LogLevel m_level = LogLevel::UNKNOWN;
+  LogLevel m_level = LogLevel::LL_UNKNOWN;
   LogFormatter::ptr m_formatter = nullptr;
   std::vector<LogAppender::ptr> m_appenders;
 };

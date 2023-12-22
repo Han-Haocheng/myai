@@ -60,13 +60,13 @@ private:
 
 typedef IdAllocator IdAlloc;
 
-Edge::Edge(Edge::IdType id, double weight) : m_id(id), m_weight(weight) {}
+Edge::Edge(Edge::IdType id, double weight) : m_linkId(id), m_weight(weight) {}
 
-std::pair<Edge::IdType, double> Edge::toPair() { return std::make_pair(m_id, m_weight); }
+std::pair<Edge::IdType, double> Edge::toPair() { return std::make_pair(m_linkId, m_weight); }
 
 void Edge::fromPair(const std::pair<IdType, double> &v)
 {
-  m_id = v.first;
+  m_linkId = v.first;
   m_weight = v.second;
 }
 
@@ -108,9 +108,9 @@ void BaseActivater::activate(Node::ptr acted_node, NodeBuffer::ptr act_res)
     if (next_edge.getWeight() == 0) {
       return true;
     }
-    auto next_node = act_res->getNode(next_edge.getId());
+    auto next_node = act_res->getNode(next_edge.getLinkId());
     if (!next_node) {
-      next_node = NoderManager::GetInstance()->lookup(next_edge.getId());
+      next_node = NoderManager::GetInstance()->lookup(next_edge.getLinkId());
       if (!next_node) {
         return true;
       }
@@ -130,8 +130,8 @@ void NoderManager::activate()
   for (const auto &act_pair: m_actNodes->getAllNodes()) {
     auto &act_node = act_pair.second;
 
-    if (act_node->getType() == NodeType::UNKNOWN) {
-      throw std::logic_error("NoderManager::activate() node type is UNKNOWN");
+    if (act_node->getType() == NodeType::NT_UNKNOWN) {
+      throw std::logic_error("NoderManager::activate() node type is LL_UNKNOWN");
     }
 
     m_activaters[act_node->getType()]->activate(act_node, next_act_nodes);
@@ -186,7 +186,7 @@ void NextRecorder::record(NodeBuffer::ptr ptr)
   for (const auto &node_pair: ptr->getAllNodes()) {
     auto node = node_pair.second;
     s_shareNode->nextEdges().emplace_back(node->getId(), node->actWeight() * 0.1);
-    // node->nextEdges().emplace_back(s_shareNode->getId(), 1.0);
+    // node->nextEdges().emplace_back(s_shareNode->getLinkId(), 1.0);
   }
 }
 }// namespace myai

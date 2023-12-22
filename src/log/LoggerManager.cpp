@@ -13,17 +13,17 @@ namespace myai
 Config<LogConfigVal>::ptr g_log_configs =
     Configer::GetInstance()->setConfig<LogConfigVal>("log",
                                                      {
-                                                         LogLevel::DEBUG,
+                                                         LogLevel::LL_DEBUG,
                                                          "%d{%Y-%m-%d %H:%M:%S} %m%n",
                                                          {
                                                              "root",
-                                                             LogLevel::DEBUG,
+                                                             LogLevel::LL_DEBUG,
                                                              "%d{%Y-%m-%d %H:%M:%S} %t%T%F%T%N [%p] [%c] %f:%l %M ==> %m%n",
                                                              {
                                                                  {
                                                                      LogAppender::Type::APD_CONSOLE,
                                                                      "",
-                                                                     LogLevel::DEBUG,
+                                                                     LogLevel::LL_DEBUG,
                                                                      "",
                                                                  },
                                                              },
@@ -91,7 +91,7 @@ Logger::ptr LoggerManager::setLogger(const std::string &name, LogLevel logger_le
   auto logger = getLogger(name);
   if (!logger)
     return logger;
-  if (logger_level != LogLevel::UNKNOWN)
+  if (logger_level != LogLevel::LL_UNKNOWN)
     logger->setLevel(logger_level);
   if (formatter)
     logger->setFormatter(std::move(formatter));
@@ -120,7 +120,7 @@ Logger::ptr LoggerManager::addLogger(const std::string &name, LogLevel logger_le
     return res;
   }
 
-  Logger::ptr logger{new Logger(name, LogLevel::DEBUG)};
+  Logger::ptr logger{new Logger(name, LogLevel::LL_DEBUG)};
   if (formatter)
     logger->setFormatter(std::move(formatter));
 
@@ -154,7 +154,7 @@ Logger::ptr LoggerManager::config_logger(const LoggerConfigVal &conf)
   if (conf.name.empty()) {
     return nullptr;
   }
-  auto level = conf.level == LogLevel::UNKNOWN ? m_defLoggerLevel : conf.level;
+  auto level = conf.level == LogLevel::LL_UNKNOWN ? m_defLoggerLevel : conf.level;
 
   Logger::ptr ret = std::make_shared<Logger>(conf.name, level);
   auto formatter = conf.pattern.empty() ? m_defLoggerFormater : std::make_shared<LogFormatter>(conf.pattern);
@@ -173,7 +173,7 @@ LogAppender::ptr LoggerManager::config_appender(LogLevel logger_level, LogFormat
     return nullptr;
   }
   auto formatter = conf.pattern.empty() ? std::move(logger_formatter) : std::make_shared<LogFormatter>(conf.pattern);
-  LogLevel level = conf.level == LogLevel::UNKNOWN ? logger_level : conf.level;
+  LogLevel level = conf.level == LogLevel::LL_UNKNOWN ? logger_level : conf.level;
   LogAppender::ptr ret = nullptr;
   if (conf.type == LogAppender::APD_CONSOLE) {
     ret = std::make_shared<ConsoleAppender>(level);
