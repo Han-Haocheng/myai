@@ -133,54 +133,10 @@ Node::Type Node::fromString(const std::string &type)
   auto res = s_nodety_str_map.find(type);
   return res != s_nodety_str_map.end() ? res->second : NT_UNKNOWN;
 }
-const LinkGroup::ptr &Node::getLinkGroup() const { return m_linkGroup; }
-void Node::setLinkGroup(const LinkGroup::ptr &linkGroup) { m_linkGroup = linkGroup; }
 //=====================================================================================================================
-const Node::ptr &ActiveNode::getNode() const { return m_node; }
-void ActiveNode::setNode(const Node::ptr &node) { m_node = node; }
-size_t ActiveNode::getNum() const { return m_num; }
-void ActiveNode::setNum(size_t num) { m_num = num; }
-weight_t ActiveNode::getValue() const { return m_value; }
-void ActiveNode::setValue(weight_t value) { m_value = value; }
+
+
 //=====================================================================================================================
-Noder::Noder(NodeDao::ptr dao, std::pair<id_t, id_t> range) : m_range(std::move(range)), m_nodeDao(std::move(dao))
-{
-  if (m_range.first > m_range.second) {
-    std::swap(m_range.first, m_range.second);
-  }
-}
-double Noder::getActivateWeight(const Node::ptr &node)
-{
-  double weight = node->getBais() + node->activate_val;
-  node->activate_val = 0;
-  for (const auto &cb: m_weightCbs) {
-    weight = cb(weight);
-  }
-  return weight;
-}
-Node::ptr Noder::getNodeById(id_t id)
-{
-  auto find_rt = m_cache.find(id);
-  if (find_rt != m_cache.end()) {
-    return find_rt->second;
-  }
-  if (id - m_range.first > m_range.second - m_range.second) {
-    MYAI_LOG_ERROR(g_loggger) << "id is out of range.";
-    return nullptr;
-  }
-  Node::ptr res = m_nodeDao->selectById(id);
-  m_cache.emplace(id, res);
-  return res;
-}
-void Noder::clearCache() { m_cache.clear(); }
-void Noder::addWeightCb(const Noder::weight_cb &cb) { m_weightCbs.emplace_back(cb); }
-void Noder::clearWeightCb() { m_weightCbs.clear(); }
-void Noder::classify(const std::vector<Link> &edges, std::unordered_map<Node::Type, std::vector<Link>> &results)
-{
-  for (const auto &edge: edges) {
-    edge.id;
-    results.emplace();
-  }
-}
+
 
 }// namespace myai

@@ -11,8 +11,10 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace myai
@@ -94,16 +96,24 @@ public:
   using ptr = std::shared_ptr<LinkGroup>;
 
   bool addLink(const Link &link);
+  template<class... Args>
+  bool addLink(Args... args);
+
   template<typename Iterator>
   bool addLink(Iterator begin, Iterator end);
   const std::forward_list<Link> &getAllLinks() const;
   void for_each(std::function<void(Link &)> func);
+  void for_each(std::function<void(const Link &)> func) const;
 
 private:
   size_t m_linkNum = 0;
   std::forward_list<Link> m_datas;
 };
 //=====================================================================================================================
+/// 节点
+/// 节点会进行输入输出
+///
+/// /
 class Node
 {
 public:
@@ -126,31 +136,13 @@ public:
   void setBais(weight_t bais);
   [[nodiscard]] Type getType() const;
   void setType(Type type);
-  [[nodiscard]] const LinkGroup::ptr &getLinkGroup() const;
-  void setLinkGroup(const LinkGroup::ptr &linkGroup);
+
+  LinkGroup linkGroup;
 
 private:
   id_t m_id = 0;
   weight_t m_bias = 0;
   Type m_type = Type::NT_UNKNOWN;
-  LinkGroup::ptr m_linkGroup;
-};
-
-class ActiveNode
-{
-public:
-  using ptr = std::shared_ptr<ActiveNode>;
-  [[nodiscard]] const Node::ptr &getNode() const;
-  void setNode(const Node::ptr &node);
-  [[nodiscard]] size_t getNum() const;
-  void setNum(size_t num);
-  [[nodiscard]] weight_t getValue() const;
-  void setValue(weight_t value);
-
-private:
-  Node::ptr m_node = nullptr;//节点
-  size_t m_num = 0;          //激活次数
-  weight_t m_value = 0;      //激活值
 };
 //=====================================================================================================================
 class NodeDao
@@ -166,52 +158,123 @@ public:
   void clearCache();
 
 private:
-  std::unordered_map<uint64_t, Node::ptr> m_nodeCache;
+  std::unordered_map<id_t, Node::ptr> m_nodeCache;
 };
 //=====================================================================================================================
+class Activator
+{
+public:
+  using ptr = std::shared_ptr<Activator>;
+  virtual void setActivationInfo(std::unordered_map<id_t, weight_t> link_info) = 0;
+  virtual void active(Node::ptr node, weight_t weight) = 0;
+};
+
+class MemoryActivator : public Activator
+{
+public:
+  void setActivationInfo(std::unordered_map<id_t, weight_t> link_info) override
+  {
+    m_memoryLinks->for_each([&](Link &link) {
+      auto &weight = link_info[link.id];
+      if (weight == 0.0) {
+        Node::ptr temp_node = m_nodeDao->selectById(link.id);
+        if (!temp_node) {
+          return;
+        }
+        weight += temp_node->getBais();
+      }
+      weight += link.weight;
+    });
+  }
+
+  void active(Node::ptr node, weight_t weight) override
+  {
+    node->linkGroup.for_each([&, this](Link &link) {
+      m_memoryLinks->addLink(link.id, link.weight * weight);
+    });
+  }
+
+private:
+  LinkGroup::ptr m_memoryLinks;
+  NodeDao::ptr m_nodeDao;
+};
+
+class EmotionalActivator : public Activator
+{
+public:
+  static struct emotion {
+    weight_t emotion_interference;
+    weight_t activates_standard;
+  } s_emotion;
+
+  void setActivationInfo(std::unordered_map<id_t, weight_t> link_info) override
+  {
+    s_emotion.emotion_interference > 1.0
+        ? link_info[m_begin] = (s_emotion.emotion_interference - 1.0f) * 10000.0f
+        : link_info[m_begin + 1] = s_emotion.emotion_interference * 10000.0f;
+  }
+  void active(Node::ptr node, weight_t weight) override
+  {
+  }
+
+private:
+  id_t m_begin = 0;
+  size_t m_size = 0;
+};
+
+struct ActiveNode {
+  Node::ptr node = nullptr;
+  Activator::ptr activator;
+  weight_t active_val = 0;
+};
+
 class Noder
 {
 public:
   using ptr = std::shared_ptr<Noder>;
-  using weight_cb = std::function<double(double)>;
 
-  explicit Noder(NodeDao::ptr dao, std::pair<id_t, id_t> range);
+  explicit Noder(NodeDao::ptr dao, std::pair<id_t, id_t> range){}
   ~Noder() = default;
 
   // for Node
-
-  double getActivateWeight(const Node::ptr &node);
-
-  Node::ptr getNodeById(id_t id);
-  void clearCache();
-
-  virtual std::vector<Link> &&getInput() = 0;
-  virtual void setOutput(const std::vector<Link> &edges) = 0;
-
-  void addWeightCb(const weight_cb &cb);
-  void clearWeightCb();
+  virtual void getPerceiveLinks(LinkGroup &out) = 0;
+  virtual void setActiveInfos(const LinkGroup &in) = 0;
 
 protected:
-  virtual Node::ptr getNewNode() = 0;
-  void classify(const std::vector<Link> &edges, std::unordered_map<Node::Type, std::vector<Link>> &results);
-
-private:
-  std::pair<id_t, id_t> m_range;
-  NodeDao::ptr m_nodeDao = nullptr;
-  std::vector<weight_cb> m_weightCbs;
-  std::map<id_t, Node::ptr> m_cache;
+  NodeDao::ptr m_nodeDao;
+  std::unordered_map<id_t, ActiveNode> m_cache;
 };
 
 class MemoryNoder : public Noder
 {
 public:
-  explicit MemoryNoder(NodeDao::ptr nodeDao);
+  void getPerceiveLinks(LinkGroup &out) override
+  {
+    for (const auto &node_pair: m_cache) {
+      node_pair.second.node->linkGroup.for_each([&](const Link &link) {
+        out.addLink({link.id, link.weight * node_pair.second.active_val});
+      });
+    }
+  }
 
-  std::vector<Link> &&getInput() override;
-  void setOutput(const std::vector<Link> &edges) override;
+  void setActiveInfos(const LinkGroup &in) override
+  {
+    m_cache.clear();
+    in.for_each([&](const Link &link) {
+      auto rt = m_cache.find(link.id);
+      if (rt == m_cache.end()) {
+        auto node = m_nodeDao->selectById(link.id);
+        if (!node) {
+          // error
+          return;
+        }
+        rt = m_cache.emplace(link.id, ActiveNode{node, node->getBais()}).first;
+      }
+      rt->second.active_val += link.weight;
+    });
+  }
 
 private:
-  //std::unordered_map<uint64_t, node::ptr> m_tempNodes;
 };
 
 //=====================================================================================================================
@@ -222,11 +285,21 @@ public:
   void run()
   {
     while (isStop()) {
-      deductionPeriod();
+      inferencePeriod();
       learnPeriod();
     }
   }
-  void deductionPeriod();
+  // 推理期
+  void inferencePeriod()
+  {
+    std::vector<Link> input_links;
+    for (const auto &noder: s_noders) {
+      std::vector<Link> tmpInputs{noder->output()};
+
+      input_links.insert(input_links.end(), tmpInputs.begin(), tmpInputs.end());
+    }
+  }
+  //学习期
   void learnPeriod();
 
   bool isStop();
