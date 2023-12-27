@@ -102,7 +102,13 @@ Link &Link::operator=(const char *bytes)
   return *this;
 }
 Link::operator const char *() const { return reinterpret_cast<const char *>(this); }
-Link::operator bool() const { return !!weight || !!(uint64_t) id; }
+Link::operator bool() const { return weight != 0 || !!(uint64_t) id; }
+bool Link::operator==(const Link &rhs) const { return id == rhs.id; }
+bool Link::operator!=(const Link &rhs) const { return !(rhs == *this); }
+bool Link::operator<(const Link &rhs) const { return id < rhs.id; }
+bool Link::operator>(const Link &rhs) const { return rhs < *this; }
+bool Link::operator<=(const Link &rhs) const { return !(rhs < *this); }
+bool Link::operator>=(const Link &rhs) const { return !(*this < rhs); }
 //=====================================================================================================================
 Node::Node(id_t id, Type type, weight_t bais) : m_type(type), m_id(id), m_bias(bais) {}
 id_t Node::getId() const { return m_id; }
@@ -115,9 +121,10 @@ std::string Node::toString(Node::Type val)
   switch (val) {
 #define XX(ty)  \
   case NT_##ty: \
-    return "NT_" #ty
+    return #ty
     XX(UNKNOWN);
     XX(MEMORY);
+    XX(EMOTIMOAL);
   }
 #undef XX
 }
@@ -133,10 +140,42 @@ Node::Type Node::fromString(const std::string &type)
   auto res = s_nodety_str_map.find(type);
   return res != s_nodety_str_map.end() ? res->second : NT_UNKNOWN;
 }
+bool Node::operator==(const Node &rhs) const { return m_id == rhs.m_id; }
+bool Node::operator!=(const Node &rhs) const { return !(rhs == *this); }
+bool Node::operator<(const Node &rhs) const { return m_id < rhs.m_id; }
+bool Node::operator>(const Node &rhs) const { return rhs < *this; }
+bool Node::operator<=(const Node &rhs) const { return !(rhs < *this); }
+bool Node::operator>=(const Node &rhs) const { return !(*this < rhs); }
+LinkGroup &Node::linkGroup() { return m_linkGroup; }
+const LinkGroup &Node::linkGroup() const { return m_linkGroup; }
 //=====================================================================================================================
 
-
 //=====================================================================================================================
 
-
+void Noder::activate()
+{
+  std::unordered_set<Link,Link::hash> linkInfo;
+  for (const auto &active_node: m_cache) {
+    active_node.second.activator->setActivationInfo(linkInfo);
+  }
+  //linkInfo -> active node map
+  std::vector<Node::ptr> activeNodes;
+  for (const auto &link: linkInfo) {
+    Node::ptr node = m_nodeDao->selectById(link.first);
+    if (!node) {
+      continue;
+    }
+    activeNodes.emplace_back(node);
+    m_activtors[node->getType()]->active(link.first, link.second);
+  }
+}
+Node::ptr Noder::getRecverNode(weight_t bias)
+{
+  Node::ptr node = std::make_shared<Node>(m_idAlloc->allocate(), Node::NT_MEMORY, bias);
+  if (m_nodeDao->insert(node) == 0) {
+    m_idAlloc->deallocate(node->getId());
+    return nullptr;
+  }
+  return node;
+}
 }// namespace myai
