@@ -2,8 +2,8 @@
 // Created by HanHaocheng on 2023/12/21.
 //
 
-#ifndef THINK_CONFIG_H
-#define THINK_CONFIG_H
+#ifndef MY_LIB_CONFIG_H
+#define MY_LIB_CONFIG_H
 
 #include <boost/lexical_cast.hpp>
 #include <cstddef>

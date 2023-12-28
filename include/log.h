@@ -2,9 +2,11 @@
 // Created by HanHaocheng on 2023/12/21.
 //
 
-#ifndef THINK_LOG_H
-#define THINK_LOG_H
+#ifndef MY_LIB_LOG_H
+#define MY_LIB_LOG_H
 
+#include "asyn.h"
+#include "timer.h"
 #include <fstream>
 #include <functional>
 #include <map>
@@ -14,20 +16,20 @@
 #include <unordered_map>
 #include <vector>
 
-#define MYLIB_LOG_BASE(logger, level)                                                                                                                                                        \
-  if (logger->getLevel() <= level)                                                                                                                                                           \
-  myai::LogWarp{                                                                                                                                                                             \
-      logger, std::make_shared<myai::LogEvent>(myai::Timer::GetCurrentTime(), __FILE__, __LINE__, logger->getName(), level, "nonameThread", myai::Thread::GetId(), myai::Coroutine::GetId(), \
-                                               std::string{__PRETTY_FUNCTION__})}                                                                                                            \
+#define MYLIB_LOG_BASE(logger, level)                                                                                                                                                            \
+  if (logger->getLevel() <= level)                                                                                                                                                               \
+  mylib::LogWarp{                                                                                                                                                                                \
+      logger, std::make_shared<mylib::LogEvent>(mylib::Timer::GetCurrentTime(), __FILE__, __LINE__, logger->getName(), level, "nonameThread", mylib::Thread::GetId(), mylib::Coroutine::GetId(), \
+                                                std::string{__PRETTY_FUNCTION__})}                                                                                                               \
       .msg()
 
-#define MYLIB_LOG_DEBUG(logger) MYLIB_LOG_BASE(logger, myai::LogLevel::LL_DEBUG)
-#define MYLIB_LOG_INFO(logger) MYLIB_LOG_BASE(logger, myai::LogLevel::LL_INFO)
-#define MYLIB_LOG_WARN(logger) MYLIB_LOG_BASE(logger, myai::LogLevel::LL_WARN)
-#define MYLIB_LOG_ERROR(logger) MYLIB_LOG_BASE(logger, myai::LogLevel::LL_ERROR)
+#define MYLIB_LOG_DEBUG(logger) MYLIB_LOG_BASE(logger, mylib::LogEvent::LL_DEBUG)
+#define MYLIB_LOG_INFO(logger) MYLIB_LOG_BASE(logger, mylib::LogEvent::LL_INFO)
+#define MYLIB_LOG_WARN(logger) MYLIB_LOG_BASE(logger, mylib::LogEvent::LL_WARN)
+#define MYLIB_LOG_ERROR(logger) MYLIB_LOG_BASE(logger, mylib::LogEvent::LL_ERROR)
 
-#define MYLIB_LOGGER_ROOT myai::LoggerManager::GetInstance()->getRootLogger()
-#define MYLIB_LOGGER_NAME(name) myai::LoggerManager::GetInstance()->addLogger(name, myai::LogLevel::LL_DEBUG)
+#define MYLIB_LOGGER_ROOT mylib::LoggerManager::GetInstance()->getRootLogger()
+#define MYLIB_LOGGER_NAME(name) mylib::LoggerManager::GetInstance()->addLogger(name, mylib::LogEvent::LL_DEBUG)
 
 namespace mylib
 {
@@ -306,4 +308,4 @@ private:
 //=====================================================================================================================
 }// namespace mylib
 
-#endif//THINK_LOG_H
+#endif//MY_LIB_LOG_H

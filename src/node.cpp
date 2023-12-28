@@ -3,6 +3,7 @@
 //
 
 #include "node.h"
+#include "core/node.h"
 
 #include <fstream>
 #include <memory>
@@ -74,7 +75,7 @@ Node::Node(Node::IdType id, NodeType::Type type, double bias) : m_id(id), m_type
 
 bool Node::operator==(const Node &rhs) const
 {
-  return rhs.m_id == m_id;
+  return rhs.id == m_id;
 }
 
 bool Node::operator!=(const Node &rhs) const
@@ -108,7 +109,7 @@ void BaseActivater::activate(Node::ptr acted_node, NodeBuffer::ptr act_res)
     if (next_edge.getWeight() == 0) {
       return true;
     }
-    auto next_node = act_res->getNode(next_edge.getLinkId());
+    auto next_node = act_res->getNode(next_edge.getLinkId(), 0, <#initializer #>);
     if (!next_node) {
       next_node = NoderManager::GetInstance()->lookup(next_edge.getLinkId());
       if (!next_node) {
@@ -134,7 +135,7 @@ void NoderManager::activate()
       throw std::logic_error("NoderManager::activate() node type is LL_UNKNOWN");
     }
 
-    m_activaters[act_node->getType()]->activate(act_node, next_act_nodes);
+    m_activaters[act_node->getType()]->activate(myai::Node::ptr(), myai::Node::ptr());
   }
   m_nextRecorder->record(next_act_nodes);
   Recorder::UpdateNode(NodeType::BASIC_NODE, 0);

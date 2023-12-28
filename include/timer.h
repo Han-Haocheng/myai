@@ -2,15 +2,15 @@
 // Created by HanHaocheng on 2023/11/7.
 //
 
-#ifndef MY_AI_TIMER_H
-#define MY_AI_TIMER_H
+#ifndef MY_LIB_TIMER_H
+#define MY_LIB_TIMER_H
 
 #include <cstdint>
-namespace myai
+namespace mylib
 {
 
 //计时器
-class timer
+class Timer
 {
 public:
   //获取当前时间
@@ -19,4 +19,4 @@ public:
 
 }// namespace myai
 
-#endif//MY_AI_TIMER_H
+#endif//MY_LIB_TIMER_H

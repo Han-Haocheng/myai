@@ -38,7 +38,7 @@
 //public:
 //  typedef id_t IdType;
 //
-//  Link(IdType id, double weight);
+//  Link(IdType id, double m_weight);
 //  std::pair<IdType, double> toPair();
 //  void fromPair(const std::pair<IdType, double> &v);
 //
@@ -65,7 +65,7 @@
 //  bool operator==(const Node &rhs) const;
 //  bool operator!=(const Node &rhs) const;
 //
-//  IdType getId() const { return m_id; }
+//  IdType getId() const { return id; }
 //  double getBias() const { return m_bias; }
 //  double setBias(double bias) { m_bias = bias; }
 //
@@ -77,7 +77,7 @@
 //  void setActivater(Type::Type activater) { m_type = activater; }
 //
 //private:
-//  const IdType m_id = 0;
+//  const IdType id = 0;
 //  Type::Type m_type = Type::NT_UNKNOWN;
 //  double m_bias = 0;
 //  double m_actWeight = 0;
@@ -153,7 +153,7 @@
 //
 //  NodeBuffer::ptr getRecords() const { return m_recordeds; }
 //  void setRecords(const NodeBuffer::ptr &nodes) { m_recordeds = nodes; }
-//  static Node::ptr UpdateNode(Type::Type type, double bais);
+//  static Node::ptr UpdateNode(Type::Type type, double getBias);
 //
 //protected:
 //  static Node::ptr s_shareNode;

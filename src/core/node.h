@@ -3,6 +3,7 @@
 //
 #ifndef MY_AI_NODE_H
 #define MY_AI_NODE_H
+#include "../config/Config.h"
 #include "../define.h"
 #include <cstdint>
 #include <forward_list>
@@ -12,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 namespace myai
@@ -28,6 +30,8 @@ public:
   id_t allocate();
   void deallocate(id_t id);
 
+  id_t allocate(size_t i);
+
 private:
   void load_from_file();
   void save_to_file();
@@ -37,12 +41,22 @@ private:
 };
 //=====================================================================================================================
 struct Link {
-  id_t id = 0;
-  weight_t weight = 0;
+  struct Hash {
+    size_t operator()(const Link &link) const { return std::hash<uid_t>{}(link.id); }
+  };
+
   Link() = default;
   Link(id_t link_id, weight_t weight);
+  explicit Link(const std::pair<id_t, weight_t> &pair) : id(pair.first), weight(pair.second) {}
+  Link(const Link &) = default;
+  Link(Link &&) = default;
+  Link &operator=(const Link &) = default;
+  Link &operator=(Link &&) = default;
+  ~Link() = default;
+
   explicit operator bool() const;
   Link &operator=(const char *bytes);
+
   explicit operator const char *() const;
   bool operator==(const Link &rhs) const;
   bool operator!=(const Link &rhs) const;
@@ -51,18 +65,20 @@ struct Link {
   bool operator<=(const Link &rhs) const;
   bool operator>=(const Link &rhs) const;
 
-  static uint64_t hash(const Link &link) { return std::hash<uid_t>{}(link.id); }
+  id_t id = 0;
+  weight_t weight = 0;
 };
 //=====================================================================================================================
 class LinkGroup
 {
 public:
   using ptr = std::shared_ptr<LinkGroup>;
-  bool addLink(const Link &link);
   template<class... Args>
-  bool addLink(Args... args);
+  void addLink(Args &&...args);
   template<typename Iterator>
-  bool addLink(Iterator begin, Iterator end);
+  void addLink(Iterator begin, Iterator end);
+
+  void addLink(const Link &link);
   const std::forward_list<Link> &getAllLinks() const;
   void for_each(std::function<void(Link &)> func);
   void for_each(std::function<void(const Link &)> func) const;
@@ -71,10 +87,23 @@ private:
   size_t m_linkNum = 0;
   std::forward_list<Link> m_datas;
 };
+template<class... Args>
+void LinkGroup::addLink(Args &&...args)
+{
+  m_linkNum++;
+  m_datas.emplace_front(std::forward<Args>(args)...);
+}
+template<typename Iterator>
+void LinkGroup::addLink(Iterator begin, Iterator end)
+{
+
+  m_linkNum += std::distance(begin, end);
+  m_datas.insert_after(m_datas.before_begin(), begin, end);
+}
+
 //=====================================================================================================================
 /// 节点
 /// 节点会进行输入输出
-///
 /// /
 class Node
 {
@@ -85,14 +114,14 @@ public:
   {
     NT_UNKNOWN = -1,
     NT_MEMORY,
-    NT_EMOTIMOAL
+    NT_EMOTION
   };
   static std::string toString(Type val);
   static Type fromString(const std::string &type);
-  Node(id_t id, Type type, weight_t bais);
+  Node(id_t id, Type type, weight_t bias);
   [[nodiscard]] id_t getId() const;
-  [[nodiscard]] weight_t getBais() const;
-  void setBais(weight_t bais);
+  [[nodiscard]] weight_t getBias() const;
+  void setBias(weight_t bias);
   [[nodiscard]] Type getType() const;
   void setType(Type type);
   LinkGroup &linkGroup();
@@ -104,7 +133,9 @@ public:
   bool operator<=(const Node &rhs) const;
   bool operator>=(const Node &rhs) const;
 
-  static uint64_t hash(const Node &node) { return std::hash<uid_t>{}(node.m_id); }
+  struct Hash {
+    size_t operator()(const Node &node) const { return std::hash<id_t>{}(node.m_id); }
+  };
 
 private:
   LinkGroup m_linkGroup;
@@ -131,9 +162,15 @@ class Activator
 {
 public:
   using ptr = std::shared_ptr<Activator>;
+  explicit Activator(Node::Type type);
+  virtual ~Activator() = default;
   virtual void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) = 0;
-  virtual void active(id_t id, weight_t weight) = 0;
+  virtual void active(const Link &link) = 0;
+
+private:
+  Node::Type m_type = Node::NT_UNKNOWN;
 };
+
 //=====================================================================================================================
 class Noder
 {
@@ -144,10 +181,14 @@ public:
     Activator::ptr activator;
     weight_t active_val = 0;
   };
-  explicit Noder(const NodeDao::ptr &dao, std::pair<id_t, id_t> range) {}
+  explicit Noder(const NodeDao::ptr &dao) {}
   ~Noder() = default;
-  Node::ptr getRecverNode(weight_t bias);
-  void activate();
+  Node::ptr getRecordNode(weight_t bias);
+  void activate(const Node::ptr &record_node, const Node::ptr &next_node);
+  id_t getNode(Node::Type type, size_t size, std::vector<Node::ptr> &out_nodes);
+
+  void addActivator(const Activator::ptr &activator);
+  void clearActivator();
 
 protected:
   NodeIdAllocator::ptr m_idAlloc = nullptr;
@@ -155,26 +196,49 @@ protected:
   std::unordered_map<id_t, ActiveNode> m_cache;
   std::vector<Activator::ptr> m_activtors;
 };
+
 //=====================================================================================================================
+
+struct ThinkConfig;
 class NodeControl
 {
 public:
   void init();
+
   void run()
   {
     while (isStop()) {
-      while () {
-        m_noder->activate();
-      }
+      inferencePeriod();
       learnPeriod();
     }
   }
   // 推理期
   void inferencePeriod()
   {
+    Node::ptr per_node = nullptr, next_node = nullptr;
+    while (m_recordeNum < m_maxRecordeNum) {
+      next_node = m_noder->getRecordNode(5);
+      m_records.emplace_front(next_node);
+      ++m_recordeNum;
+      m_noder->activate(per_node, next_node);
+      per_node = next_node;
+      next_node = nullptr;
+    }
   }
   //学习期
-  void learnPeriod();
+  void learnPeriod()
+  {
+
+    for (auto pre_iter = m_records.before_begin(),
+              iter = m_records.begin();
+         iter != m_records.end();
+         pre_iter = iter, ++iter) {
+      (**pre_iter).linkGroup().for_each([](const Link &link) {
+
+      });
+      m_nodeDao->insert(*iter);
+    }
+  }
   bool isStop();
   void input();
   void output();
@@ -182,34 +246,37 @@ public:
 private:
   NodeIdAllocator::ptr m_idAlloc = nullptr;
   NodeDao::ptr m_nodeDao = nullptr;
-  std::forward_list<Node::ptr> m_recordes = {};
+  Noder::ptr m_noder = nullptr;
+
+  std::forward_list<Node::ptr> m_records = {};
   size_t m_recordeNum = 0ULL;
   size_t m_maxRecordeNum = 0ULL;
-  Noder::ptr m_noder = nullptr;
+
+  static Config<ThinkConfig>::ptr s_think_conf;
 };
 //=====================================================================================================================
 class MemoryActivator : public Activator
 {
 public:
+  MemoryActivator();
+  ~MemoryActivator() override = default;
   void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override
   {
     m_memoryLinks->for_each([&](Link &link) {
-      auto &weight = link_info[link.id];
-      if (weight == 0.0) {
+      auto fd_rt = link_info.find(link.id);
+      if (fd_rt == link_info.end()) {
         Node::ptr temp_node = m_nodeDao->selectById(link.id);
-        if (!temp_node) {
-          return;
-        }
-        weight += temp_node->getBais();
+        fd_rt = link_info.emplace(link.id, temp_node->getBias()).first;
       }
-      weight += link.weight;
+      fd_rt->second += link.weight;
     });
   }
-  void active(id_t id, weight_t weight) override
+
+  void active(const Link &link) override
   {
-    const auto node = m_nodeDao->selectById(id);
+    const auto node = m_nodeDao->selectById(link.id);
     node->linkGroup().for_each([&, this](const Link &link) {
-      m_memoryLinks->addLink(link.id, link.weight * weight);
+      m_memoryLinks->addLink(link.id, link.weight * link.weight);
     });
   }
 
@@ -217,9 +284,12 @@ private:
   LinkGroup::ptr m_memoryLinks;
   NodeDao::ptr m_nodeDao;
 };
+
 class EmotionalActivator : public Activator
 {
 public:
+  const static size_t NODE_NUMS = 8ULL;
+
   enum EmotionIO
   {
     IN_POSITIVE,
@@ -231,10 +301,15 @@ public:
     OUT_CONCENTRATION,
     OUT_DISPERSION,
   };
+
   static struct emotion {
     weight_t emotion_interference;
     weight_t activates_standard;
   } s_emotion;
+
+  explicit EmotionalActivator(id_t id_begin);
+  ~EmotionalActivator() override = default;
+
   void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override
   {
     s_emotion.emotion_interference > 1.0
@@ -244,30 +319,32 @@ public:
         ? link_info[m_begin + IN_CONCENTRATION] = s_emotion.activates_standard
         : link_info[m_begin + IN_DISPERSION] = 10000.0f - s_emotion.activates_standard;
   }
-  void active(id_t id, weight_t weight) override
+
+  void active(const Link &link) override
   {
-    auto emotionIo = (EmotionIO) (id - m_begin);
+    auto emotionIo = (EmotionIO) (link.id - m_begin);
     switch (emotionIo) {
       case OUT_POSITIVE:
-        s_emotion.activates_standard += weight / 10000.0f;
+        s_emotion.activates_standard += link.weight / 10000.0f;
         break;
       case OUT_NEGATIVE:
-        s_emotion.activates_standard -= weight / 10000.0f;
+        s_emotion.activates_standard -= link.weight / 10000.0f;
         break;
       case OUT_CONCENTRATION:
-        s_emotion.activates_standard = std::max(s_emotion.activates_standard + weight, 20000.0f);
+        s_emotion.activates_standard = std::max(s_emotion.activates_standard + link.weight, 20000.0f);
         break;
       case OUT_DISPERSION:
-        s_emotion.activates_standard = std::max(s_emotion.activates_standard - weight, 0.0f);
+        s_emotion.activates_standard = std::max(s_emotion.activates_standard - link.weight, 0.0f);
         break;
       default:
+        // error
         break;
     }
   }
 
 private:
   id_t m_begin = 0;
-  size_t m_size = 0;
 };
+
 }// namespace myai
 #endif//MY_AI_NODE_H
