@@ -25,7 +25,8 @@ class NodeIdAllocator
 {
 public:
   using ptr = std::shared_ptr<NodeIdAllocator>;
-  explicit NodeIdAllocator(const std::string &file);
+  explicit NodeIdAllocator(std::string file);
+  explicit NodeIdAllocator(id_t begin, const std::forward_list<id_t> &ids);
   ~NodeIdAllocator();
   id_t allocate();
   void deallocate(id_t id);
@@ -193,7 +194,7 @@ public:
     Activator::ptr activator;
     weight_t active_val = 0;
   };
-  explicit Noder(const NodeDao::ptr &dao) {}
+  explicit Noder(NodeDao::ptr dao, NodeIdAllocator::ptr idAlloc);
   ~Noder() = default;
   Node::ptr addRecordNode(weight_t bias);
   id_t addNodes(Node::Type type, size_t size, std::vector<Node::ptr> &out_nodes);
@@ -223,45 +224,21 @@ struct ThinkConfig;
 class NodeControl
 {
 public:
+  using ptr = std::shared_ptr<NodeControl>;
+
   void init();
 
-  void run()
-  {
-    while (isStop()) {
-      inferencePeriod();
-      learnPeriod();
-    }
-  }
+  void run();
   // 推理期
-  void inferencePeriod()
-  {
-    Node::ptr per_node = nullptr, next_node = nullptr;
-    while (m_recordeNum < m_maxRecordeNum) {
-      next_node = m_noder->addRecordNode(5);
-      m_records.emplace_front(next_node);
-      ++m_recordeNum;
-      m_noder->activate(per_node, next_node);
-      per_node = next_node;
-      next_node = nullptr;
-    }
-  }
+  void inferencePeriod();
   //学习期
-  void learnPeriod()
-  {
+  void learnPeriod();
+  static bool isStop();
 
-    for (auto pre_iter = m_records.before_begin(),
-              iter = m_records.begin();
-         iter != m_records.end();
-         pre_iter = iter, ++iter) {
-      (**pre_iter).linkGroup().for_each([](const Link &link) {
+  static NodeControl::ptr getInstance();
 
-      });
-      m_nodeDao->insert(*iter, false);
-    }
-  }
-  bool isStop();
-  void input();
-  void output();
+private:
+  NodeControl();
 
 private:
   NodeIdAllocator::ptr m_idAlloc = nullptr;
@@ -271,32 +248,18 @@ private:
   std::forward_list<Node::ptr> m_records = {};
   size_t m_recordeNum = 0ULL;
   size_t m_maxRecordeNum = 0ULL;
+
+  static ::mylib::Config<ThinkConfig>::ptr s_think_conf;
 };
 //=====================================================================================================================
 class MemoryActivator : public Activator
 {
 public:
-  MemoryActivator();
+  explicit MemoryActivator(NodeDao::ptr nodeDao);
   ~MemoryActivator() override = default;
-  void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override
-  {
-    m_memoryLinks->for_each([&](Link &link) {
-      auto fd_rt = link_info.find(link.id);
-      if (fd_rt == link_info.end()) {
-        Node::ptr temp_node = m_nodeDao->selectById(link.id);
-        fd_rt = link_info.emplace(link.id, temp_node->getBias()).first;
-      }
-      fd_rt->second += link.weight;
-    });
-  }
+  void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override;
 
-  void active(const Link &link) override
-  {
-    const auto node = m_nodeDao->selectById(link.id);
-    node->linkGroup().for_each([&, this](const Link &link) {
-      m_memoryLinks->addLink(link.id, link.weight * link.weight);
-    });
-  }
+  void active(const Link &link) override;
 
 private:
   LinkGroup::ptr m_memoryLinks;
@@ -328,41 +291,12 @@ public:
   explicit EmotionalActivator(id_t id_begin);
   ~EmotionalActivator() override = default;
 
-  void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override
-  {
-    s_emotion.emotion_interference > 1.0
-        ? link_info[m_begin + IN_POSITIVE] = (s_emotion.emotion_interference - 1.0f) * 10000.0f
-        : link_info[m_begin + IN_NEGATIVE] = s_emotion.emotion_interference * 10000.0f;
-    s_emotion.activates_standard > 10000.0f
-        ? link_info[m_begin + IN_CONCENTRATION] = s_emotion.activates_standard
-        : link_info[m_begin + IN_DISPERSION] = 10000.0f - s_emotion.activates_standard;
-  }
+  void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override;
 
-  void active(const Link &link) override
-  {
-    auto emotionIo = (EmotionIO) (link.id - m_begin);
-    switch (emotionIo) {
-      case OUT_POSITIVE:
-        s_emotion.activates_standard += link.weight / 10000.0f;
-        break;
-      case OUT_NEGATIVE:
-        s_emotion.activates_standard -= link.weight / 10000.0f;
-        break;
-      case OUT_CONCENTRATION:
-        s_emotion.activates_standard = std::max(s_emotion.activates_standard + link.weight, 20000.0f);
-        break;
-      case OUT_DISPERSION:
-        s_emotion.activates_standard = std::max(s_emotion.activates_standard - link.weight, 0.0f);
-        break;
-      default:
-        // error
-        break;
-    }
-  }
+  void active(const Link &link) override;
 
 private:
   id_t m_begin = 0;
 };
-
 }// namespace myai
 #endif//MY_AI_NODE_H

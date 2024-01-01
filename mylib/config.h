@@ -20,207 +20,161 @@ namespace mylib
 {
 
 //=====================================================================================================================
-template<class F, class T>
-class ConfigCast
+
+template<class T>
+class Formatter
 {
 public:
-  T operator()(const F &v) { return boost::lexical_cast<T>(v); }
-
-  std::string toString(const T &v) { return boost::lexical_cast<std::string>(v); }
-  T fromString(const std::string &v) { return boost::lexical_cast<T>(v); }
+  std::string toString(const T &val) { return boost::lexical_cast<std::string>(val); }
+  T fromString(const std::string &str) { return boost::lexical_cast<T>(str); }
 };
-
-template<typename T>
-class ConfigCast<std::string, std::vector<T>>
+template<class T>
+class Formatter<std::vector<T>>
 {
 public:
-  std::vector<T> operator()(const std::string &v)
+  std::string toString(const std::vector<T> &vec)
   {
-    YAML::Node node = YAML::Load(v);
+    YAML::Node node;
+    for (const auto &item: vec)
+      node.push_back(YAML::Load(Formatter<T>().toString(item)));
+    return YAML::Dump(node);
+  }
+  std::vector<T> fromString(const std::string &str)
+  {
+    YAML::Node node = YAML::Load(str);
     typename std::vector<T> vec;
     for (auto &&item_str: node)
-      vec.emplace_back(ConfigCast<std::string, T>()(YAML::Dump(item_str)));
+      vec.emplace_back(Formatter<T>().fromString(YAML::Dump(item_str)));
     return vec;
   }
 };
-
-template<typename T>
-class ConfigCast<std::vector<T>, std::string>
+template<class T>
+class Formatter<std::list<T>>
 {
 public:
-  std::string operator()(const std::vector<T> &v)
+  std::string toString(const std::list<T> &list)
   {
     YAML::Node node;
-    for (const auto &item: v)
-      node.push_back(YAML::Load(ConfigCast<T, std::string>()(item)));
+    for (const auto &i: list)
+      node.push_back(YAML::Load(Formatter<T>().toString(i)));
     return YAML::Dump(node);
   }
-};
-
-template<typename T>
-class ConfigCast<std::string, std::list<T>>
-{
-public:
-  std::list<T> operator()(const std::string &v)
+  std::list<T> fromString(const std::string &v)
   {
     YAML::Node node = YAML::Load(v);
     typename std::list<T> list;
     for (auto &&i: node)
-      list.emplace_back(ConfigCast<std::string, T>()(YAML::Dump(i)));
+      list.emplace_back(Formatter<T>{}.fromString(YAML::Dump(i)));
     return list;
   }
 };
-template<typename T>
-class ConfigCast<std::list<T>, std::string>
+
+template<class T>
+class Formatter<std::forward_list<T>>
 {
 public:
-  std::string operator()(const std::list<T> &v)
+  std::string toString(const std::forward_list<T> &fwd_list)
   {
     YAML::Node node;
-    for (const auto &i: v)
-      node.push_back(YAML::Load(ConfigCast<T, std::string>()(i)));
+    for (const auto &i: fwd_list)
+      node.push_back(YAML::Load(Formatter<T>().toString(i)));
     return YAML::Dump(node);
   }
-};
-
-template<typename T>
-class ConfigCast<std::string, std::forward_list<T>>
-{
-public:
-  std::forward_list<T> operator()(const std::string &v)
+  std::forward_list<T> fromString(const std::string &v)
   {
     YAML::Node node = YAML::Load(v);
-    typename std::forward_list<T> fd_list;
+    typename std::forward_list<T> list;
     for (auto &&i: node)
-      fd_list.emplace_front(ConfigCast<std::string, T>()(YAML::Dump(i)));
-    return fd_list;
+      list.emplace_front(Formatter<T>().fromString(Dump(i)));
+    return list;
   }
 };
 
-template<typename T>
-class ConfigCast<std::forward_list<T>, std::string>
+template<class T>
+class Formatter<std::set<T>>
 {
 public:
-  std::string operator()(const std::forward_list<T> &v)
+  std::string toString(const std::set<T> &set)
   {
     YAML::Node node;
-    for (const auto &i: v)
-      node.push_back(YAML::Load(ConfigCast<T, std::string>()(i)));
+    for (const auto &i: set)
+      node.push_back(YAML::Load(Formatter<T>().toString(i)));
     return YAML::Dump(node);
   }
-};
-
-template<typename T>
-class ConfigCast<std::string, std::set<T>>
-{
-public:
-  std::set<T> operator()(const std::string &v)
+  std::set<T> fromString(const std::string &v)
   {
     YAML::Node node = YAML::Load(v);
     typename std::set<T> set;
     for (auto &&i: node)
-      set.insert(ConfigCast<std::string, T>()(YAML::Dump(i)));
+      set.insert(Formatter<T>().fromString(YAML::Dump(i)));
     return set;
   }
 };
-template<typename T>
-class ConfigCast<std::set<T>, std::string>
+
+template<class T>
+class Formatter<std::unordered_set<T>>
 {
 public:
-  std::string operator()(const std::set<T> &v)
+  std::string toString(const std::unordered_set<T> &un_set)
   {
     YAML::Node node;
-    for (const auto &i: v)
-      node.push_back(YAML::Load(ConfigCast<T, std::string>()(i)));
+    for (const auto &i: un_set)
+      node.push_back(YAML::Load(Formatter<T>().toString(i)));
     return YAML::Dump(node);
   }
-};
-template<class T>
-class ConfigCast<std::string, std::unordered_set<T>>
-{
-public:
-  std::unordered_set<T> operator()(const std::string &v)
+  std::unordered_set<T> fromString(const std::string &v)
   {
     YAML::Node node = YAML::Load(v);
     typename std::unordered_set<T> un_set;
     for (auto &&i: node)
-      un_set.insert(ConfigCast<std::string, T>()(YAML::Dump(i)));
+      un_set.insert(Formatter<T>().fromString(YAML::Dump(i)));
     return un_set;
   }
 };
 
-/// unordered_set -> string
 template<class T>
-class ConfigCast<std::unordered_set<T>, std::string>
+class Formatter<std::map<std::string, T>>
 {
 public:
-  std::string operator()(const std::unordered_set<T> &un_set)
+  std::string toString(const std::map<std::string, T> &map)
   {
     YAML::Node node;
-    for (const auto &i: un_set)
-      node.push_back(YAML::Load(ConfigCast<T, std::string>()(i)));
+    for (auto &val: map)
+      node[val.first] = YAML::Load(Formatter<T>().toString(val.second));
     return YAML::Dump(node);
   }
-};
-
-/// string -> map
-template<class T>
-class ConfigCast<std::string, std::map<std::string, T>>
-{
-public:
-  std::map<std::string, T> operator()(const std::string &v)
+  std::map<std::string, T> fromString(const std::string &str)
   {
-    YAML::Node nodes = YAML::Load(v);
+    YAML::Node nodes = YAML::Load(str);
     typename std::map<std::string, T> map;
     for (auto node_it = nodes.begin(); node_it != nodes.end(); ++node_it)
       map.insert(std::make_pair(node_it->first.Scalar(),
-                                ConfigCast<std::string, T>()(YAML::Dump(node_it->second))));
+                                Formatter<T>().fromString(YAML::Dump(node_it->second))));
     return map;
   }
 };
 
-/// map -> string
 template<class T>
-class ConfigCast<std::map<std::string, T>, std::string>
+class Formatter<std::unordered_map<std::string, T>>
 {
 public:
-  std::string operator()(const std::map<std::string, T> &map)
+  std::string toString(const std::unordered_map<std::string, T> &un_map)
   {
     YAML::Node node;
-    for (auto &i: map)
-      node[i.first] = YAML::Load(ConfigCast<T, std::string>()(i.second));
+    for (auto &i: un_map) {
+      node[i.first] = YAML::Load(Formatter<T>().toString(i.second));
+    }
     return YAML::Dump(node);
   }
-};
 
-/// string -> unordered_map
-template<class T>
-class ConfigCast<std::string, std::unordered_map<std::string, T>>
-{
-public:
-  std::unordered_map<std::string, T> operator()(const std::string &v)
+  std::unordered_map<std::string, T> fromString(const std::string &v)
   {
     YAML::Node node = YAML::Load(v);
     typename std::unordered_map<std::string, T> un_map;
     for (auto it = node.begin(); it != node.end(); ++it)
       un_map.insert(std::make_pair(it->first.Scalar(),
-                                   ConfigCast<std::string, T>()(YAML::Dump(it->second))));
+                                   Formatter<T>().fromString(YAML::Dump(it->second))));
     return un_map;
-  }
-};
-
-/// unordered_map -> string
-template<class T>
-class ConfigCast<std::unordered_map<std::string, T>, std::string>
-{
-public:
-  std::string operator()(const std::unordered_map<std::string, T> &map)
-  {
-    YAML::Node node;
-    for (auto &i: map) {
-      node[i.first] = YAML::Load(ConfigCast<T, std::string>()(i.second));
-    }
-    return YAML::Dump(node);
   }
 };
 
@@ -246,29 +200,29 @@ private:
 
 //=====================================================================================================================
 //using ConfTy = int;
-template<typename ConfTy, typename ToStr = ConfigCast<ConfTy, std::string>, typename FromStr = ConfigCast<std::string, ConfTy>>
+template<typename ConfTy, typename Formatter = Formatter<ConfTy>>
 class Config : public ConfigBase
 {
 public:
   typedef std::shared_ptr<Config<ConfTy>> ptr;
   using on_lisen_cb = std::function<void(const ConfTy &, const ConfTy &)>;
-  Config(const std::string &name, const ConfTy &confval, const std::string &comment)
-      : ConfigBase(name, comment)
-  {
-    m_val.reset(new ConfTy{confval});
-  }
+  Config(const std::string &name, const ConfTy &confVal, const std::string &comment)
+      : ConfigBase(name, comment), m_val(new ConfTy{confVal}) {}
 
   [[nodiscard]] std::string getTypeName() const override { return typeid(*m_val).name(); }
 
   [[nodiscard]] std::string toString() const override
   {
     try {
-      return m_val ? ToStr{}(*(m_val)) : "";
+      if (!m_val) {
+        return "";
+      }
+      return Formatter{}.toString(*m_val);
     } catch (std::exception &e) {
-      std::cout << "type cast faild, "
+      std::cout << "type cast failed, "
                 << "except=" << e.what() << std::endl;
     } catch (...) {
-      std::cout << "type cast faild." << std::endl;
+      std::cout << "type cast failed." << std::endl;
     }
     return "";
   }
@@ -276,12 +230,12 @@ public:
   void fromString(const std::string &str) override
   {
     try {
-      setValue(FromStr{}(str));
+      setValue(Formatter{}.fromString(str));
     } catch (std::exception &e) {
-      std::cout << "type cast faild, "
+      std::cout << "type cast failed, "
                 << "except=" << e.what() << std::endl;
     } catch (...) {
-      std::cout << "type cast faild." << std::endl;
+      std::cout << "type cast failed." << std::endl;
     }
   }
 
@@ -309,7 +263,7 @@ public:
   }
 
 private:
-  std::shared_ptr<ConfTy> m_val = nullptr;
+  std::shared_ptr<ConfTy> m_val = {new ConfTy{}};
   std::vector<on_lisen_cb> m_cbs;
 };
 //=====================================================================================================================
@@ -336,7 +290,7 @@ public:
       fd_rt->setValue(val);
       return fd_rt;
     } catch (std::exception &e) {
-      std::cout << e.what() << std::endl;
+      std::cout << "<error Configer::setConfig>" << e.what() << std::endl;
     }
     return nullptr;
   }
@@ -349,12 +303,11 @@ public:
       return nullptr;
     }
     if (fd_rt->second->getTypeName() != typeid(ConfTy).name()) {
-      throw std::logic_error{(std::stringstream{"<error Configer::getConfig>"}
-                              << "get config faild,config type is diffetent,"
-                              << "name=" << name << " "
-                              << "in type=" << typeid(ConfTy).name() << " "
-                              << "real type=" << fd_rt->second->getTypeName())
-                                 .str()};
+      std::cout << "<error Configer::getConfig>get config failed,config type is difference"
+                << "name=" << name << " "
+                << "in type=" << typeid(ConfTy).name() << " "
+                << "real type=" << fd_rt->second->getTypeName() << std::endl;
+      return nullptr;
     }
     return std::dynamic_pointer_cast<Config<ConfTy>>(fd_rt->second);
   }
@@ -374,4 +327,4 @@ private:
 };
 }// namespace mylib
 
-#endif//THINK_CONFIG_H
+#endif//MY_LIB_CONFIG_H

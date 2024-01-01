@@ -14,12 +14,13 @@ struct ThinkConfig {
     std::forward_list<myai::id_t> ids;
   };
   struct NoderConfig {
-    myai::Node::Type type;
-    myai::id_t idStart;
-    size_t idMaxNum;
+    Node::Type type;
+    id_t idStart;
+    size_t idNum;
   };
   NodeIdAllocatorConfig idAllocator;
   std::vector<NoderConfig> noders;
+  size_t maxRecordeNum;
 };
 
 }// namespace myai
@@ -27,8 +28,8 @@ struct ThinkConfig {
 namespace mylib
 {
 template<>
-struct ::mylib::ConfigCast<std::string, myai::ThinkConfig> {
-  myai::ThinkConfig operator()(const std::string &val)
+struct Formatter<myai::ThinkConfig> {
+  myai::ThinkConfig fromString(const std::string &val)
   {
     YAML::Node node = YAML::Load(val);
     myai::ThinkConfig ret{};
@@ -37,7 +38,7 @@ struct ::mylib::ConfigCast<std::string, myai::ThinkConfig> {
         ret.idAllocator.currentId = node["idAllocator"]["currentId"].as<myai::id_t>();
       }
       if (node["idAllocator"]["ids"].IsDefined()) {
-        ret.idAllocator.ids = mylib::ConfigCast<std::string, std::forward_list<myai::id_t>>{}(Dump(node["idAllocator"]["ids"]));
+        ret.idAllocator.ids = id_lst.fromString(Dump(node["idAllocator"]["ids"]));
       }
     }
     if (node["noders"].IsDefined()) {
@@ -45,50 +46,47 @@ struct ::mylib::ConfigCast<std::string, myai::ThinkConfig> {
         ret.noders.emplace_back(myai::ThinkConfig::NoderConfig{
             myai::Node::fromString(processor_node["type"].as<std::string>()),
             processor_node["idStart"].as<myai::id_t>(),
-            processor_node["idMaxNum"].as<size_t>(),
+            processor_node["idNum"].as<size_t>(),
         });
       }
     }
-
     return ret;
   }
-};
 
-template<>
-struct ConfigCast<myai::ThinkConfig, std::string> {
-  std::string operator()(const myai::ThinkConfig &val)
+  std::string toString(const myai::ThinkConfig &val)
   {
     YAML::Node node;
     if (val.idAllocator.currentId != 0) {
       node["idAllocator"]["currentId"] = val.idAllocator.currentId;
     }
-    node["idAllocator"]["ids"] = ConfigCast<std::forward_list<myai::id_t>, std::string>{}(val.idAllocator.ids);
+    node["idAllocator"]["ids"] = id_lst.toString(val.idAllocator.ids);
     for (const auto &item: val.noders) {
       YAML::Node processor_node;
       processor_node["type"] = myai::Node::toString(item.type);
       processor_node["idStart"] = item.idStart;
-      processor_node["idMaxNum"] = item.idMaxNum;
+      processor_node["idNum"] = item.idNum;
       node["noders"].push_back(processor_node);
     }
     return YAML::Dump(node);
   }
+  Formatter<std::forward_list<myai::id_t>> id_lst{};
 };
+
 }// namespace mylib
 
 namespace myai
 {
-mylib::Logger::ptr g_logger = MYLIB_LOGGER_NAME("think");
-
-::mylib::Config<ThinkConfig>::ptr s_think_conf =
-    ::mylib::Configer::GetInstance()->setConfig<ThinkConfig>("think", {}, "think");
+mylib::Logger::ptr g_logger = nullptr;
+EmotionalActivator::emotion EmotionalActivator::s_emotion{};
+::mylib::Config<ThinkConfig>::ptr NodeControl::s_think_conf = nullptr;
 
 //=====================================================================================================================
-NodeIdAllocator::NodeIdAllocator(const std::string &file) { load_from_file(); }
+NodeIdAllocator::NodeIdAllocator(std::string file) : m_file(std::move(file)) { load_from_file(); }
 NodeIdAllocator::~NodeIdAllocator() { save_to_file(); }
 id_t NodeIdAllocator::allocate()
 {
   if (m_ids.empty()) {
-    return m_currentId++;
+    return ++m_currentId;
   }
 
   id_t res{m_ids.front()};
@@ -103,6 +101,9 @@ id_t NodeIdAllocator::allocate(size_t i)
   id_t res = m_currentId;
   m_currentId += i;
   return res;
+}
+NodeIdAllocator::NodeIdAllocator(id_t begin, const std::forward_list<id_t> &ids) : m_currentId(begin), m_ids(ids)
+{
 }
 //=====================================================================================================================
 Link::Link(id_t link_id, weight_t weight) : id(link_id), weight(weight) {}
@@ -144,6 +145,7 @@ std::string Node::toString(Node::Type val)
     XX(EMOTION);
   }
 #undef XX
+  return "UNKNOWN";
 }
 std::unordered_map<std::string, Node::Type> s_nodeTy_str_map{
     {"1", Node::NT_MEMORY},
@@ -256,6 +258,8 @@ std::string NodeDao::path_parse(id_t id)
 Activator::Activator(Node::Type type) : m_type(type) {}
 
 //=====================================================================================================================
+Noder::Noder(NodeDao::ptr dao, NodeIdAllocator::ptr idAlloc) : m_idAlloc(std::move(idAlloc)), m_nodeDao(std::move(dao)) {}
+
 void Noder::activate(const Node::ptr &per_node, const Node::ptr &next_node)
 {
   std::unordered_map<id_t, weight_t> linkInfo;
@@ -335,23 +339,157 @@ void Noder::clear_cache()
 
 void NodeControl::init()
 {
-  auto &noders_config = s_think_conf->getValue().noders;
+  if (!g_logger) {
+    g_logger = MYLIB_LOGGER_NAME("think");
+    g_logger->setLevel(::mylib::LogEvent::LL_DEBUG);
+    g_logger->setFormatter(std::make_shared<::mylib::LogFormatter>("%d{%H:%M:%S} %t%T%F%T[%c - %p][%f:%l]%m%n"));
+    g_logger->addAppender(std::make_shared<::mylib::ConsoleAppender>(::mylib::LogEvent::LL_DEBUG));
+  }
+  if (!s_think_conf) {
+    s_think_conf = ::mylib::Configer::GetInstance()->setConfig<ThinkConfig>("think", {
+                                                                                         {0, {}},
+                                                                                         {
+                                                                                             {Node::Type::NT_MEMORY, 0, 0},
+                                                                                             {Node::Type::NT_EMOTION, 1, 8},
+                                                                                         },
+                                                                                         10000,
+                                                                                     },
+                                                                            "think");
+  }
+  auto &config = s_think_conf->getValue();
+  m_idAlloc.reset(new NodeIdAllocator(config.idAllocator.currentId, config.idAllocator.ids));
+  m_nodeDao.reset(new NodeDao());
+  m_noder.reset(new Noder(m_nodeDao, m_idAlloc));
+  m_maxRecordeNum = config.maxRecordeNum;
+
+  m_records = {};
+  m_recordeNum = 0ULL;
+
+  auto &noders_config = config.noders;
+
   auto conf_it = noders_config.begin();
+  static std::unordered_map<Node::Type, std::function<Activator::ptr()>> s_type_activator_map = {
+      {Node::Type::NT_MEMORY, [this]() { return std::make_shared<MemoryActivator>(m_nodeDao); }},
+      {Node::Type::NT_EMOTION, [&]() { return std::make_shared<EmotionalActivator>(conf_it->idStart); }},
+  };
+
   for (; conf_it != noders_config.end(); ++conf_it) {
-    static std::unordered_map<Node::Type, std::function<Activator::ptr()>> s_type_activator_map = {
-        {Node::Type::NT_MEMORY, []() { return std::make_shared<MemoryActivator>(); }},
-        {Node::Type::NT_EMOTION, [&]() { return std::make_shared<EmotionalActivator>(conf_it->idStart); }},
-    };
     m_noder->addActivator(s_type_activator_map[conf_it->type]());
   }
 }
 
-MemoryActivator::MemoryActivator()
-    : Activator(Node::NT_MEMORY)
+void NodeControl::run()
+{
+  for (; !isStop();) {
+    inferencePeriod();
+    learnPeriod();
+  }
+}
+void NodeControl::inferencePeriod()
+{
+  Node::ptr per_node = nullptr, next_node = nullptr;
+  for (; m_recordeNum < m_maxRecordeNum; ++m_recordeNum) {
+    if ((m_recordeNum + 1) % 100 == 0) {
+      MYLIB_LOG_INFO(g_logger) << "run " << m_recordeNum + 1 << " times";
+    }
+    next_node = m_noder->addRecordNode(5);
+    m_records.emplace_front(next_node);
+    ;
+    m_noder->activate(per_node, next_node);
+    per_node = next_node;
+    next_node = nullptr;
+  }
+}
+void NodeControl::learnPeriod()
+{
+
+  for (auto pre_iter = m_records.before_begin(),
+            iter = m_records.begin();
+       iter != m_records.end();
+       pre_iter = iter, ++iter) {
+    //    (**pre_iter).linkGroup().for_each([](const Link &link) {
+    //
+    //    });
+    m_nodeDao->insert(*iter, false);
+  }
+  m_recordeNum=0;
+;
+}
+bool NodeControl::isStop()
+{
+
+  return false;
+}
+NodeControl::ptr NodeControl::getInstance()
+{
+  static NodeControl::ptr instance;
+  if (!instance) {
+    instance.reset(new NodeControl());
+  }
+
+  return instance;
+}
+NodeControl::NodeControl()
+{
+  init();
+}
+//=====================================================================================================================
+MemoryActivator::MemoryActivator(NodeDao::ptr nodeDao) : Activator(Node::NT_MEMORY), m_memoryLinks(new LinkGroup{}), m_nodeDao(std::move(nodeDao))
 {
 }
+void MemoryActivator::setActivationInfo(std::unordered_map<id_t, weight_t> &link_info)
+{
+  m_memoryLinks->for_each([&](Link &link) {
+    auto fd_rt = link_info.find(link.id);
+    if (fd_rt == link_info.end()) {
+      Node::ptr temp_node = m_nodeDao->selectById(link.id);
+      fd_rt = link_info.emplace(link.id, temp_node->getBias()).first;
+    }
+    fd_rt->second += link.weight;
+  });
+}
+void MemoryActivator::active(const Link &link)
+{
+  const auto node = m_nodeDao->selectById(link.id);
+  node->linkGroup().for_each([&, this](const Link &link) {
+    m_memoryLinks->addLink(link.id, link.weight * link.weight);
+  });
+}
+
+//=====================================================================================================================
+
 EmotionalActivator::EmotionalActivator(id_t id_begin)
     : Activator(Node::NT_EMOTION), m_begin(id_begin)
 {
+}
+void EmotionalActivator::setActivationInfo(std::unordered_map<id_t, weight_t> &link_info)
+{
+  s_emotion.emotion_interference > 1.0
+      ? link_info[m_begin + IN_POSITIVE] = (s_emotion.emotion_interference - 1.0f) * 10000.0f
+      : link_info[m_begin + IN_NEGATIVE] = s_emotion.emotion_interference * 10000.0f;
+  s_emotion.activates_standard > 10000.0f
+      ? link_info[m_begin + IN_CONCENTRATION] = s_emotion.activates_standard
+      : link_info[m_begin + IN_DISPERSION] = 10000.0f - s_emotion.activates_standard;
+}
+void EmotionalActivator::active(const Link &link)
+{
+  auto emotionIo = (EmotionIO) (link.id - m_begin);
+  switch (emotionIo) {
+    case OUT_POSITIVE:
+      s_emotion.activates_standard += link.weight / 10000.0f;
+      break;
+    case OUT_NEGATIVE:
+      s_emotion.activates_standard -= link.weight / 10000.0f;
+      break;
+    case OUT_CONCENTRATION:
+      s_emotion.activates_standard = std::max(s_emotion.activates_standard + link.weight, 20000.0f);
+      break;
+    case OUT_DISPERSION:
+      s_emotion.activates_standard = std::max(s_emotion.activates_standard - link.weight, 0.0f);
+      break;
+    default:
+      // error
+      break;
+  }
 }
 }// namespace myai

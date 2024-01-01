@@ -37,7 +37,7 @@ void Configer::list_all_yaml_node(YAML::Node &root_node, std::list<YamlPair> &ou
         std::string key = topNode.first.empty() ? node.first.Scalar() : topNode.first + "." + node.first.Scalar();
         std::transform(key.begin(), key.end(), key.begin(), ::tolower);
         if (key.find_first_not_of("abcdefgihgklmnopqrstuvwxyz.0123456789_") != std::string::npos) {
-          std::cout << "node key=`" << key << "`is not a legal key. first faild char=" << key.find_first_not_of("abcdefgihgklmnopqrstuvwxyz.0123456789_") << std::endl;
+          std::cout << "node key=`" << key << "`is not a legal key. first failed char=" << key.find_first_not_of("abcdefgihgklmnopqrstuvwxyz.0123456789_") << std::endl;
         }
         out.emplace_back(key, node.second);
         node_stack.emplace(key, node.second);
@@ -83,7 +83,7 @@ bool Configer::delConfig(const std::string &name)
 {
   auto fd_rt = getConfig<ConfigBase>(name);
   if (!fd_rt) {
-    std::cout << "del config faild,config is not exist."
+    std::cout << "del config failed,config is not exist."
               << "name=" << name << std::endl;
     return false;
   }

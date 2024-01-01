@@ -13,7 +13,6 @@ aux_source_directory(../mylib/test MYLIB_TEST_LIST)
 add_library(mylib SHARED ${MYLIB_SRCS})
 force_redefine_file_macro_for_sources(mylib)
 
-
 foreach (file ${MYLIB_TEST_LIST})
     message(STATUS >>>file=${file})
     string(REGEX REPLACE ".+/(.+)\\..*" "\\1" TEST_NAME ${file})

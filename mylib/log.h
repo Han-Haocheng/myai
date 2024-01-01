@@ -61,16 +61,16 @@ public:
 
   LogEvent(uint64_t timestamp, std::string file, int line, std::string logger_name, LogEvent::Level level, std::string thread_name, int thread_id, int fiber_id, std::string func_name);
 
-  inline uint64_t getTimestamp() const { return m_timestamp; }
-  inline LogEvent::Level getLevel() const { return m_level; }
-  inline const std::string &getFileName() const { return m_fileName; }
-  inline int getLine() const { return m_line; }
-  inline const std::string &getLoggerName() const { return m_loggerName; }
-  inline const std::string &getThreadName() const { return m_threadName; }
-  inline int getThreadId() const { return m_threadId; }
-  inline int getFiberId() const { return m_fiberId; }
-  inline const std::string &getFuncName() const { return m_funcName; }
-  inline std::stringstream &msg() { return m_msg; }
+  uint64_t getTimestamp() const { return m_timestamp; }
+  LogEvent::Level getLevel() const { return m_level; }
+  const std::string &getFileName() const { return m_fileName; }
+  int getLine() const { return m_line; }
+  const std::string &getLoggerName() const { return m_loggerName; }
+  const std::string &getThreadName() const { return m_threadName; }
+  int getThreadId() const { return m_threadId; }
+  int getFiberId() const { return m_fiberId; }
+  const std::string &getFuncName() const { return m_funcName; }
+  std::stringstream &msg() { return m_msg; }
 
 private:
   uint64_t m_timestamp = 0;//时间戳
@@ -222,45 +222,10 @@ private:
   std::vector<LogAppender::ptr> m_appenders;
 };
 //=====================================================================================================================
-///=====================================================================================================================
-/// AppenderConfigVal
-///=====================================================================================================================
 
-struct AppenderConfigVal {
-  LogAppender::Type type;
-  std::string file;
-  LogEvent::Level level;
-  std::string pattern;
-};
-
-///=====================================================================================================================
-/// LoggerConfigVal
-///=====================================================================================================================
-
-struct LoggerConfigVal {
-  std::string name;
-  LogEvent::Level level;
-  std::string pattern;
-  std::vector<AppenderConfigVal> appenders;
-  bool operator<(const LoggerConfigVal &rhs) const { return name < rhs.name; }
-  bool operator>(const LoggerConfigVal &rhs) const { return rhs < *this; }
-  bool operator<=(const LoggerConfigVal &rhs) const { return !(rhs < *this); }
-  bool operator>=(const LoggerConfigVal &rhs) const { return !(*this < rhs); }
-  bool operator==(const LoggerConfigVal &rhs) const { return name == rhs.name; }
-  bool operator!=(const LoggerConfigVal &rhs) const { return !(rhs == *this); }
-};
-
-///=====================================================================================================================
-/// LogConfigVal
-///=====================================================================================================================
-
-struct LogConfigVal {
-  LogEvent::Level def_level;
-  std::string def_pattern;
-
-  LoggerConfigVal root_logger;
-  std::set<LoggerConfigVal> loggers;
-};
+struct LogConfigVal;
+struct LoggerConfigVal;
+struct AppenderConfigVal;
 
 ///=====================================================================================================================
 
@@ -301,12 +266,12 @@ public:
 
 private:
   explicit LoggerManager();
+
   Logger::ptr config_logger(const LoggerConfigVal &conf);
   static LogAppender::ptr config_appender(LogEvent::Level logger_level, LogFormatter::ptr logger_formatter, const AppenderConfigVal &conf);
 
 private:
   Logger::ptr m_rootLogger = nullptr;
-  std::vector<LoggerConfigVal> m_loggerConfigs{};
   std::unordered_map<std::string, Logger::ptr> m_loggers{};
 
   LogEvent::Level m_defLevel = LogEvent::LL_UNKNOWN;
