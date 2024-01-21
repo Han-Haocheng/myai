@@ -3,7 +3,7 @@
 //
 
 #define BOOST_TEST_MODULE MyLibTest
-#include "../log.h"
+#include "log.h"
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(suite_mylib_asyn)
@@ -18,7 +18,7 @@ std::function<void()> func1 = []() {
 
 std::function<void()> func2 = [] {
   MYLIB_LOG_DEBUG(MYLIB_LOGGER_ROOT) << "func2 start";
-  mylib::Coroutine::ptr test_co = std::make_shared<mylib::Coroutine>(func1);
+  ::mylib::Coroutine::ptr test_co = std::make_shared<mylib::Coroutine>(func1);
   MYLIB_LOG_DEBUG(MYLIB_LOGGER_ROOT) << "resume 0";
   test_co->resume();
   //  MYLIB_LOG_DEBUG(MYLIB_LOGGER_ROOT) << "resume 1";
