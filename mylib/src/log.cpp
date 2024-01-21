@@ -2,7 +2,7 @@
 // Created by HanHaocheng on 2023/12/21.
 //
 
-#include "../log.h"
+#include "log.h"
 #include <algorithm>
 #include <iostream>
 
@@ -241,7 +241,7 @@ LogEvent::Level LogEvent::fromString(std::string level)
 #undef XX
 }
 
-LogEvent::LogEvent(uint64_t timestamp, std::string file, int line, std::string logger_name, LogEvent::Level level, std::string thread_name, int thread_id, int fiber_id, std::string func_name)
+LogEvent::LogEvent(uint64_t timestamp, std::string file, int line, std::string logger_name, LogEvent::Level level, std::string thread_name, tid_t thread_id, int fiber_id, std::string func_name)
     : m_timestamp(timestamp),
       m_fileName(std::move(file)),
       m_line(line),
@@ -305,7 +305,11 @@ public:
   {
     tm tm{};
     auto t = (time_t) event->getTimestamp();
+#if __linux__
     localtime_r(&t, &tm);
+#elif _WIN32
+    localtime_s(&tm, &t);
+#endif // __linux__
     char buf[64];
     strftime(buf, 64, m_exString.c_str(), &tm);
     in_ss << buf;

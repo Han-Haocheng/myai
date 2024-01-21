@@ -10,15 +10,18 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+
+#if __linux__
 #include <semaphore.h>
+#elif _WIN32
+#include <Windows.h>
+#endif
 #include <string>
 #include <vector>
 
-namespace mylib
-{
+namespace mylib {
 
-class Semaphore
-{
+class Semaphore {
 public:
   explicit Semaphore(uint32_t count = 0);
   ~Semaphore();
@@ -29,20 +32,22 @@ public:
   void notify();
 
 private:
+#if __linux__
   sem_t m_semaphore{};
+#elif _WIN32
+  HANDLE m_ghSemaphore;
+#endif
 };
 
 //=====================================================================================================================
 
 template<typename MutexType>
-class MutexLock
-{
+class MutexLock {
 public:
   explicit MutexLock(MutexType &mutex) : m_mutex(mutex) { lock(); }
   ~MutexLock() { unlock(); }
 
-  void lock()
-  {
+  void lock() {
     if (m_locked) {
       return;
     }
@@ -50,8 +55,7 @@ public:
     m_locked = true;
   }
 
-  void unlock()
-  {
+  void unlock() {
     if (!m_locked) {
       return;
     }
@@ -65,22 +69,19 @@ private:
 };
 
 template<typename RWMutexType>
-class RdMutexLock
-{
+class RdMutexLock {
 public:
   explicit RdMutexLock(RWMutexType &mutex) : m_mutex(mutex) { lock(); }
   ~RdMutexLock() { unlock(); }
 
-  void lock()
-  {
+  void lock() {
     if (m_locked) {
       return;
     }
     m_mutex.rdlock();
     m_locked = true;
   }
-  void unlock()
-  {
+  void unlock() {
     if (!m_locked) {
       return;
     }
@@ -94,22 +95,19 @@ private:
 };
 
 template<typename RWMutexType>
-class WrMutexLock
-{
+class WrMutexLock {
 public:
   explicit WrMutexLock(RWMutexType &mutex) : m_mutex(mutex) { lock(); }
   ~WrMutexLock() { unlock(); }
 
-  void lock()
-  {
+  void lock() {
     if (m_locked) {
       return;
     }
     m_mutex.wrlock();
     m_locked = true;
   }
-  void unlock()
-  {
+  void unlock() {
     if (!m_locked) {
       return;
     }
@@ -122,8 +120,7 @@ private:
   bool m_locked = false;
 };
 
-class Mutex
-{
+class Mutex {
 public:
   typedef class MutexLock<Mutex> Lock;
 
@@ -133,11 +130,14 @@ public:
   void unlock();
 
 private:
+#if __linux__
   pthread_mutex_t m_mutex;
+#elif _WIN32
+  HANDLE m_mutex;
+#endif// __linux__
 };
 
-class SpanMutex
-{
+class SpanMutex {
 public:
   typedef class MutexLock<SpanMutex> Lock;
 
@@ -150,8 +150,7 @@ private:
   pthread_spinlock_t m_spinlock;
 };
 
-class RWMutex
-{
+class RWMutex {
 public:
   typedef class WrMutexLock<RWMutex> ReadLock;
   typedef class RdMutexLock<RWMutex> WriteLock;
@@ -169,26 +168,34 @@ private:
 
 //=====================================================================================================================
 
-class Thread : public std::enable_shared_from_this<Thread>
-{
+#if __linux__
+typedef pid_t tid_t;
+typedef pthread_t thread_t;
+#elif _WIN32
+typedef DWORD tid_t;
+typedef HANDLE thread_t;
+#endif// __linux__
+
+
+class Thread : public std::enable_shared_from_this<Thread> {
 public:
   typedef std::shared_ptr<Thread> ptr;
 
-  static pid_t GetId();
+  static tid_t GetId();
   static Thread::ptr GetThis();
   static std::string GetName();
   static void SetName(std::string name);
 
 public:
   Thread(std::string name, std::function<void()> cb);
-  Thread(const Thread &) = delete;
+  Thread(const Thread &)            = delete;
   Thread &operator=(const Thread &) = delete;
 
   ~Thread();
 
   void join() const;
 
-  pid_t getId() const { return m_pid; }
+  tid_t getId() const { return m_pid; }
   const std::string &getName() const { return m_name; }
 
 private:
@@ -196,8 +203,9 @@ private:
   static void *run(void *avg);
 
 private:
-  pid_t m_pid = -1;
-  pthread_t m_thread = 0;
+  tid_t m_pid       = -1;
+  thread_t m_thread = 0;
+
   std::string m_name;
   std::function<void()> m_cb = nullptr;
   Semaphore m_semaphore;
@@ -209,19 +217,17 @@ private:
 /// 协程
 /// \概念 可以保存当前运行状态，并将当前状态设置为要执行的状态
 ///
-class Coroutine : public std::enable_shared_from_this<Coroutine>
-{
+class Coroutine : public std::enable_shared_from_this<Coroutine> {
 public:
   typedef std::shared_ptr<Coroutine> ptr;
   typedef std::weak_ptr<Coroutine> weak_ptr;
-  enum State
-  {
-    INITIAL = 1 << 0,
-    READY = 1 << 1,
-    HOLD = 1 << 2,
-    EXECUTING = 1 << 3,
+  enum State {
+    INITIAL    = 1 << 0,
+    READY      = 1 << 1,
+    HOLD       = 1 << 2,
+    EXECUTING  = 1 << 3,
     TERMINATED = 1 << 4,
-    EXCEPT = 1 << 5,
+    EXCEPT     = 1 << 5,
   };
 
   static std::string toString(Coroutine::State state);
@@ -238,7 +244,7 @@ public:
   State state();
   void reset(const std::function<void()> &cb);
 
-  static void Yield();
+  static void YieldCoroutine();
   static void Restart();
 
 private:
@@ -248,12 +254,12 @@ private:
   void swap_in();
 
 private:
-  uint64_t m_id = 0;
-  State m_state = Coroutine::INITIAL;
+  uint64_t m_id              = 0;
+  State m_state              = Coroutine::INITIAL;
   std::function<void()> m_cb = nullptr;
 
-  void *m_stack = nullptr;
-  size_t m_stacksize = 0;
+  void *m_stack              = nullptr;
+  size_t m_stacksize         = 0;
   ucontext_t m_ctx;
 
   //ptr m_envCoroutine = nullptr;
@@ -267,30 +273,27 @@ private:
 
 //=====================================================================================================================
 
-class Scheduler : public std::enable_shared_from_this<Scheduler>
-{
+class Scheduler : public std::enable_shared_from_this<Scheduler> {
 public:
   using ptr = std::shared_ptr<Scheduler>;
 
 private:
   struct CoroutineOrFunction {
-    pid_t thread_id = -1;
-    Coroutine::ptr coroutine = nullptr;
+    tid_t thread_id                = -1;
+    Coroutine::ptr coroutine       = nullptr;
     std::function<void()> function = nullptr;
-    CoroutineOrFunction() = default;
-    CoroutineOrFunction(pid_t thread_id, Coroutine::ptr coroutine)
+    CoroutineOrFunction()          = default;
+    CoroutineOrFunction(tid_t thread_id, Coroutine::ptr coroutine)
         : thread_id(thread_id), coroutine(std::move(coroutine)) {}
-    CoroutineOrFunction(pid_t thread_id, std::function<void()> function)
+    CoroutineOrFunction(tid_t thread_id, std::function<void()> function)
         : thread_id(thread_id), function(std::move(function)) {}
-    bool empty() const
-    {
+    bool empty() const {
       return coroutine == nullptr && function == nullptr;
     }
-    void clear()
-    {
+    void clear() {
       thread_id = -1;
       coroutine = nullptr;
-      function = nullptr;
+      function  = nullptr;
     }
   };
 
@@ -314,13 +317,13 @@ private:
   void _schedule_base(const CoroutineOrFunction &cof);
 
 private:
-  bool m_isStopped = false;
+  bool m_isStopped  = false;
   bool m_isStopping = false;
   std::string m_name;
-  size_t m_threadCount = 0;//线程数量
+  size_t m_threadCount                    = 0;//线程数量
 
   std::atomic<size_t> m_activeThreadCount = {0};//活跃线程数
-  std::atomic<size_t> m_idleThreadCount = {0};  //空闲线程数
+  std::atomic<size_t> m_idleThreadCount   = {0};//空闲线程数
 
   std::vector<Thread::ptr> m_threads;
   std::vector<CoroutineOrFunction> m_coroutines;

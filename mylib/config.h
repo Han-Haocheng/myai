@@ -15,6 +15,7 @@
 #include <unordered_set>
 #include <vector>
 #include <yaml-cpp/yaml.h>
+#include <set>
 
 namespace mylib
 {

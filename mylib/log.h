@@ -59,7 +59,7 @@ public:
   static std::string toString(Level level);
   static Level fromString(std::string level);
 
-  LogEvent(uint64_t timestamp, std::string file, int line, std::string logger_name, LogEvent::Level level, std::string thread_name, int thread_id, int fiber_id, std::string func_name);
+  LogEvent(uint64_t timestamp, std::string file, int line, std::string logger_name, LogEvent::Level level, std::string thread_name, tid_t thread_id, int fiber_id, std::string func_name);
 
   uint64_t getTimestamp() const { return m_timestamp; }
   LogEvent::Level getLevel() const { return m_level; }
