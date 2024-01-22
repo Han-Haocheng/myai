@@ -1,81 +1,7 @@
-//
-// Created by HanHaocheng on 2023/11/7.
-//
 
-#include "node.h"
+#include "thinker.h"
 
-namespace myai
-{
-
-struct ThinkConfig {
-  struct NodeIdAllocatorConfig {
-    myai::id_t currentId;
-    std::forward_list<myai::id_t> ids;
-  };
-  struct NoderConfig {
-    Node::Type type;
-    id_t idStart;
-    size_t idNum;
-  };
-  NodeIdAllocatorConfig idAllocator;
-  std::vector<NoderConfig> noders;
-  size_t maxRecordeNum;
-};
-
-}// namespace myai
-
-namespace mylib
-{
-template<>
-struct Formatter<myai::ThinkConfig> {
-  myai::ThinkConfig fromString(const std::string &val)
-  {
-    YAML::Node node = YAML::Load(val);
-    myai::ThinkConfig ret{};
-    if (node["idAllocator"].IsDefined()) {
-      if (node["idAllocator"]["currentId"].IsDefined()) {
-        ret.idAllocator.currentId = node["idAllocator"]["currentId"].as<myai::id_t>();
-      }
-      if (node["idAllocator"]["ids"].IsDefined()) {
-        ret.idAllocator.ids = id_lst.fromString(Dump(node["idAllocator"]["ids"]));
-      }
-    }
-    if (node["noders"].IsDefined()) {
-      for (const auto &processor_node: node["noders"]) {
-        ret.noders.emplace_back(myai::ThinkConfig::NoderConfig{
-            myai::Node::fromString(processor_node["type"].as<std::string>()),
-            processor_node["idStart"].as<myai::id_t>(),
-            processor_node["idNum"].as<size_t>(),
-        });
-      }
-    }
-    return ret;
-  }
-
-  std::string toString(const myai::ThinkConfig &val)
-  {
-    YAML::Node node;
-    if (val.idAllocator.currentId != 0) {
-      node["idAllocator"]["currentId"] = val.idAllocator.currentId;
-    }
-    node["idAllocator"]["ids"] = id_lst.toString(val.idAllocator.ids);
-    for (const auto &item: val.noders) {
-      YAML::Node processor_node;
-      processor_node["type"] = myai::Node::toString(item.type);
-      processor_node["idStart"] = item.idStart;
-      processor_node["idNum"] = item.idNum;
-      node["noders"].push_back(processor_node);
-    }
-    return YAML::Dump(node);
-  }
-  Formatter<std::forward_list<myai::id_t>> id_lst{};
-};
-
-}// namespace mylib
-
-namespace myai
-{
-mylib::Logger::ptr g_logger = nullptr;
+namespace myai {
 EmotionalActivator::emotion EmotionalActivator::s_emotion{};
 ::mylib::Config<ThinkConfig>::ptr NodeControl::s_think_conf = nullptr;
 
@@ -104,68 +30,6 @@ id_t NodeIdAllocator::allocate(size_t i)
 NodeIdAllocator::NodeIdAllocator(id_t begin, const std::forward_list<id_t> &ids) : m_currentId(begin), m_ids(ids)
 {
 }
-//=====================================================================================================================
-Link::Link(id_t link_id, weight_t weight) : id(link_id), weight(weight) {}
-Link &Link::operator=(const char *bytes)
-{
-  memcpy((void *) this, bytes, sizeof(*this));
-  return *this;
-}
-Link::operator const char *() const { return reinterpret_cast<const char *>(this); }
-Link::operator bool() const { return weight != 0 || !!(uint64_t) id; }
-bool Link::operator==(const Link &rhs) const { return id == rhs.id; }
-bool Link::operator!=(const Link &rhs) const { return !(rhs == *this); }
-bool Link::operator<(const Link &rhs) const { return id < rhs.id; }
-bool Link::operator>(const Link &rhs) const { return rhs < *this; }
-bool Link::operator<=(const Link &rhs) const { return !(rhs < *this); }
-bool Link::operator>=(const Link &rhs) const { return !(*this < rhs); }
-
-//=====================================================================================================================
-void LinkGroup::addLink(const Link &link) { m_datas.emplace_back(link); }
-const std::vector<Link> &LinkGroup::getAllLinks() const { return m_datas; }
-void LinkGroup::for_each(std::function<void(Link &)> func) { std::for_each(m_datas.begin(), m_datas.end(), std::move(func)); }
-void LinkGroup::for_each(std::function<void(const Link &)> func) const { std::for_each(m_datas.begin(), m_datas.end(), std::move(func)); }
-
-//=====================================================================================================================
-Node::Node(id_t id, Type type, weight_t bias) : m_id(id), m_bias(bias), m_type(type) {}
-id_t Node::getId() const { return m_id; }
-weight_t Node::getBias() const { return m_bias; }
-void Node::setBias(weight_t bias) { m_bias = bias; }
-Node::Type Node::getType() const { return m_type; }
-void Node::setType(Type type) { m_type = type; }
-std::string Node::toString(Node::Type val)
-{
-  switch (val) {
-#define XX(ty)  \
-  case NT_##ty: \
-    return #ty
-    XX(UNKNOWN);
-    XX(MEMORY);
-    XX(EMOTION);
-  }
-#undef XX
-  return "UNKNOWN";
-}
-std::unordered_map<std::string, Node::Type> s_nodeTy_str_map{
-    {"1", Node::NT_MEMORY},
-    {"Memory", Node::NT_MEMORY},
-    {"memory", Node::NT_MEMORY},
-    {"MEMORY", Node::NT_MEMORY},
-    {"NT_MEMORY", Node::NT_MEMORY},
-};
-Node::Type Node::fromString(const std::string &type)
-{
-  auto res = s_nodeTy_str_map.find(type);
-  return res != s_nodeTy_str_map.end() ? res->second : NT_UNKNOWN;
-}
-bool Node::operator==(const Node &rhs) const { return m_id == rhs.m_id; }
-bool Node::operator!=(const Node &rhs) const { return !(rhs == *this); }
-bool Node::operator<(const Node &rhs) const { return m_id < rhs.m_id; }
-bool Node::operator>(const Node &rhs) const { return rhs < *this; }
-bool Node::operator<=(const Node &rhs) const { return !(rhs < *this); }
-bool Node::operator>=(const Node &rhs) const { return !(*this < rhs); }
-LinkGroup &Node::linkGroup() { return m_linkGroup; }
-const LinkGroup &Node::linkGroup() const { return m_linkGroup; }
 
 //=====================================================================================================================
 NodeDao::NodeDao(std::string dataRootPath)
@@ -179,8 +43,8 @@ int NodeDao::insert(const Node::ptr &node, bool isForced)
     return 0;
 
   std::string path = path_parse(node->m_id);
-  if (!isForced && !access(path.c_str(), F_OK))
-    return 0;
+  /*if (!isForced && ! access(path.c_str(), F_OK))*/
+  return 0;
 
   std::ofstream ofs{path, std::ios::out | std::ios::binary};
   if (!ofs.is_open())
@@ -199,8 +63,8 @@ int NodeDao::update(const Node::ptr &node)
 
   std::string path = path_parse(node->m_id);
 
-  if (access(path.c_str(), F_OK | W_OK))
-    return 0;
+  /*if (access(path.c_str(), F_OK | W_OK))*/
+  return 0;
 
   std::ofstream ofs{path, std::ios::out | std::ios::binary | std::ios::trunc};
   if (!ofs.is_open())
@@ -219,7 +83,14 @@ int NodeDao::deleteById(id_t id)
     return 0;
   }
   std::string path = path_parse(id);
+
+#if __linux__
   return unlink(path.c_str()) ? 0 : 1;
+
+#elif _WIN32
+  return _unlink(path.c_str()) ? 0 : 1;
+
+#endif
 }
 
 Node::ptr NodeDao::selectById(id_t id)
@@ -411,8 +282,8 @@ void NodeControl::learnPeriod()
     //    });
     m_nodeDao->insert(*iter, false);
   }
-  m_recordeNum=0;
-;
+  m_recordeNum = 0;
+  ;
 }
 bool NodeControl::isStop()
 {
@@ -481,14 +352,14 @@ void EmotionalActivator::active(const Link &link)
       s_emotion.activates_standard -= link.weight / 10000.0f;
       break;
     case OUT_CONCENTRATION:
-      s_emotion.activates_standard = std::max(s_emotion.activates_standard + link.weight, 20000.0f);
+      s_emotion.activates_standard = std::max<>(s_emotion.activates_standard + link.weight, 20000.0f);
       break;
     case OUT_DISPERSION:
-      s_emotion.activates_standard = std::max(s_emotion.activates_standard - link.weight, 0.0f);
+      s_emotion.activates_standard = std::max<>(s_emotion.activates_standard - link.weight, 0.0f);
       break;
     default:
       // error
       break;
   }
 }
-}// namespace myai
+}

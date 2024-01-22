@@ -4,6 +4,7 @@
 
 #include "../timer.h"
 #include <ctime>
+#include "timer.h"
 
 namespace mylib
 {

@@ -4,6 +4,8 @@
 
 #include "../config.h"
 #include <stack>
+#include <string>
+#include "config.h"
 
 namespace mylib
 {
@@ -81,7 +83,7 @@ ConfigBase::ptr Configer::_getConfigBase(const std::string &name)
 }
 bool Configer::delConfig(const std::string &name)
 {
-  auto fd_rt = getConfig<ConfigBase>(name);
+  auto fd_rt = _getConfigBase(name);
   if (!fd_rt) {
     std::cout << "del config failed,config is not exist."
               << "name=" << name << std::endl;
