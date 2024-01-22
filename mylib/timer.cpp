@@ -2,8 +2,9 @@
 // Created by HanHaocheng on 2023/11/7.
 //
 
-#include "../timer.h"
+#include "timer.h"
 #include <ctime>
+#include "timer.h"
 
 namespace mylib
 {

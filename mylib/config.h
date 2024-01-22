@@ -17,8 +17,8 @@
 #include <yaml-cpp/yaml.h>
 #include <set>
 
-namespace mylib
-{
+
+namespace mylib{
 
 //=====================================================================================================================
 
@@ -200,9 +200,10 @@ private:
 };
 
 //=====================================================================================================================
-//using ConfTy = int;
+//using ConfTy = ::myai::ThinkConfig;
+//using Formatter = Formatter<ConfTy>;
 template<typename ConfTy, typename Formatter = Formatter<ConfTy>>
-class Config : public ConfigBase
+ class Config final : public ConfigBase
 {
 public:
   typedef std::shared_ptr<Config<ConfTy>> ptr;
@@ -243,6 +244,7 @@ public:
   void setValue(const ConfTy &val)
   {
     auto old = m_val;
+    
     m_val.reset(new ConfTy{val});
     for (const auto &cb: m_cbs) {
       cb(*old, *m_val);
@@ -260,11 +262,16 @@ public:
 
   bool delListener(size_t pos)
   {
+#if __linux__
     return m_cbs.erase(m_cbs.begin() + pos) > 0;
+
+#elif _WIN32
+    return m_cbs.erase(m_cbs.begin() + pos) == m_cbs.end();
+#endif // __linux__
   }
 
 private:
-  std::shared_ptr<ConfTy> m_val = {new ConfTy{}};
+  std::shared_ptr<ConfTy> m_val = {};
   std::vector<on_lisen_cb> m_cbs;
 };
 //=====================================================================================================================

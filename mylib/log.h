@@ -5,7 +5,6 @@
 #ifndef MY_LIB_LOG_H
 #define MY_LIB_LOG_H
 
-#include "asyn.h"
 #include "config.h"
 #include "timer.h"
 #include <fstream>
@@ -16,6 +15,12 @@
 #include <sstream>
 #include <unordered_map>
 #include <vector>
+
+#include "asyn.h"
+
+#if !defined(__PRETTY_FUNCTION__) && !defined(__GNUC__)
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
 
 #define MYLIB_LOG_BASE(logger, level)                  \
   if (logger->getLevel() <= level)                     \
@@ -221,11 +226,38 @@ private:
   LogFormatter::ptr m_formatter = nullptr;
   std::vector<LogAppender::ptr> m_appenders;
 };
+
 //=====================================================================================================================
 
-struct LogConfigVal;
-struct LoggerConfigVal;
-struct AppenderConfigVal;
+struct AppenderConfigVal {
+  LogAppender::Type type;
+  std::string file;
+  LogEvent::Level level;
+  std::string pattern;
+};
+
+struct LoggerConfigVal {
+  std::string name;
+  LogEvent::Level level;
+  std::string pattern;
+  std::vector<AppenderConfigVal> appenders;
+
+  bool operator<(const LoggerConfigVal &rhs) const { return name < rhs.name; }
+  bool operator>(const LoggerConfigVal &rhs) const { return rhs < *this; }
+  bool operator<=(const LoggerConfigVal &rhs) const { return !(rhs < *this); }
+  bool operator>=(const LoggerConfigVal &rhs) const { return !(*this < rhs); }
+  bool operator==(const LoggerConfigVal &rhs) const { return name == rhs.name; }
+  bool operator!=(const LoggerConfigVal &rhs) const { return !(rhs == *this); }
+};
+
+struct LogConfigVal {
+
+  LogEvent::Level def_level;
+  std::string def_pattern;
+
+  // LoggerConfigVal root_logger;
+  std::vector<LoggerConfigVal> loggers;
+};
 
 ///=====================================================================================================================
 
@@ -279,6 +311,150 @@ private:
   static Config<LogConfigVal>::ptr s_log_configs;
 };
 
+//=====================================================================================================================
+template<>
+class Formatter<LogAppender::Type>
+{
+public:
+  LogAppender::Type fromString(const std::string &type)
+  {
+    if (type == "CONSOLE" || type == "console" || type == "Console" || type == "ConsoleAppender" || type == "APD_CONSOLE" || type == "1") {
+      return LogAppender::APD_CONSOLE;
+    }
+    if (type == "FILE" || type == "file" || type == "File" || type == "FileAppender" || type == "APD_FILE" || type == "2") {
+      return LogAppender::APD_FILE;
+    }
+    return LogAppender::APD_UNDEFINE;
+  }
+
+  std::string toString(const LogAppender::Type &type)
+  {
+    switch (type) {
+#define XX(name)                \
+  case LogAppender::APD_##name: \
+    return #name
+      XX(CONSOLE);
+      XX(FILE);
+      default:
+        return "UNDEFINE";
+#undef XX
+    }
+  }
+};
+
+template<>
+class Formatter<AppenderConfigVal>
+{
+public:
+  AppenderConfigVal fromString(const std::string &str)
+  {
+    YAML::Node node = YAML::Load(str);
+    AppenderConfigVal ret{};
+    ret.type = m_lat.fromString(YAML::Dump(node["type"]));
+    if (!node["type"].IsDefined() || LogAppender::APD_UNDEFINE == ret.type) {
+      std::cout << "<error ConfigCast<std::string, AppenderConfigVal>>appender type define bad." << std::endl;
+    }
+
+    if (ret.type == LogAppender::APD_FILE) {
+      ret.file = node["file"].IsDefined() ? node["file"].as<std::string>() : "";
+    }
+
+    ret.level = node["level"].IsDefined() ? LogEvent::fromString(node["level"].as<std::string>()) : LogEvent::Level::LL_UNKNOWN;
+    ret.pattern = node["pattern"].IsDefined() ? node["pattern"].as<std::string>() : "";
+    return ret;
+  }
+  std::string toString(const AppenderConfigVal &val)
+  {
+    YAML::Node node;
+    if (val.type == LogAppender::APD_UNDEFINE) { throw std::runtime_error("Appender type is undefined."); }
+    node["type"] = m_lat.toString(val.type);
+    if (val.type == LogAppender::APD_FILE) { node["file"] = val.file.empty() ? "./log.txt" : val.file; }
+    if (val.level != LogEvent::Level::LL_UNKNOWN) { node["level"] = LogEvent::toString(val.level); }
+    if (!val.pattern.empty()) { node["pattern"] = val.pattern; }
+    return YAML::Dump(node);
+  }
+
+private:
+  Formatter<LogAppender::Type> m_lat;
+};
+template<>
+class Formatter<LoggerConfigVal>
+{
+public:
+  LoggerConfigVal fromString(const std::string &val)
+  {
+    YAML::Node node = YAML::Load(val);
+    if (!node["name"].IsDefined()) {
+      std::cout << "<error ConfigCast>LoggerConfigVal string undefine name";
+    }
+    LoggerConfigVal ret{};
+
+    ret.name = node["name"].as<std::string>();
+    ret.level = node["level"].IsDefined() ? LogEvent::fromString(node["level"].as<std::string>()) : LogEvent::Level::LL_UNKNOWN;
+    ret.pattern = node["pattern"].IsDefined() ? node["pattern"].as<std::string>() : "";
+    if (node["appenders"].IsDefined()) {
+      ret.appenders = m_acv_vec.fromString(YAML::Dump(node["appenders"]));
+    }
+
+    return ret;
+  }
+  std::string toString(const LoggerConfigVal &val)
+  {
+    YAML::Node node;
+    if (val.name.empty()) { throw std::runtime_error("Logger name is undefined."); }
+    node["name"] = val.name;
+    if (val.level != LogEvent::Level::LL_UNKNOWN) { node["level"] = LogEvent::toString(val.level); }
+    if (!val.pattern.empty()) { node["pattern"] = val.pattern; }
+    if (val.appenders.empty()) { node.push_back(YAML::Load(m_acv_vec.toString(val.appenders))); }
+    return YAML::Dump(node);
+  }
+
+private:
+  Formatter<std::vector<AppenderConfigVal>> m_acv_vec;
+};
+
+template<>
+class Formatter<LogConfigVal>
+{
+public:
+  LogConfigVal fromString(const std::string &val)
+  {
+    YAML::Node node = YAML::Load(val);
+    LogConfigVal ret{};
+
+    ret.def_level = node["def_level"].IsDefined()
+                        ? LogEvent::fromString(node["def_level"].as<std::string>())
+                        : LogEvent::Level::LL_UNKNOWN;
+    ret.def_pattern = node["def_pattern"].IsDefined()
+                          ? node["def_pattern"].as<std::string>()
+                          : "";
+    //    if (node["root_logger"].IsDefined()) {
+    //      ret.root_logger = m_lcv.fromString(Dump(node["root_logger"]));
+    //    }
+    if (node["loggers"].IsDefined()) {
+      ret.loggers = m_lcv_vec.fromString(Dump(node["loggers"]));
+    }
+    return ret;
+  }
+  std::string toString(const LogConfigVal &val)
+  {
+    YAML::Node node;
+    node["def_level"] = LogEvent::toString(val.def_level);
+
+    if (!val.def_pattern.empty()) {
+      node["def_pattern"] = val.def_pattern;
+    }
+    //    node["root_logger"] = m_lcv.toString(val.root_logger);
+    if (!val.loggers.empty()) {
+      node["loggers"] = m_lcv_vec.toString(val.loggers);
+    }
+    return YAML::Dump(node);
+  }
+
+private:
+  // Formatter<LoggerConfigVal> m_lcv;
+  Formatter<std::vector<LoggerConfigVal>> m_lcv_vec;
+};
 //=====================================================================================================================
 }// namespace mylib
 
