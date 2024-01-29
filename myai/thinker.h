@@ -163,49 +163,53 @@ private:
 };
 
 //=====================================================================================================================
+
+// 活跃节点，用于节点运行时处理
+class ActiveNode
+{
+public:
+  ActiveNode(Node::ptr node, Activator::ptr activator);
+
+  Node::ptr getNode()const;
+
+  weight_t weight = 0;
+
+private:
+  Node::ptr node = nullptr;
+  Activator::ptr m_activator;
+};
+
+//=====================================================================================================================
+
+//激活器，处理激活节点的方式
 class Activator
 {
 public:
   using ptr = std::shared_ptr<Activator>;
   explicit Activator(Node::Type type);
   virtual ~Activator() = default;
-  virtual void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) = 0;
-  virtual void active(const Link &link) = 0;
+  virtual void getActivateInfos(std::unordered_map<id_t, weight_t> &link_info) = 0;
+  virtual void active(const std::unordered_map<id_t, ActiveNode>& actives) = 0;
 
 private:
   Node::Type m_type = Node::NT_UNKNOWN;
 };
+
 //=====================================================================================================================
-
-class ActiveNd
-{
-public:
-  ActiveNd(Node::ptr node, Activator::ptr activator);
-
-  void activate();
-  Node::ptr getNode();
-  weight_t getActiveValue();
-
-private:
-  Node::ptr node = nullptr;
-  weight_t m_activeVal = 0;
-  Activator::ptr m_activator;
-};
-//=====================================================================================================================
-
 class MemoryActivator : public Activator
 {
 public:
   explicit MemoryActivator(NodeDao::ptr nodeDao);
   ~MemoryActivator() override = default;
-  void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override;
+  void getActivateInfos(std::unordered_map<id_t, weight_t> &link_info) override;
 
-  void active(const Link &link) override;
+  void active(const std::unordered_map<id_t, ActiveNode> &actives) override;
 
 private:
   LinkGroup::ptr m_memoryLinks;
   NodeDao::ptr m_nodeDao;
 };
+
 //=====================================================================================================================
 class EmotionalActivator : public Activator
 {
@@ -232,26 +236,26 @@ public:
   explicit EmotionalActivator(id_t id_begin);
   ~EmotionalActivator() override = default;
 
-  void setActivationInfo(std::unordered_map<id_t, weight_t> &link_info) override;
+  void getActivateInfos(std::unordered_map<id_t, weight_t> &link_info) override;
 
-  void active(const Link &link) override;
+  void active(const std::unordered_map<id_t, ActiveNode> &actives) override;
 
 private:
   id_t m_begin = 0;
 };
 
-
 //=====================================================================================================================
 
+// 思维器，处理思维的运转
 class Thinker
 {
 public:
   using ptr = std::shared_ptr<Thinker>;
-  struct ActiveNode {
-    Node::ptr node = nullptr;
-    Activator::ptr activator;
-    weight_t active_val = 0;
-  };
+  //struct ActiveNode {
+  //  Node::ptr node = nullptr;
+  //  Activator::ptr activator;
+  //  weight_t active_val = 0;
+  //};
 
   explicit Thinker(NodeDao::ptr dao, NodeIdAllocator::ptr idAlloc);
   ~Thinker() = default;
@@ -263,14 +267,22 @@ public:
 
   void activate(const Node::ptr &record_node, const Node::ptr &next_node);
 
+  // 添加激活器
   void addActivator(const Activator::ptr &activator);
+  // 清楚激活器
   void clearActivator();
 
-  // 推理期
-  void inferencePeriod(size_t recordeNum);
+  // 推理周期
+  void inferencePeriod() {
+    // 激活器收集激活信息
 
-  //学习期
-  void learnPeriod();
+    // 激活信息映射激活节点
+
+    // 激活器激活节点
+  }
+
+  //学习周期
+  void learnPeriod() {}
 
 private:
   void clear_cache();

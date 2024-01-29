@@ -13,6 +13,7 @@ mylib::Logger::ptr g_logger = nullptr;
 Link::Link(id_t link_id, weight_t weight) : id(link_id), weight(weight) {}
 Link &Link::operator=(const char *bytes)
 {
+  // 通过memcpy进行内存拷贝
   memcpy((void *) this, bytes, sizeof(*this));
   return *this;
 }
@@ -41,6 +42,7 @@ Node::Type Node::getType() const { return m_type; }
 void Node::setType(Type type) { m_type = type; }
 std::string Node::toString(Node::Type val)
 {
+  // 通过宏定义简化转换
   switch (val) {
 #define XX(ty)  \
   case NT_##ty: \
@@ -80,13 +82,17 @@ NodeDao::NodeDao(std::string dataRootPath) : m_rootPath(std::move(dataRootPath))
 
 int NodeDao::insert(const Node::ptr &node, bool isForced)
 {
+  //判断传入节点是否存在
   if (!node || node->m_id == 0)
     return 0;
 
+  // 通过id获取路径
   std::string path = path_parse(node->m_id);
+  // 是否强制插入
   if (!isForced && !access(path.c_str(), F_OK))
     return 0;
 
+  // 开始插入
   std::ofstream ofs{path, std::ios::out | std::ios::binary};
   if (!ofs.is_open())
     return 0;
@@ -100,14 +106,18 @@ int NodeDao::insert(const Node::ptr &node, bool isForced)
 
 int NodeDao::update(const Node::ptr &node)
 {
+  // 判断传入节点是否存在
   if (!node || node->m_id == 0)
     return 0;
 
+  // 通过id获取路径
   std::string path = path_parse(node->m_id);
 
+  // 判断节点文件是否存在
   if (access(path.c_str(), F_OK | W_OK))
     return 0;
 
+  // 开始更新节点
   std::ofstream ofs{path, std::ios::out | std::ios::binary | std::ios::trunc};
   if (!ofs.is_open())
     return 0;
@@ -119,14 +129,6 @@ int NodeDao::update(const Node::ptr &node)
   return 1;
 }
 
-int NodeDao::deleteById(id_t id)
-{
-  if (id == 0) {
-    return 0;
-  }
-  std::string path = path_parse(id);
-  return unlink(path.c_str()) ? 0 : 1;
-}
 
 Node::ptr NodeDao::selectById(id_t id)
 {
@@ -147,6 +149,15 @@ Node::ptr NodeDao::selectById(id_t id)
     ifs >> (uint64_t &) link;
   ifs.close();
   return node;
+}
+
+int NodeDao::deleteById(id_t id)
+{
+  if (id == 0) {
+    return 0;
+  }
+  std::string path = path_parse(id);
+  return unlink(path.c_str()) ? 0 : 1;
 }
 
 std::string NodeDao::path_parse(id_t id)
@@ -182,6 +193,63 @@ id_t NodeIdAllocator::allocate(size_t i)
 
 //=====================================================================================================================
 Activator::Activator(Node::Type type) : m_type(type) {}
+//=====================================================================================================================
+MemoryActivator::MemoryActivator(NodeDao::ptr nodeDao) : Activator(Node::NT_MEMORY), m_memoryLinks(new LinkGroup{}), m_nodeDao(std::move(nodeDao)) {}
+
+void MemoryActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_info)
+{
+  m_memoryLinks->for_each([&](Link &link) {
+    auto fd_rt = link_info.find(link.id);
+    if (fd_rt == link_info.end()) {
+      Node::ptr temp_node = m_nodeDao->selectById(link.id);
+      fd_rt = link_info.emplace(link.id, temp_node->getBias()).first;
+    }
+    fd_rt->second += link.weight;
+  });
+}
+void MemoryActivator::active(const std::unordered_map<id_t, ActiveNode> &actives)
+{
+  for (auto &aNodePair: actives) {
+    auto node = aNodePair.second.getNode();
+    node->linkGroup().for_each([&, this](const Link &link) {
+      m_memoryLinks->addLink(link.id, link.weight * link.weight);
+    });
+  }
+}
+
+//=====================================================================================================================
+
+EmotionalActivator::EmotionalActivator(id_t id_begin) : Activator(Node::NT_EMOTION), m_begin(id_begin) {}
+
+void EmotionalActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_info)
+{
+  s_emotion.emotion_interference > 1.0
+      ? link_info[m_begin + IN_POSITIVE] = (s_emotion.emotion_interference - 1.0f) * 10000.0f
+      : link_info[m_begin + IN_NEGATIVE] = s_emotion.emotion_interference * 10000.0f;
+  s_emotion.activates_standard > 10000.0f
+      ? link_info[m_begin + IN_CONCENTRATION] = s_emotion.activates_standard
+      : link_info[m_begin + IN_DISPERSION] = 10000.0f - s_emotion.activates_standard;
+}
+
+void EmotionalActivator::active(const std::unordered_map<id_t, ActiveNode> &actives)
+{
+  auto findRes = actives.find(m_begin + OUT_POSITIVE);
+  if (findRes != actives.end()) {
+    s_emotion.activates_standard += findRes->second.weight / 10000.0f;
+  }
+  findRes = actives.find(m_begin + OUT_NEGATIVE);
+  if (findRes != actives.end()) {
+    s_emotion.activates_standard -= findRes->second.weight / 10000.0f;
+  }
+  findRes = actives.find(m_begin + OUT_CONCENTRATION);
+  if (findRes != actives.end()) {
+    s_emotion.activates_standard = std::max(s_emotion.activates_standard + findRes->second.weight, 20000.0f);
+  }
+  findRes = actives.find(m_begin + OUT_DISPERSION);
+  if (findRes != actives.end()) {
+    s_emotion.activates_standard = std::max(s_emotion.activates_standard - findRes->second.weight, 0.0f);
+  }
+}
 
 //=====================================================================================================================
 Thinker::Thinker(NodeDao::ptr dao, NodeIdAllocator::ptr idAlloc) : m_idAlloc(std::move(idAlloc)), m_nodeDao(std::move(dao)) {}
@@ -190,12 +258,11 @@ void Thinker::activate(const Node::ptr &per_node, const Node::ptr &next_node)
 {
   std::unordered_map<id_t, weight_t> linkInfo;
   for (const auto &active_node: m_activeCache) {
-    active_node.second.activator->setActivationInfo(linkInfo);
+    active_node.second.activator->getActivateInfos(linkInfo);
   }
 
   std::vector<Node::ptr> activeNodes;
   for (const auto &link: linkInfo) {
-
     per_node->linkGroup().addLink(link.first, link.second);
 
     Node::ptr node = m_nodeDao->selectById(link.first);
@@ -343,7 +410,6 @@ void NodeControl::learnPeriod()
 }
 bool NodeControl::isStop()
 {
-
   return false;
 }
 NodeControl::ptr NodeControl::getInstance()
@@ -357,64 +423,6 @@ NodeControl::ptr NodeControl::getInstance()
 }
 NodeControl::NodeControl() { init(); }
 
-//=====================================================================================================================
-MemoryActivator::MemoryActivator(NodeDao::ptr nodeDao) : Activator(Node::NT_MEMORY), m_memoryLinks(new LinkGroup{}), m_nodeDao(std::move(nodeDao))
-{
-}
-void MemoryActivator::setActivationInfo(std::unordered_map<id_t, weight_t> &link_info)
-{
-  m_memoryLinks->for_each([&](Link &link) {
-    auto fd_rt = link_info.find(link.id);
-    if (fd_rt == link_info.end()) {
-      Node::ptr temp_node = m_nodeDao->selectById(link.id);
-      fd_rt = link_info.emplace(link.id, temp_node->getBias()).first;
-    }
-    fd_rt->second += link.weight;
-  });
-}
-void MemoryActivator::active(const Link &link)
-{
-  const auto node = m_nodeDao->selectById(link.id);
-  node->linkGroup().for_each([&, this](const Link &link) {
-    m_memoryLinks->addLink(link.id, link.weight * link.weight);
-  });
-}
 
-//=====================================================================================================================
-
-EmotionalActivator::EmotionalActivator(id_t id_begin)
-    : Activator(Node::NT_EMOTION), m_begin(id_begin)
-{
-}
-void EmotionalActivator::setActivationInfo(std::unordered_map<id_t, weight_t> &link_info)
-{
-  s_emotion.emotion_interference > 1.0
-      ? link_info[m_begin + IN_POSITIVE] = (s_emotion.emotion_interference - 1.0f) * 10000.0f
-      : link_info[m_begin + IN_NEGATIVE] = s_emotion.emotion_interference * 10000.0f;
-  s_emotion.activates_standard > 10000.0f
-      ? link_info[m_begin + IN_CONCENTRATION] = s_emotion.activates_standard
-      : link_info[m_begin + IN_DISPERSION] = 10000.0f - s_emotion.activates_standard;
-}
-void EmotionalActivator::active(const Link &link)
-{
-  auto emotionIo = (EmotionIO) (link.id - m_begin);
-  switch (emotionIo) {
-    case OUT_POSITIVE:
-      s_emotion.activates_standard += link.weight / 10000.0f;
-      break;
-    case OUT_NEGATIVE:
-      s_emotion.activates_standard -= link.weight / 10000.0f;
-      break;
-    case OUT_CONCENTRATION:
-      s_emotion.activates_standard = std::max(s_emotion.activates_standard + link.weight, 20000.0f);
-      break;
-    case OUT_DISPERSION:
-      s_emotion.activates_standard = std::max(s_emotion.activates_standard - link.weight, 0.0f);
-      break;
-    default:
-      // error
-      break;
-  }
-}
 
 }// namespace myai
