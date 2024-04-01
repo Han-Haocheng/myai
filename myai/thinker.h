@@ -1,10 +1,9 @@
 #ifndef MY_AI_THINKER_H
 #define MY_AI_THINKER_H
+#include "../mylib/config/config.h"
 #include <string>
-#include <mylib/config.h>
 
-namespace myai
-{
+namespace myai {
 using id_t = unsigned long long;
 using weight_t = float;
 
@@ -41,20 +40,17 @@ struct Link {
 
 //=====================================================================================================================
 
-class LinkGroup
-{
+class LinkGroup {
   friend class NodeDao;
 
 public:
   using ptr = std::shared_ptr<LinkGroup>;
   template<class... Args>
-  void addLink(Args &&...args)
-  {
+  void addLink(Args &&...args) {
     m_datas.emplace_back(std::forward<Args>(args)...);
   }
   template<typename Iterator>
-  void addLink(Iterator begin, Iterator end)
-  {
+  void addLink(Iterator begin, Iterator end) {
     m_datas.insert(m_datas.end(), begin, end);
   }
 
@@ -69,16 +65,15 @@ private:
 
 //=====================================================================================================================
 
-/// ½Úµã
-/// ½Úµã»á½øĞĞÊäÈëÊä³ö
+/// èŠ‚ç‚¹
+/// èŠ‚ç‚¹ä¼šè¿›è¡Œè¾“å…¥è¾“å‡º
 /// /
-class Node
-{
+class Node {
   friend class NodeDao;
   friend class Thinker;
 
 public:
-  //¿ÉÒÔ±£´æ¼¤»îÊ±¼ä´Á»ò×îºó¼¤»îµÄ´ÎÊı±àºÅ£¬½øĞĞÓĞ¹æÂÉµÄÇå³ıÎŞÓÃ½Úµã
+  //å¯ä»¥ä¿å­˜æ¿€æ´»æ—¶é—´æˆ³æˆ–æœ€åæ¿€æ´»çš„æ¬¡æ•°ç¼–å·ï¼Œè¿›è¡Œæœ‰è§„å¾‹çš„æ¸…é™¤æ— ç”¨èŠ‚ç‚¹
   using ptr = std::shared_ptr<Node>;
   enum Type : int32_t
   {
@@ -86,6 +81,7 @@ public:
     NT_MEMORY,
     NT_EMOTION
   };
+
   static std::string toString(Type val);
   static Type fromString(const std::string &type);
   Node(id_t id, Type type, weight_t bias);
@@ -120,14 +116,13 @@ private:
 
 //=====================================================================================================================
 
-class NodeIdAllocator
-{
+class NodeIdAllocator {
 public:
   using ptr = std::shared_ptr<NodeIdAllocator>;
   explicit NodeIdAllocator(std::string file);
 
   template<class Iterator>
-  explicit NodeIdAllocator(id_t currentId, Iterator begin, Iterator end) : m_currentId(currentId), m_ids(begin, end){}
+  explicit NodeIdAllocator(id_t currentId, Iterator begin, Iterator end) : m_currentId(currentId), m_ids(begin, end) {}
   ~NodeIdAllocator();
   id_t allocate();
   void deallocate(id_t id);
@@ -144,8 +139,7 @@ private:
 
 //=====================================================================================================================
 
-class NodeDao
-{
+class NodeDao {
 public:
   using ptr = std::shared_ptr<NodeDao>;
   explicit NodeDao(std::string dataRootPath = "./data");
@@ -164,40 +158,41 @@ private:
 
 //=====================================================================================================================
 
-// »îÔ¾½Úµã£¬ÓÃÓÚ½ÚµãÔËĞĞÊ±´¦Àí
-class ActiveNode
-{
-public:
-  ActiveNode(Node::ptr node, Activator::ptr activator);
+class ActiveNode;
 
-  Node::ptr getNode()const;
-
-  weight_t weight = 0;
-
-private:
-  Node::ptr node = nullptr;
-  Activator::ptr m_activator;
-};
-
-//=====================================================================================================================
-
-//¼¤»îÆ÷£¬´¦Àí¼¤»î½ÚµãµÄ·½Ê½
-class Activator
-{
+//æ¿€æ´»å™¨ï¼Œå¤„ç†æ¿€æ´»èŠ‚ç‚¹çš„æ–¹å¼
+class Activator {
 public:
   using ptr = std::shared_ptr<Activator>;
   explicit Activator(Node::Type type);
   virtual ~Activator() = default;
   virtual void getActivateInfos(std::unordered_map<id_t, weight_t> &link_info) = 0;
-  virtual void active(const std::unordered_map<id_t, ActiveNode>& actives) = 0;
+  virtual void active(const std::unordered_map<id_t, ActiveNode> &actives) = 0;
 
 private:
   Node::Type m_type = Node::NT_UNKNOWN;
 };
 
 //=====================================================================================================================
-class MemoryActivator : public Activator
-{
+
+// æ´»è·ƒèŠ‚ç‚¹ï¼Œç”¨äºèŠ‚ç‚¹è¿è¡Œæ—¶å¤„ç†
+class ActiveNode {
+public:
+  ActiveNode(Node::ptr node, Activator::ptr activator);
+
+  Node::ptr getNode() const { return node; }
+  const Activator::ptr &getActivator() const { return m_activator; }
+  weight_t &weight() { return m_weight; }
+  const weight_t &weight() const { return m_weight; }
+
+private:
+  weight_t m_weight = 0;
+  Node::ptr node = nullptr;
+  Activator::ptr m_activator;
+};
+
+//=====================================================================================================================
+class MemoryActivator : public Activator {
 public:
   explicit MemoryActivator(NodeDao::ptr nodeDao);
   ~MemoryActivator() override = default;
@@ -211,8 +206,7 @@ private:
 };
 
 //=====================================================================================================================
-class EmotionalActivator : public Activator
-{
+class EmotionalActivator : public Activator {
 public:
   const static size_t NODE_NUMS = 8ULL;
 
@@ -246,9 +240,8 @@ private:
 
 //=====================================================================================================================
 
-// Ë¼Î¬Æ÷£¬´¦ÀíË¼Î¬µÄÔË×ª
-class Thinker
-{
+// æ€ç»´å™¨ï¼Œå¤„ç†æ€ç»´çš„è¿è½¬
+class Thinker {
 public:
   using ptr = std::shared_ptr<Thinker>;
   //struct ActiveNode {
@@ -267,21 +260,21 @@ public:
 
   void activate(const Node::ptr &record_node, const Node::ptr &next_node);
 
-  // Ìí¼Ó¼¤»îÆ÷
+  // æ·»åŠ æ¿€æ´»å™¨
   void addActivator(const Activator::ptr &activator);
-  // Çå³ş¼¤»îÆ÷
+  // æ¸…æ¥šæ¿€æ´»å™¨
   void clearActivator();
 
-  // ÍÆÀíÖÜÆÚ
+  // æ¨ç†å‘¨æœŸ
   void inferencePeriod() {
-    // ¼¤»îÆ÷ÊÕ¼¯¼¤»îĞÅÏ¢
+    // æ¿€æ´»å™¨æ”¶é›†æ¿€æ´»ä¿¡æ¯
 
-    // ¼¤»îĞÅÏ¢Ó³Éä¼¤»î½Úµã
+    // æ¿€æ´»ä¿¡æ¯æ˜ å°„æ¿€æ´»èŠ‚ç‚¹
 
-    // ¼¤»îÆ÷¼¤»î½Úµã
+    // æ¿€æ´»å™¨æ¿€æ´»èŠ‚ç‚¹
   }
 
-  //Ñ§Ï°ÖÜÆÚ
+  //å­¦ä¹ å‘¨æœŸ
   void learnPeriod() {}
 
 private:
@@ -316,16 +309,15 @@ struct ThinkConfig {
 
 //=====================================================================================================================
 
-class NodeControl
-{
+class NodeControl {
 public:
   using ptr = std::shared_ptr<NodeControl>;
 
   void init();
   void run();
-  // ÍÆÀíÆÚ
+  // æ¨ç†æœŸ
   void inferencePeriod();
-  // Ñ§Ï°ÆÚ
+  // å­¦ä¹ æœŸ
   void learnPeriod();
   static bool isStop();
 
@@ -335,9 +327,9 @@ private:
   NodeControl();
 
 private:
-  NodeIdAllocator::ptr  m_idAlloc = nullptr;
-  NodeDao::ptr  m_nodeDao = nullptr;
-  Thinker::ptr  m_noder = nullptr;
+  NodeIdAllocator::ptr m_idAlloc = nullptr;
+  NodeDao::ptr m_nodeDao = nullptr;
+  Thinker::ptr m_noder = nullptr;
 
   std::forward_list<Node::ptr> m_records = {};
   size_t m_recordeNum = 0ULL;
@@ -349,12 +341,11 @@ private:
 
 }// namespace myai
 
-namespace mylib
-{
+MYLIB_FORMAT_BEGIN
+
 template<>
 struct Formatter<myai::ThinkConfig> {
-  myai::ThinkConfig fromString(const std::string &val)
-  {
+  myai::ThinkConfig fromString(const std::string &val) {
     YAML::Node node = YAML::Load(val);
     myai::ThinkConfig ret{};
     if (node["idAllocator"].IsDefined()) {
@@ -377,8 +368,7 @@ struct Formatter<myai::ThinkConfig> {
     return ret;
   }
 
-  std::string toString(const myai::ThinkConfig &val)
-  {
+  std::string toString(const myai::ThinkConfig &val) {
     YAML::Node node;
     if (val.idAllocator.currentId != 0) {
       node["idAllocator"]["currentId"] = val.idAllocator.currentId;
@@ -396,6 +386,6 @@ struct Formatter<myai::ThinkConfig> {
   Formatter<std::vector<myai::id_t>> id_vec{};
 };
 
-}// namespace mylib
+MYLIB_FORMAT_END
 
 #endif// MY_AI_THINKER_H

@@ -1,19 +1,18 @@
 
 #include "thinker.h"
+#include "../mylib/log/log.h"
 #include <fstream>
-#include <mylib/log.h>
 
-namespace myai
-{
+namespace myai {
+
 EmotionalActivator::emotion EmotionalActivator::s_emotion{};
 ::mylib::Config<ThinkConfig>::ptr NodeControl::s_think_conf = nullptr;
-mylib::Logger::ptr g_logger = nullptr;
+::mylib::log::Logger::ptr g_logger = nullptr;
 
 //=====================================================================================================================
 Link::Link(id_t link_id, weight_t weight) : id(link_id), weight(weight) {}
-Link &Link::operator=(const char *bytes)
-{
-  // Í¨¹ımemcpy½øĞĞÄÚ´æ¿½±´
+Link &Link::operator=(const char *bytes) {
+  // ?ï¿½ï¿½memcpyï¿½ï¿½ï¿½ï¿½ï¿½??ï¿½ï¿½
   memcpy((void *) this, bytes, sizeof(*this));
   return *this;
 }
@@ -40,9 +39,8 @@ weight_t Node::getBias() const { return m_bias; }
 void Node::setBias(weight_t bias) { m_bias = bias; }
 Node::Type Node::getType() const { return m_type; }
 void Node::setType(Type type) { m_type = type; }
-std::string Node::toString(Node::Type val)
-{
-  // Í¨¹ıºê¶¨Òå¼ò»¯×ª»»
+std::string Node::toString(Node::Type val) {
+  // ?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½
   switch (val) {
 #define XX(ty)  \
   case NT_##ty: \
@@ -62,8 +60,7 @@ std::unordered_map<std::string, Node::Type> s_nodeTy_str_map{
     {"MEMORY", Node::NT_MEMORY},
     {"NT_MEMORY", Node::NT_MEMORY},
 };
-Node::Type Node::fromString(const std::string &type)
-{
+Node::Type Node::fromString(const std::string &type) {
   auto res = s_nodeTy_str_map.find(type);
   return res != s_nodeTy_str_map.end() ? res->second : NT_UNKNOWN;
 }
@@ -80,19 +77,18 @@ const LinkGroup &Node::linkGroup() const { return m_linkGroup; }
 //=====================================================================================================================
 NodeDao::NodeDao(std::string dataRootPath) : m_rootPath(std::move(dataRootPath)) {}
 
-int NodeDao::insert(const Node::ptr &node, bool isForced)
-{
-  //ÅĞ¶Ï´«Èë½ÚµãÊÇ·ñ´æÔÚ
+int NodeDao::insert(const Node::ptr &node, bool isForced) {
+  //ï¿½??ï¿½ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½
   if (!node || node->m_id == 0)
     return 0;
 
-  // Í¨¹ıid»ñÈ¡Â·¾¶
+  // ?ï¿½ï¿½idï¿½ï¿½?ï¿½ï¿½ï¿½
   std::string path = path_parse(node->m_id);
-  // ÊÇ·ñÇ¿ÖÆ²åÈë
+  // ï¿½?ï¿½?ï¿½?ï¿½ï¿½ï¿½
   if (!isForced && !access(path.c_str(), F_OK))
     return 0;
 
-  // ¿ªÊ¼²åÈë
+  // ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½
   std::ofstream ofs{path, std::ios::out | std::ios::binary};
   if (!ofs.is_open())
     return 0;
@@ -104,34 +100,36 @@ int NodeDao::insert(const Node::ptr &node, bool isForced)
   return 1;
 }
 
-int NodeDao::update(const Node::ptr &node)
-{
-  // ÅĞ¶Ï´«Èë½ÚµãÊÇ·ñ´æÔÚ
+// NodeDao::update å‡½æ•°ç”¨äºæ›´æ–°èŠ‚ç‚¹æ•°æ®
+int NodeDao::update(const Node::ptr &node) {
+  // æ£€æŸ¥èŠ‚ç‚¹æ˜¯å¦ä¸ºç©ºæˆ–èŠ‚ç‚¹IDæ˜¯å¦ä¸º0
   if (!node || node->m_id == 0)
     return 0;
 
-  // Í¨¹ıid»ñÈ¡Â·¾¶
+  // è§£æèŠ‚ç‚¹IDå¾—åˆ°èŠ‚ç‚¹è·¯å¾„
   std::string path = path_parse(node->m_id);
 
-  // ÅĞ¶Ï½ÚµãÎÄ¼şÊÇ·ñ´æÔÚ
+  // æ£€æŸ¥èŠ‚ç‚¹è·¯å¾„æ˜¯å¦å­˜åœ¨ä¸”å¯å†™
   if (access(path.c_str(), F_OK | W_OK))
     return 0;
 
-  // ¿ªÊ¼¸üĞÂ½Úµã
-  std::ofstream ofs{path, std::ios::out | std::ios::binary | std::ios::trunc};
+  // æ‰“å¼€èŠ‚ç‚¹è·¯å¾„ï¼Œä»¥äºŒè¿›åˆ¶æ¨¡å¼å’Œè¿½åŠ æ¨¡å¼æ‰“å¼€æ–‡ä»¶
+  std::ofstream ofs{path, std::ios::out | std::ios::binary | std::ios::app};
   if (!ofs.is_open())
     return 0;
 
+  // å°†èŠ‚ç‚¹æ•°æ®å†™å…¥æ–‡ä»¶
   ofs << node->m_id << (uint32_t &) node->m_type << node->m_bias << node->m_linkGroup.m_datas.size();
   for (const auto &item: node->m_linkGroup.m_datas)
     ofs << (const uint64_t &) item;
+
+  // å…³é—­æ–‡ä»¶
   ofs.close();
+
   return 1;
 }
 
-
-Node::ptr NodeDao::selectById(id_t id)
-{
+Node::ptr NodeDao::selectById(id_t id) {
   if (id == 0) {
     return nullptr;
   }
@@ -151,8 +149,7 @@ Node::ptr NodeDao::selectById(id_t id)
   return node;
 }
 
-int NodeDao::deleteById(id_t id)
-{
+int NodeDao::deleteById(id_t id) {
   if (id == 0) {
     return 0;
   }
@@ -160,8 +157,7 @@ int NodeDao::deleteById(id_t id)
   return unlink(path.c_str()) ? 0 : 1;
 }
 
-std::string NodeDao::path_parse(id_t id)
-{
+std::string NodeDao::path_parse(id_t id) {
   return std::string{m_rootPath + "/" +
                      std::to_string(id & 0xff) + "/" +
                      std::to_string((id >> 8) & 0xff) + "/" +
@@ -171,8 +167,7 @@ std::string NodeDao::path_parse(id_t id)
 //=====================================================================================================================
 NodeIdAllocator::NodeIdAllocator(std::string file) : m_file(std::move(file)) { load_from_file(); }
 NodeIdAllocator::~NodeIdAllocator() { save_to_file(); }
-id_t NodeIdAllocator::allocate()
-{
+id_t NodeIdAllocator::allocate() {
   if (m_ids.empty()) {
     return ++m_currentId;
   }
@@ -184,8 +179,7 @@ id_t NodeIdAllocator::allocate()
 void NodeIdAllocator::deallocate(id_t id) { m_ids.emplace_front(id); }
 void NodeIdAllocator::load_from_file() {}
 void NodeIdAllocator::save_to_file() {}
-id_t NodeIdAllocator::allocate(size_t i)
-{
+id_t NodeIdAllocator::allocate(size_t i) {
   id_t res = m_currentId;
   m_currentId += i;
   return res;
@@ -196,8 +190,7 @@ Activator::Activator(Node::Type type) : m_type(type) {}
 //=====================================================================================================================
 MemoryActivator::MemoryActivator(NodeDao::ptr nodeDao) : Activator(Node::NT_MEMORY), m_memoryLinks(new LinkGroup{}), m_nodeDao(std::move(nodeDao)) {}
 
-void MemoryActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_info)
-{
+void MemoryActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_info) {
   m_memoryLinks->for_each([&](Link &link) {
     auto fd_rt = link_info.find(link.id);
     if (fd_rt == link_info.end()) {
@@ -207,8 +200,7 @@ void MemoryActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_
     fd_rt->second += link.weight;
   });
 }
-void MemoryActivator::active(const std::unordered_map<id_t, ActiveNode> &actives)
-{
+void MemoryActivator::active(const std::unordered_map<id_t, ActiveNode> &actives) {
   for (auto &aNodePair: actives) {
     auto node = aNodePair.second.getNode();
     node->linkGroup().for_each([&, this](const Link &link) {
@@ -221,8 +213,7 @@ void MemoryActivator::active(const std::unordered_map<id_t, ActiveNode> &actives
 
 EmotionalActivator::EmotionalActivator(id_t id_begin) : Activator(Node::NT_EMOTION), m_begin(id_begin) {}
 
-void EmotionalActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_info)
-{
+void EmotionalActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &link_info) {
   s_emotion.emotion_interference > 1.0
       ? link_info[m_begin + IN_POSITIVE] = (s_emotion.emotion_interference - 1.0f) * 10000.0f
       : link_info[m_begin + IN_NEGATIVE] = s_emotion.emotion_interference * 10000.0f;
@@ -231,34 +222,33 @@ void EmotionalActivator::getActivateInfos(std::unordered_map<id_t, weight_t> &li
       : link_info[m_begin + IN_DISPERSION] = 10000.0f - s_emotion.activates_standard;
 }
 
-void EmotionalActivator::active(const std::unordered_map<id_t, ActiveNode> &actives)
-{
+void EmotionalActivator::active(const std::unordered_map<id_t, ActiveNode> &actives) {
   auto findRes = actives.find(m_begin + OUT_POSITIVE);
   if (findRes != actives.end()) {
-    s_emotion.activates_standard += findRes->second.weight / 10000.0f;
+    s_emotion.activates_standard += findRes->second.weight() / 10000.0f;
   }
   findRes = actives.find(m_begin + OUT_NEGATIVE);
   if (findRes != actives.end()) {
-    s_emotion.activates_standard -= findRes->second.weight / 10000.0f;
+    s_emotion.activates_standard -= findRes->second.weight() / 10000.0f;
   }
   findRes = actives.find(m_begin + OUT_CONCENTRATION);
   if (findRes != actives.end()) {
-    s_emotion.activates_standard = std::max(s_emotion.activates_standard + findRes->second.weight, 20000.0f);
+    s_emotion.activates_standard = std::max(s_emotion.activates_standard + findRes->second.weight(), 20000.0f);
   }
   findRes = actives.find(m_begin + OUT_DISPERSION);
   if (findRes != actives.end()) {
-    s_emotion.activates_standard = std::max(s_emotion.activates_standard - findRes->second.weight, 0.0f);
+    s_emotion.activates_standard = std::max(s_emotion.activates_standard - findRes->second.weight(), 0.0f);
   }
 }
 
 //=====================================================================================================================
 Thinker::Thinker(NodeDao::ptr dao, NodeIdAllocator::ptr idAlloc) : m_idAlloc(std::move(idAlloc)), m_nodeDao(std::move(dao)) {}
 
-void Thinker::activate(const Node::ptr &per_node, const Node::ptr &next_node)
-{
+void Thinker::activate(const Node::ptr &per_node, const Node::ptr &next_node) {
   std::unordered_map<id_t, weight_t> linkInfo;
   for (const auto &active_node: m_activeCache) {
-    active_node.second.activator->getActivateInfos(linkInfo);
+    active_node.second.getActivator()->getActivateInfos(linkInfo);
+    // active_node.second.activator->getActivateInfos(linkInfo);
   }
 
   std::vector<Node::ptr> activeNodes;
@@ -272,12 +262,11 @@ void Thinker::activate(const Node::ptr &per_node, const Node::ptr &next_node)
 
     node->linkGroup().addLink(next_node->getId(), link.second);
     activeNodes.emplace_back(node);
-    m_activtors[node->getType()]->active(Link{link});
+    // m_activtors[node->getType()]->active(Link{link});
   }
 }
 
-Node::ptr Thinker::addRecordNode(weight_t bias)
-{
+Node::ptr Thinker::addRecordNode(weight_t bias) {
   Node::ptr node = std::make_shared<Node>(m_idAlloc->allocate(), Node::NT_MEMORY, bias);
   if (m_nodeDao->insert(node, false) == 0) {
     m_idAlloc->deallocate(node->getId());
@@ -285,8 +274,7 @@ Node::ptr Thinker::addRecordNode(weight_t bias)
   }
   return node;
 }
-id_t Thinker::addNodes(Node::Type type, size_t size, std::vector<Node::ptr> &out_nodes)
-{
+id_t Thinker::addNodes(Node::Type type, size_t size, std::vector<Node::ptr> &out_nodes) {
   out_nodes.clear();
   out_nodes.reserve(size);
   id_t begin = m_idAlloc->allocate(size);
@@ -297,8 +285,7 @@ id_t Thinker::addNodes(Node::Type type, size_t size, std::vector<Node::ptr> &out
 }
 void Thinker::addActivator(const Activator::ptr &activator) { m_activtors.emplace_back(activator); }
 void Thinker::clearActivator() { m_activtors.clear(); }
-Node::ptr Thinker::getNode(id_t id)
-{
+Node::ptr Thinker::getNode(id_t id) {
   auto fd_rt = m_nodeCache.find(id);
   if (fd_rt != m_nodeCache.end() || fd_rt->second->m_isDelete) {
     return fd_rt->second;
@@ -309,8 +296,7 @@ Node::ptr Thinker::getNode(id_t id)
   }
   return sl_rt;
 }
-bool Thinker::delNode(id_t id)
-{
+bool Thinker::delNode(id_t id) {
   auto node = getNode(id);
   if (!node) {
     return false;
@@ -318,8 +304,7 @@ bool Thinker::delNode(id_t id)
   node->m_isDelete = true;
   return false;
 }
-void Thinker::clear_cache()
-{
+void Thinker::clear_cache() {
   for (const auto &node_pair: m_nodeCache) {
     if (node_pair.second->m_isDelete) {
       continue;
@@ -330,13 +315,12 @@ void Thinker::clear_cache()
 
 //=====================================================================================================================
 
-void NodeControl::init()
-{
+void NodeControl::init() {
   if (!g_logger) {
     g_logger = MYLIB_LOGGER_NAME("think");
-    g_logger->setLevel(::mylib::LogEvent::LL_DEBUG);
-    g_logger->setFormatter(std::make_shared<::mylib::LogFormatter>("%d{%H:%M:%S} %t%T%F%T[%c - %p][%f:%l]%m%n"));
-    g_logger->addAppender(std::make_shared<::mylib::ConsoleAppender>(::mylib::LogEvent::LL_DEBUG));
+    g_logger->setLevel(MYLIB_LL_DEBUG);
+    g_logger->setFormatter(std::make_shared<::mylib::log::LogFormatter>("%d{%H:%M:%S} %t%T%F%T[%c - %p][%f:%l]%m%n"));
+    g_logger->addAppender(std::make_shared<::mylib::log::ConsoleAppender>(MYLIB_LL_DEBUG));
   }
   if (!s_think_conf) {
     s_think_conf = ::mylib::Configer::GetInstance()->setConfig<ThinkConfig>("think", {
@@ -371,16 +355,14 @@ void NodeControl::init()
   }
 }
 
-void NodeControl::run()
-{
+void NodeControl::run() {
   for (; !isStop();) {
     inferencePeriod();
     learnPeriod();
   }
 }
 
-void NodeControl::inferencePeriod()
-{
+void NodeControl::inferencePeriod() {
   Node::ptr per_node = nullptr, next_node = nullptr;
   for (; m_recordeNum < m_maxRecordeNum; ++m_recordeNum) {
     if ((m_recordeNum + 1) % 100 == 0) {
@@ -394,8 +376,7 @@ void NodeControl::inferencePeriod()
     next_node = nullptr;
   }
 }
-void NodeControl::learnPeriod()
-{
+void NodeControl::learnPeriod() {
 
   for (auto pre_iter = m_records.before_begin(),
             iter = m_records.begin();
@@ -408,12 +389,10 @@ void NodeControl::learnPeriod()
   }
   m_recordeNum = 0;
 }
-bool NodeControl::isStop()
-{
+bool NodeControl::isStop() {
   return false;
 }
-NodeControl::ptr NodeControl::getInstance()
-{
+NodeControl::ptr NodeControl::getInstance() {
   static NodeControl::ptr instance;
   if (!instance) {
     instance.reset(new NodeControl());
@@ -422,7 +401,5 @@ NodeControl::ptr NodeControl::getInstance()
   return instance;
 }
 NodeControl::NodeControl() { init(); }
-
-
 
 }// namespace myai

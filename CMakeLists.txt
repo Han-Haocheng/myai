@@ -43,12 +43,8 @@ add_definitions(-DBOOST_TEST_DYN_LINK -g)
 
 
 set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
-message(STATUS >>>>${INCLUDE_DIRS})
+message(STATUS >>>>INCLUDE_DIRS : ${INCLUDE_DIRS})
 
-link_directories(AFTER
-        /usr/local/lib
-        /usr/lib
-)
 
 add_subdirectory(mylib)
 add_subdirectory(myai)

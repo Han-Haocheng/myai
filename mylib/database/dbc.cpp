@@ -4,6 +4,5 @@
 
 #include "dbc.h"
 
-namespace mylib
-{
-}// namespace mylib
+MYLIB_BEGIN
+MYLIB_END

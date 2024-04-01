@@ -6,17 +6,13 @@
 #include <algorithm>
 #include <iostream>
 
-namespace mylib
-{
+MYLIB_LOG_BEGIN
 
 Config<LogConfigVal>::ptr LoggerManager::s_log_configs = nullptr;
 std::unique_ptr<LogFormatter::ItemMap> LogFormatter::s_item_map = nullptr;
 
-
-
 //=====================================================================================================================
-std::string LogEvent::toString(LogEvent::Level level)
-{
+std::string LogEvent::toString(LogEvent::Level level) {
   switch (level) {
 #define XX(n)                   \
   case LogEvent::Level::LL_##n: \
@@ -31,8 +27,7 @@ std::string LogEvent::toString(LogEvent::Level level)
 #undef XX
 }
 
-LogEvent::Level LogEvent::fromString(std::string level)
-{
+LogEvent::Level LogEvent::fromString(std::string level) {
 
   if (level.size() < 2) {
     int num = 0;
@@ -68,117 +63,100 @@ LogEvent::LogEvent(uint64_t timestamp, std::string file, int line, std::string l
 //=====================================================================================================================
 
 LogFormatter::LogFormatterItem::LogFormatterItem(std::string exFormatInfo) : m_exString(std::move(exFormatInfo)) {}
-class DefaultLogFormatterItem : public LogFormatter::LogFormatterItem
-{
+class DefaultLogFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit DefaultLogFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << m_exString; }
 };
-class MassageFormatterItem : public LogFormatter::LogFormatterItem
-{
+class MassageFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit MassageFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->msg().str(); }
 };
-class LevelFormatterItem : public LogFormatter::LogFormatterItem
-{
+class LevelFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit LevelFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << LogEvent::toString(event->getLevel()); }
 };
-class LoggerNameFormatterItem : public LogFormatter::LogFormatterItem
-{
+class LoggerNameFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit LoggerNameFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getLoggerName(); }
 };
-class ThreadIdFormatterItem : public LogFormatter::LogFormatterItem
-{
+class ThreadIdFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit ThreadIdFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getThreadId(); }
 };
-class NewLineFormatterItem : public LogFormatter::LogFormatterItem
-{
+class NewLineFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit NewLineFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << "\n"; }
 };
-class DateTimeFormatterItem : public LogFormatter::LogFormatterItem
-{
+class DateTimeFormatterItem : public LogFormatter::LogFormatterItem {
 public:
-  explicit DateTimeFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo))
-  {
+  explicit DateTimeFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {
     if (m_exString.empty()) {
       m_exString = "%Y-%m-%d %H:%M:%S";
     }
   }
 
-  void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override
-  {
+  void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override {
     tm tm{};
     auto t = (time_t) event->getTimestamp();
 #if __linux__
     localtime_r(&t, &tm);
 #elif _WIN32
     localtime_s(&tm, &t);
-#endif // __linux__
+#endif// __linux__
     char buf[64];
     strftime(buf, 64, m_exString.c_str(), &tm);
     in_ss << buf;
   }
 };
-class FileNameFormatterItem : public LogFormatter::LogFormatterItem
-{
+class FileNameFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit FileNameFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getFileName(); }
 };
-class LineFormatterItem : public LogFormatter::LogFormatterItem
-{
+class LineFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit LineFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getLine(); }
 };
-class TabFormatterItem : public LogFormatter::LogFormatterItem
-{
+class TabFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit TabFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << "\t"; }
 };
-class FiberIdFormatterItem : public LogFormatter::LogFormatterItem
-{
+class FiberIdFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit FiberIdFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getFiberId(); }
 };
-class ThreadNameFormatterItem : public LogFormatter::LogFormatterItem
-{
+class ThreadNameFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit ThreadNameFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getThreadName(); }
 };
-class FuncNameFormatterItem : public LogFormatter::LogFormatterItem
-{
+class FuncNameFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit FuncNameFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << event->getFuncName(); }
 };
-class PercentSignsFormatterItem : public LogFormatter::LogFormatterItem
-{
+class PercentSignsFormatterItem : public LogFormatter::LogFormatterItem {
 public:
   explicit PercentSignsFormatterItem(std::string exFormatInfo) : LogFormatterItem(std::move(exFormatInfo)) {}
   void formatItem(std::stringstream &in_ss, LogEvent::ptr event) override { in_ss << "%"; }
 };
 //=====================================================================================================================
 LogFormatter::LogFormatter(std::string pattern)
-    : m_pattern(std::move(pattern))
-{
+    : m_pattern(std::move(pattern)) {
   if (!s_item_map) {
     s_item_map.reset(new ItemMap{
 #define XX(str, C)                                                                 \
   {                                                                                \
-    #str, [](const std::string &fmt) { return LogFormatterItem::ptr(new C(fmt)); } \
+#str, [](const std::string &fmt) { return LogFormatterItem::ptr(new C(fmt)); } \
   }
         XX(m, MassageFormatterItem),   // m : 消息
         XX(p, LevelFormatterItem),     // p : 日志级别
@@ -201,18 +179,15 @@ LogFormatter::LogFormatter(std::string pattern)
   parse_pattern();
 }
 
-const std::string &LogFormatter::getPattern() const
-{
+const std::string &LogFormatter::getPattern() const {
   return m_pattern;
 }
-void LogFormatter::setPattern(const std::string &pattern)
-{
+void LogFormatter::setPattern(const std::string &pattern) {
   m_pattern = pattern;
   parse_pattern();
 }
 
-std::string LogFormatter::format(const LogEvent::ptr &event)
-{
+std::string LogFormatter::format(const LogEvent::ptr &event) {
   if (m_items.empty()) {
     return "";
   }
@@ -223,8 +198,7 @@ std::string LogFormatter::format(const LogEvent::ptr &event)
   return ss.str();
 }
 
-void LogFormatter::parse_pattern()
-{
+void LogFormatter::parse_pattern() {
   if (!m_items.empty()) {
     m_items.clear();
   }
@@ -309,11 +283,9 @@ void LogFormatter::parse_pattern()
 }
 //=====================================================================================================================
 LogAppender::LogAppender(LogEvent::Level appender_level, Type appender_type, LogFormatter::ptr formatter)
-    : m_level(appender_level), m_type(appender_type), m_formatter(std::move(formatter))
-{
+    : m_level(appender_level), m_type(appender_type), m_formatter(std::move(formatter)) {
 }
-std::string LogAppender::ToString(LogAppender::Type type)
-{
+std::string LogAppender::ToString(LogAppender::Type type) {
   switch (type) {
 #define XX(name) \
   case name:     \
@@ -326,8 +298,7 @@ std::string LogAppender::ToString(LogAppender::Type type)
   }
 }
 
-LogAppender::Type LogAppender::FromString(const std::string &type)
-{
+LogAppender::Type LogAppender::FromString(const std::string &type) {
   if (type == "CONSOLE" || type == "console" || type == "Console" || type == "ConsoleAppender" || type == "APD_CONSOLE" || type == "1") {
     return LogAppender::APD_CONSOLE;
   }
@@ -336,6 +307,7 @@ LogAppender::Type LogAppender::FromString(const std::string &type)
   }
   return LogAppender::APD_UNDEFINE;
 }
+
 LogEvent::Level LogAppender::getLevel() const { return m_level; }
 void LogAppender::setLevel(LogEvent::Level level) { m_level = level; }
 LogAppender::Type LogAppender::getType() const { return m_type; }
@@ -343,24 +315,20 @@ const LogFormatter::ptr &LogAppender::getFormatter() const { return m_formatter;
 void LogAppender::setFormatter(const LogFormatter::ptr &formatter) { m_formatter = formatter; }
 ConsoleAppender::ConsoleAppender(LogEvent::Level appender_level, LogFormatter::ptr formatter)
     : LogAppender(appender_level, Type::APD_CONSOLE, std::move(formatter)) {}
-void ConsoleAppender::append(LogEvent::ptr event)
-{
+void ConsoleAppender::append(LogEvent::ptr event) {
   if (m_level <= event->getLevel())
     std::cout << m_formatter->format(event);
 }
 
 FileAppender::FileAppender(LogEvent::Level appender_level, std::string file_path, LogFormatter::ptr formatter)
     : LogAppender(appender_level, Type::APD_CONSOLE, std::move(formatter)), m_filePath(std::move(file_path)) {}
-void FileAppender::append(LogEvent::ptr event)
-{
+void FileAppender::append(LogEvent::ptr event) {
   if (m_level < event->getLevel() && reopenFile()) m_ofs << m_formatter->format(event);
 }
-FileAppender::~FileAppender()
-{
+FileAppender::~FileAppender() {
   if (m_ofs.is_open()) m_ofs.close();
 }
-bool FileAppender::reopenFile()
-{
+bool FileAppender::reopenFile() {
   if (m_ofs.is_open())
     return true;
   m_ofs.open(m_filePath, std::ios::out | std::ios::app);
@@ -371,13 +339,10 @@ bool FileAppender::reopenFile()
   return false;
 }
 //=====================================================================================================================
-Logger::Logger(std::string name, LogEvent::Level logger_level) : m_name(std::move(name)), m_level(logger_level)
-{
-}
+Logger::Logger(std::string name, LogEvent::Level logger_level) : m_name(std::move(name)), m_level(logger_level) {}
 Logger::~Logger() = default;
 
-void Logger::log(const LogEvent::ptr &event)
-{
+void Logger::log(const LogEvent::ptr &event) {
   if (m_level > event->getLevel()) {
     return;
   }
@@ -392,8 +357,7 @@ void Logger::log(const LogEvent::ptr &event)
   }
 }
 
-void Logger::addAppender(const LogAppender::ptr &appender)
-{
+void Logger::addAppender(const LogAppender::ptr &appender) {
   if (appender == nullptr) {
     std::cout << "<error Logger::addAppender>add appender is null" << std::endl;
   }
@@ -408,29 +372,75 @@ void Logger::addAppender(const LogAppender::ptr &appender)
   }
   m_appenders.emplace_back(appender);
 }
-void Logger::delAppender(const LogAppender::ptr &appender)
-{
+
+void Logger::delAppender(const LogAppender::ptr &appender) {
   auto findRt = std::find(m_appenders.begin(), m_appenders.end(), appender);
   if (findRt != m_appenders.end()) {
     m_appenders.erase(findRt);
   }
 }
-void Logger::clearAppenders()
-{
-  m_appenders.clear();
-}
-LogWarp::LogWarp(Logger::ptr logger, LogEvent::ptr event)
-    : m_logger(std::move(logger)), m_event(std::move(event))
-{
-}
-LogWarp::~LogWarp()
-{
-  m_logger->log(m_event);
-}
+void Logger::clearAppenders() { m_appenders.clear(); }
 //=====================================================================================================================
 
-LoggerManager::ptr LoggerManager::GetInstance()
-{
+LogWarp::LogWarp(Logger::ptr logger, LogEvent::ptr event) : m_logger(std::move(logger)), m_event(std::move(event)) {}
+LogWarp::~LogWarp() { m_logger->log(m_event); }
+
+//=====================================================================================================================
+
+mylib::log::LogAppender::ptr mylib::log::LogConfigVal::AppenderConfigVal::createAppender(LogEvent::Level def_level, LogFormatter::ptr def_format) const {
+  // 检查参数是否有效
+  assert(def_format);
+  assert(def_level != LogEvent::Level::LL_UNKNOWN);
+  assert(type != LogAppender::APD_UNDEFINE);
+
+  // 设置默认级别
+  auto le = (level == LogEvent::Level::LL_UNKNOWN) ? def_level : level;
+  LogAppender::ptr ret = nullptr;
+  // 根据类型创建不同的Appender
+  switch (type) {
+    case LogAppender::APD_CONSOLE:
+      ret = std::make_shared<ConsoleAppender>(le);
+      break;
+    case LogAppender::APD_FILE:
+      ret = std::make_shared<FileAppender>(le, file);
+      break;
+    default:
+      assert(false);
+      break;
+  }
+  // 设置格式化器
+  ret->setFormatter(pattern.empty() ? std::move(def_format) : std::make_shared<LogFormatter>(pattern));
+  return ret;
+}
+
+mylib::log::Logger::ptr mylib::log::LogConfigVal::LoggerConfigVal::createLogger(LogEvent::Level def_val, LogFormatter::ptr def_format) const {
+  // 如果name为空，返回nullptr
+  if (name.empty()) {
+    return nullptr;
+  }
+  // 如果level为LL_UNKNOWN，则使用默认值def_val，否则使用level
+  auto le = (level == LogEvent::Level::LL_UNKNOWN) ? def_val : level;
+
+  // 创建Logger实例，并设置level
+  Logger::ptr ret = std::make_shared<Logger>(name, le);
+  // 如果pattern为空，则使用默认格式def_format，否则使用pattern
+  auto formatter = pattern.empty() ? std::move(def_format) : std::make_shared<LogFormatter>(pattern);
+  // 设置格式
+  ret->setFormatter(formatter);
+  // 遍历appenders，创建Appender实例，并添加到Logger实例中
+  for (const auto &app_conf: appenders) {
+    auto app = app_conf.createAppender(le, formatter);
+    if (app == nullptr)
+      continue;
+    ret->addAppender(app);
+  }
+  // 返回Logger实例
+  return ret;
+}
+
+//=====================================================================================================================
+
+LoggerManager::ptr LoggerManager::GetInstance() {
   static LoggerManager::ptr manager{new LoggerManager{}};
   if (manager == nullptr) {
     manager.reset(new LoggerManager{});
@@ -438,24 +448,22 @@ LoggerManager::ptr LoggerManager::GetInstance()
   return manager;
 }
 
-LoggerManager::LoggerManager()
-{
+LoggerManager::LoggerManager() {
+  // 初始化日志配置
   if (!s_log_configs) {
-    s_log_configs = Configer::GetInstance()->setConfig<LogConfigVal>("log",
-                                                                     {
-                                                                         LogEvent::Level::LL_DEBUG,
-                                                                         "%d{%Y-%m-%d %H:%M:%S} %m%n",
-                                                                         {
-                                                                             {"root",
-                                                                              LogEvent::Level::LL_DEBUG,
-                                                                              "%d{%Y-%m-%d %H:%M:%S} %t%T%F%T%N [%p] [%c] %f:%l %M ==> %m%n",
-                                                                              {{LogAppender::Type::APD_CONSOLE,
-                                                                                "",
-                                                                                LogEvent::Level::LL_DEBUG,
-                                                                                ""}}},
-                                                                         },
-                                                                     },
-                                                                     "log");
+    auto configer = Configer::GetInstance();
+    s_log_configs = configer->setConfig<LogConfigVal>("log",
+                                                      {LogEvent::Level::LL_DEBUG,
+                                                       "%d{%Y-%m-%d %H:%M:%S} %m%n",
+                                                       {{"root",
+                                                         LogEvent::Level::LL_DEBUG,
+                                                         "%d{%Y-%m-%d %H:%M:%S} %t%T%F%T%N [%p] [%c] %f:%l %M ==> %m%n",
+                                                         {{LogAppender::Type::APD_CONSOLE,
+                                                           "",
+                                                           LogEvent::Level::LL_DEBUG,
+                                                           ""}}}}},
+                                                      "log");
+    // 监听日志配置变化
     s_log_configs->addListener([this](const LogConfigVal &old_confs, const LogConfigVal &new_confs) {
       m_defLevel = new_confs.def_level;
       m_defFormatter->setPattern(new_confs.def_pattern);
@@ -463,34 +471,40 @@ LoggerManager::LoggerManager()
       //Check if the new configuration is included in the old configuration
       for (const auto &new_conf: new_confs.loggers) {
         auto fd_res =
-            std::find_if(old_confs.loggers.begin(), old_confs.loggers.end(), [&](const LoggerConfigVal &lcv) -> bool {
-              return lcv.name == new_conf.name;
-            });
+            std::find_if(old_confs.loggers.begin(),
+                         old_confs.loggers.end(),
+                         [&](const auto &lcv) -> bool {
+                           return lcv.name == new_conf.name;
+                         });
         // if the logger exists, update it.
         if (fd_res != old_confs.loggers.end()) {
-          this->setLogger(config_logger(new_conf));
+          this->setLogger(new_conf.createLogger(m_defLevel, m_defFormatter));
         }
         // if the logger doesn't exist, add it.
-        this->addLogger(config_logger(new_conf));
+        this->addLogger(new_conf.createLogger(m_defLevel, m_defFormatter));
       }
 
       //Check if the old configuration is included in the new configuration
       for (const auto &old_conf: old_confs.loggers) {
         auto fd_res =
-            std::find_if(old_confs.loggers.begin(), old_confs.loggers.end(), [&](const LoggerConfigVal &lcv) -> bool {
-              return lcv.name == old_conf.name;
-            });
+            std::find_if(old_confs.loggers.begin(),
+                         old_confs.loggers.end(),
+                         [&](const auto &lcv) -> bool {
+                           return lcv.name == old_conf.name;
+                         });
         if (fd_res == new_confs.loggers.end()) {
           this->delLogger(fd_res->name);
         }
       }
     });
   }
+  // 获取日志配置
   auto &conf = s_log_configs->getValue();
   m_defLevel = conf.def_level;
   m_defFormatter = std::make_shared<LogFormatter>(conf.def_pattern);
+  // 添加日志
   for (const auto &lcv: conf.loggers) {
-    this->addLogger(config_logger(lcv));
+    this->addLogger(lcv.createLogger(m_defLevel, m_defFormatter));
   }
   m_rootLogger = getLogger("root");
 }
@@ -499,8 +513,7 @@ LogEvent::Level LoggerManager::getDefLevel() const { return m_defLevel; }
 const LogFormatter::ptr &LoggerManager::getDefFormatter() const { return m_defFormatter; }
 const Logger::ptr &LoggerManager::getRootLogger() const { return m_rootLogger; }
 
-Logger::ptr LoggerManager::getLogger(const std::string &name)
-{
+Logger::ptr LoggerManager::getLogger(const std::string &name) {
   auto find_rt = m_loggers.find(name);
   if (find_rt == m_loggers.end()) {
     return nullptr;
@@ -508,8 +521,7 @@ Logger::ptr LoggerManager::getLogger(const std::string &name)
   return find_rt->second;
 }
 
-Logger::ptr LoggerManager::setLogger(const std::string &name, LogEvent::Level logger_level, LogFormatter::ptr formatter, const std::vector<LogAppender::ptr> &appenders)
-{
+Logger::ptr LoggerManager::setLogger(const std::string &name, LogEvent::Level logger_level, LogFormatter::ptr formatter, const std::vector<LogAppender::ptr> &appenders) {
   auto logger = getLogger(name);
   if (!logger)
     return logger;
@@ -522,8 +534,7 @@ Logger::ptr LoggerManager::setLogger(const std::string &name, LogEvent::Level lo
   return logger;
 }
 
-bool LoggerManager::setLogger(const Logger::ptr &logger)
-{
+bool LoggerManager::setLogger(const Logger::ptr &logger) {
   if (logger == nullptr || logger->getName().empty()) {
     return false;
   }
@@ -538,8 +549,7 @@ bool LoggerManager::setLogger(const Logger::ptr &logger)
 Logger::ptr LoggerManager::addLogger(const std::string &name,
                                      LogEvent::Level logger_level,
                                      LogFormatter::ptr formatter,
-                                     const std::vector<LogAppender::ptr> &appenders)
-{
+                                     const std::vector<LogAppender::ptr> &appenders) {
   auto res = getLogger(name);
   if (res) {
     return res;
@@ -555,8 +565,7 @@ Logger::ptr LoggerManager::addLogger(const std::string &name,
   return m_loggers.emplace(logger->getName(), logger).first->second;
 }
 
-bool LoggerManager::addLogger(const Logger::ptr &logger)
-{
+bool LoggerManager::addLogger(const Logger::ptr &logger) {
   auto res = getLogger(logger->getName());
   if (res) {
     return false;
@@ -565,8 +574,7 @@ bool LoggerManager::addLogger(const Logger::ptr &logger)
   return true;
 }
 
-bool LoggerManager::delLogger(const std::string &name)
-{
+bool LoggerManager::delLogger(const std::string &name) {
   auto findRt = m_loggers.find(name);
   if (findRt != m_loggers.end()) {
     return false;
@@ -575,44 +583,4 @@ bool LoggerManager::delLogger(const std::string &name)
   return true;
 }
 
-Logger::ptr LoggerManager::config_logger(const LoggerConfigVal &conf)
-{
-  if (conf.name.empty()) {
-    return nullptr;
-  }
-  auto level = conf.level == LogEvent::Level::LL_UNKNOWN ? m_defLevel : conf.level;
-
-  Logger::ptr ret = std::make_shared<Logger>(conf.name, level);
-  auto formatter = conf.pattern.empty()
-                       ? m_defFormatter
-                       : std::make_shared<LogFormatter>(conf.pattern);
-  ret->setFormatter(formatter);
-  for (const auto &app_conf: conf.appenders) {
-    auto app = config_appender(level, formatter, app_conf);
-    if (app == nullptr) { continue; }
-    ret->addAppender(app);
-  }
-  return ret;
-}
-
-LogAppender::ptr LoggerManager::config_appender(LogEvent::Level logger_level, LogFormatter::ptr logger_formatter, const AppenderConfigVal &conf)
-{
-  if (conf.type == LogAppender::APD_UNDEFINE) {
-    return nullptr;
-  }
-  auto formatter = conf.pattern.empty() ? std::move(logger_formatter) : std::make_shared<LogFormatter>(conf.pattern);
-  LogEvent::Level level = conf.level == LogEvent::Level::LL_UNKNOWN ? logger_level : conf.level;
-  LogAppender::ptr ret = nullptr;
-  if (conf.type == LogAppender::APD_CONSOLE) {
-    ret = std::make_shared<ConsoleAppender>(level);
-    ret->setFormatter(formatter);
-  } else if (conf.type == LogAppender::APD_FILE) {
-    ret = std::make_shared<FileAppender>(level, conf.file);
-    ret->setFormatter(formatter);
-  }
-  return ret;
-}
-
-//=====================================================================================================================
-
-}// namespace mylib
+MYLIB_LOG_END

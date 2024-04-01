@@ -11,12 +11,11 @@
 #elif _WIN32
 #include <WinBase.h>
 #endif
-#include "log.h"
+#include "../log/log.h"
 
-namespace mylib
-{
+namespace mylib {
 thread_local Thread::ptr Thread::t_this_thread = nullptr;
-Logger::ptr g_logger = MYLIB_LOGGER_NAME("system");
+auto g_logger = MYLIB_LOGGER_NAME("system");
 
 //=====================================================================================================================
 
@@ -34,8 +33,7 @@ Semaphore::Semaphore(uint32_t count)
   }
 #endif// __linux__
 }
-Semaphore::~Semaphore()
-{
+Semaphore::~Semaphore() {
 #if __linux__
   if (sem_destroy(&m_semaphore)) {
     MYLIB_LOG_ERROR(g_logger) << "sem_destroy failed";
@@ -45,8 +43,7 @@ Semaphore::~Semaphore()
 #endif
 }
 
-void Semaphore::wait()
-{
+void Semaphore::wait() {
 #if __linux__
   if (sem_wait(&m_semaphore)) {
     MYLIB_LOG_ERROR(g_logger) << "sem_wait failed";
@@ -61,8 +58,7 @@ void Semaphore::wait()
   }
 #endif
 }
-void Semaphore::notify()
-{
+void Semaphore::notify() {
 #if __linux__
   if (sem_post(&m_semaphore)) {
     MYLIB_LOG_ERROR(g_logger) << "sem_post failed";
@@ -74,13 +70,11 @@ void Semaphore::notify()
 #endif
 }
 
-Mutex::Mutex() : m_mutex()
-{
+Mutex::Mutex() : m_mutex() {
   // m_mutex = CreateMutexExA();
   pthread_mutex_init(&m_mutex, nullptr);
 }
-Mutex::~Mutex()
-{ /*pthread_mutex_destroy(&m_mutex);*/
+Mutex::~Mutex() { /*pthread_mutex_destroy(&m_mutex);*/
 }
 void Mutex::lock() { pthread_mutex_lock(&m_mutex); }
 void Mutex::unlock() { pthread_mutex_unlock(&m_mutex); }
@@ -98,8 +92,7 @@ void RWMutex::unlock() { pthread_rwlock_unlock(&m_rwmutex); }
 
 //=====================================================================================================================
 
-tid_t Thread::GetId()
-{
+tid_t Thread::GetId() {
 #if __linux__
   return (tid_t) syscall(SYS_gettid);
 #elif _WIN32
@@ -113,8 +106,7 @@ void Thread::SetThis(Thread::ptr thread) { t_this_thread = std::move(thread); }
 Thread::ptr Thread::GetThis() { return t_this_thread; }
 
 Thread::Thread(std::string name, std::function<void()> cb)
-    : m_name(std::move(name)), m_cb(std::move(cb)), m_semaphore(0)
-{
+    : m_name(std::move(name)), m_cb(std::move(cb)), m_semaphore(0) {
   if (t_this_thread != nullptr) {
     MYLIB_LOG_ERROR(MYLIB_LOGGER_ROOT) << "thread create failed, thread is exist. "
                                        << "id=" << t_this_thread->getId() << " "
@@ -143,8 +135,7 @@ Thread::Thread(std::string name, std::function<void()> cb)
 #endif// __linux__
   m_semaphore.notify();
 }
-Thread::~Thread()
-{
+Thread::~Thread() {
 #if __linux__
   if (m_thread) {
     pthread_detach(m_thread);
@@ -154,8 +145,7 @@ Thread::~Thread()
 #endif// __linux__
 }
 
-void Thread::join() const
-{
+void Thread::join() const {
 #if __linux__
   pthread_join(m_thread, nullptr);
 #elif _WIN32
@@ -166,8 +156,7 @@ void Thread::join() const
 
 #endif// __linux__
 }
-void *Thread::run(void *avg)
-{
+void *Thread::run(void *avg) {
   auto *thread = (Thread *) avg;
 
   thread->m_pid = Thread::GetId();
@@ -188,8 +177,7 @@ thread_local Coroutine *Coroutine::t_this_coroutine = nullptr;
 thread_local Coroutine::ptr Coroutine::t_root_coroutine = nullptr;
 
 std::string
-Coroutine::toString(Coroutine::State state)
-{
+Coroutine::toString(Coroutine::State state) {
   switch (state) {
 #define XX(name) \
   case name:     \
@@ -205,15 +193,12 @@ Coroutine::toString(Coroutine::State state)
   return "";
 }
 
-class MemoryAlloc
-{
+class MemoryAlloc {
 public:
-  static void *allocate(size_t size)
-  {
+  static void *allocate(size_t size) {
     return malloc(size);
   }
-  static void deallocate(void **ptr)
-  {
+  static void deallocate(void **ptr) {
     if (*ptr) {
       free(*ptr);
       *ptr = nullptr;
@@ -221,8 +206,7 @@ public:
   }
 };
 Coroutine::Coroutine()
-    : m_ctx()
-{
+    : m_ctx() {
   ++s_fiber_count;
 
   m_state = Coroutine::EXECUTING;
@@ -238,8 +222,7 @@ Coroutine::Coroutine()
 Coroutine::Coroutine(const std::function<void()> &cb, size_t stacksize)
     : m_id(++s_id_alloc),
       m_cb(cb),
-      m_stacksize(stacksize == 0 ? DEF_STACK_SIZE : stacksize), m_ctx()
-{
+      m_stacksize(stacksize == 0 ? DEF_STACK_SIZE : stacksize), m_ctx() {
   ++s_fiber_count;
 
   m_stack = MemoryAlloc::allocate(m_stacksize);
@@ -261,8 +244,7 @@ Coroutine::Coroutine(const std::function<void()> &cb, size_t stacksize)
   m_state = State::READY;
 }
 
-Coroutine::~Coroutine() noexcept(false)
-{
+Coroutine::~Coroutine() noexcept(false) {
   --s_fiber_count;
   if (m_stack) {
     if (m_state & ~(Coroutine::INITIAL | Coroutine::EXCEPT | Coroutine::TERMINATED)) {
@@ -287,8 +269,7 @@ Coroutine::~Coroutine() noexcept(false)
   }
 }
 
-void Coroutine::resume()
-{
+void Coroutine::resume() {
   if (t_this_coroutine == this) {
     MYLIB_LOG_ERROR(g_logger)
         << "id=" << m_id << "."
@@ -311,8 +292,7 @@ void Coroutine::resume()
   MYLIB_LOG_DEBUG(g_logger) << "Coroutine resume end.";
 }
 
-void Coroutine::YieldCoroutine()
-{
+void Coroutine::YieldCoroutine() {
   auto this_co = t_this_coroutine;
   if (this_co->m_state & ~EXECUTING) {
     MYLIB_LOG_ERROR(g_logger)
@@ -330,8 +310,7 @@ void Coroutine::YieldCoroutine()
   MYLIB_LOG_DEBUG(g_logger) << "Coroutine Yield end.";
 }
 
-void Coroutine::_run()
-{
+void Coroutine::_run() {
   auto this_co = GetThis();
   std::function<void()> cb = nullptr;
 
@@ -361,8 +340,7 @@ void Coroutine::_run()
 
 Coroutine::State Coroutine::state() { return m_state; }
 
-void Coroutine::reset(const std::function<void()> &cb)
-{
+void Coroutine::reset(const std::function<void()> &cb) {
   if (!m_stack) {
     MYLIB_LOG_ERROR(g_logger) << "m_stack is null";
   }
@@ -384,35 +362,29 @@ void Coroutine::reset(const std::function<void()> &cb)
   makecontext(&m_ctx, &Coroutine::_run, 0);
 }
 
-void Coroutine::Restart()
-{
+void Coroutine::Restart() {
   GetThis();
 }
-void Coroutine::SetThis(Coroutine *co)
-{
+void Coroutine::SetThis(Coroutine *co) {
   t_this_coroutine = co;
 }
 
-void Coroutine::swap_out()
-{
+void Coroutine::swap_out() {
   SetThis(t_root_coroutine.get());
   if (int rt = swapcontext(&m_ctx, &t_root_coroutine->m_ctx)) {
     MYLIB_LOG_ERROR(g_logger) << "rt=" << rt << "getcontext failed";
   }
 }
-Coroutine::ptr Coroutine::GetThis()
-{
+Coroutine::ptr Coroutine::GetThis() {
   if (!t_this_coroutine) {
     t_root_coroutine.reset(new Coroutine{});
   }
   return t_this_coroutine->shared_from_this();
 }
-size_t Coroutine::GetId()
-{
+size_t Coroutine::GetId() {
   return t_this_coroutine ? t_this_coroutine->m_id : 0;
 }
-void Coroutine::swap_in()
-{
+void Coroutine::swap_in() {
   SetThis(this);
   if (int rt = swapcontext(&t_root_coroutine->m_ctx, &m_ctx)) {
     MYLIB_LOG_ERROR(g_logger) << "rt=" << rt << "getcontext failed";
@@ -428,8 +400,7 @@ Scheduler::Scheduler(size_t thread_num, std::string name) : m_name(std::move(nam
 void Scheduler::schedule(const Coroutine::ptr &coroutine) {}
 void Scheduler::schedule(const std::function<void()> &func) {}
 
-void Scheduler::start()
-{
+void Scheduler::start() {
   if (!m_isStopped) {
     return;
   }
@@ -442,8 +413,7 @@ void Scheduler::start()
   }
 }
 
-void Scheduler::stop()
-{
+void Scheduler::stop() {
   if (m_isStopped || m_isStopping) {
     return;
   }
@@ -463,8 +433,7 @@ bool Scheduler::idle() { return false; }
 
 bool Scheduler::tickle() { return false; }
 
-void Scheduler::_run()
-{
+void Scheduler::_run() {
   t_scheduler = shared_from_this();
   const Coroutine::ptr idleCoroutine{new Coroutine{std::bind(&Scheduler::idle, this)}};
   Coroutine::ptr tempCoroutine{nullptr};
@@ -522,8 +491,7 @@ void Scheduler::_run()
   }
 }
 
-void Scheduler::_schedule_base(const Scheduler::CoroutineOrFunction &cof)
-{
+void Scheduler::_schedule_base(const Scheduler::CoroutineOrFunction &cof) {
 }
 
 //=====================================================================================================================
