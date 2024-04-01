@@ -1,52 +1,51 @@
-set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_C_COMPILER gcc)
+﻿# CMakeList.txt: 顶层 CMake 项目文件，在此处执行全局配置
+# 并包含子项目。
+#
+cmake_minimum_required(VERSION 3.8)
 
-cmake_minimum_required(VERSION 3.0)
-project(my_ai)
+set(MY_PROJECT_CXX_STANDARD 14)
 
-message(STATUS "PROJECT_SOURCE_DIR>>>>>>${PROJECT_SOURCE_DIR}")
-
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_STANDARD 17)
-
-add_compile_options(
-    -std=c++17
-    -O0 
-    -ggdb
-    -rdynamic   
-    -Wall 
-    -Werror
-    -Wno-deprecated 
-    -Wno-unused-function 
-    -Wno-builtin-macro-redefined
-)
-
-include(cmake/utils.cmake)
-
-find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
-if(NOT Boost_FOUND)
-    message(FATAL_ERROR "Boost not found. Please install Boost.")
-endif()
-
-message(STATUS >>>${Boost_INCLUDE_DIRS})
-message(STATUS >>>${Boost_SYSTEM_LIBRARY})
-message(STATUS >>>${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+if (${CMAKE_VERSION} VERSION_LESS 3.21)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else ()
+    cmake_policy(VERSION 3.21)
+endif ()
 
 
-include_directories(AFTER ${Boost_INCLUDE_DIRS} "/usr/local/include" "/usr/include")
-link_directories(AFTER "/usr/local/lib" "/usr/lib")
+set(Boost_ROOT "H:\\Documents\\Program Projects\\lib\\boost_1_84_0")
+find_package(Boost 1.84.0 REQUIRED)
+
+if (Boost_FOUND)
+    message(Boost\ version: ${Boost_VERSION_STRING})
+    message(Boost\ include\ dir: ${Boost_INCLUDE_DIRS})
+    message(Boost\ library\ dir: ${Boost_LIBRARY_DIRS})
+    message("Found Boost Libraries:${Boost_LIBRARIES}")
+    foreach(boost_lib IN LISTS Boost_LIBRARIES)
+        message(${boost_lib})
+        string(REGEX MATCH ".+/.*boost_([^-]+)-.+\.(lib|a)" boost_lib_name ${boost_lib})
+        set(boost_lib_name ${CMAKE_MATCH_1})
+        set(boost_target Boost::${boost_lib_name})
+        if(TARGET ${boost_target})
+            message(STATUS "Boost target found: " ${boost_target})
+        endif(TARGET ${boost_target})
+    endforeach(boost_lib)
+
+else ()
+    message(FATAL_ERROR "Boot not found")
+endif ()
 
 
-add_definitions(-DBOOST_TEST_DYN_LINK -g)
+# 如果支持，请为 MSVC 编译器启用热重载。
+if (POLICY CMP0141)
+    cmake_policy(SET CMP0141 NEW)
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif ()
 
+project("my-project")
 
-set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
-message(STATUS >>>>INCLUDE_DIRS : ${INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
 
-
-add_subdirectory(mylib)
-add_subdirectory(myai)
-add_subdirectory(mytest)
-
+# 包含子项目。
+add_subdirectory("my-ai")
+add_subdirectory("my-lib")
