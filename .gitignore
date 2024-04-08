@@ -1,2 +1,5 @@
 .vs
 cmake-build-debug-mingw
+build
+out
+.idea

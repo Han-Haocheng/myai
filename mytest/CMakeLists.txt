@@ -1,32 +1,30 @@
-include_directories(AFTER ${INCLUDE_DIRS})
-set(MODEL_NAME mytest)
-set(MODEL_LINK_LIB mylib boost_unit_test_framework)
-message(STATUS ">>>>>model '${MODEL_NAME}' link lib '${MODEL_LINK_LIB}'<<<<")
+set(PROJECT_NAME mytest)
 
-file(GLOB_RECURSE MODEL_HEADERS  ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/. MODEL_SOURCES)
-source_group("header files" FILES ${MODEL_HEADERS}) 
+file(GLOB_RECURSE MODEL_HEADERS  ${CMAKE_CURRENT_SOURCE_DIR}/*/*.h)
+file(GLOB_RECURSE MODEL_SOURCES  ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp)
+source_group("header files" FILES ${MODEL_HEADERS})
 source_group("source files" FILES ${MODEL_SOURCES})
 
 
 
-foreach(TEST_FILE ${MODEL_SOURCES})
-	
-	string(REPLACE ".cpp" "" CHILD_MODEL_NAME ${TEST_FILE})
-	string(REPLACE "/home/hanhaocheng/myproject/my-ai/mytest/./" "" CHILD_MODEL_NAME ${CHILD_MODEL_NAME})
-	# message(${CHILD_MODEL_NAME})
-
-	add_executable(${CHILD_MODEL_NAME} ${TEST_FILE})
-	force_redefine_file_macro_for_sources(${CHILD_MODEL_NAME})
-	target_link_libraries(${CHILD_MODEL_NAME} PRIVATE ${MODEL_LINK_LIB})
-
+message(STATUS ">>>> Header files:")
+foreach(SOURCE_FILE ${MODEL_HEADERS})
+	message(STATUS "\t\t[${SOURCE_FILE}]")
 endforeach()
+
+message(STATUS ">>>> Source files:")
+foreach(SOURCE_FILE ${MODEL_SOURCES})
+    message(STATUS "\t\t[${SOURCE_FILE}]")
+endforeach()
+
+add_executable(${PROJECT_NAME} ${MODEL_SOURCES} ${MODEL_HEADERS})
+
 
 enable_testing()
 
 add_test(
 	NAME MyTest
-	COMMAND ${MODEL_NAME}
+	COMMAND ${PROJECT_NAME}
 )
 
 
