@@ -1,7 +1,0 @@
-# ninja log v5
-1	363	7336446220000000	my-ai/CMakeFiles/my-ai.dir/my-ai.cpp.obj	95aafd19b6348359
-2	274	7336451180000000	my-ai/my-ai.exe	a3227175cd6fab00
-6	406	7336451620000000	my-ai/CMakeFiles/my-ai.dir/core/myai_thinker.cpp.obj	50de56846016136
-11	448	7336446220000000	my-ai/CMakeFiles/my-ai.dir/core/myai_factory.cpp.obj	bac75897e440fee4
-2	427	7336452600000000	my-ai/CMakeFiles/my-ai.dir/core/myai_controller.cpp.obj	99c1bdac51c33368
-1	33	0	clean	ca864c860c4a0ecd

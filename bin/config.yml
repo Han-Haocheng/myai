@@ -1,3 +1,5 @@
-confg:
-    vec: [1,2,3,4]
-    
+config: [ 1,1,1,1 ]
+config2: 2
+config3:
+  config4: 4
+  config5: 5
