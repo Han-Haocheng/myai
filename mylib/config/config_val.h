@@ -14,16 +14,14 @@ class ConfigValueBase {
 public:
   using ptr = std::shared_ptr<ConfigValueBase>;
 
-  ConfigValueBase(String name, String comment, String type_name)
-      : m_type_name(std::move(type_name)), m_name(std::move(name)), m_comment(std::move(comment)) {
-  }
+  ConfigValueBase(String name, String comment, String type_name);
   ~ConfigValueBase() = default;
-  inline String name() const { return m_name; }
-  inline String comment() const { return m_comment; }
-  inline String typeName() const { return m_type_name; }
+  [[nodiscard]] inline String name() const { return m_name; }
+  [[nodiscard]] inline String comment() const { return m_comment; }
+  [[nodiscard]] inline String typeName() const { return m_type_name; }
 
   virtual void fromString(String string) = 0;
-  virtual String toString() const = 0;
+  [[nodiscard]] virtual String toString() const = 0;
 
 protected:
   String m_type_name;

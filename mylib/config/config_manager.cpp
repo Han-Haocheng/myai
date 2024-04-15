@@ -5,10 +5,10 @@
 
 MYLIB_SPACE_BEGIN
 
-inline void ConfigManager::setConfigFile(const String &path) {
+void ConfigManager::setConfigFile(const String &path) {
   m_config_file = path.empty() ? "config.yaml" : path;
   String file_type = m_config_file.substr(m_config_file.find_last_of("."));
-  if (file_type == ".yaml" || file_type == "yml") {
+  if (file_type == ".yaml" || file_type == ".yml") {
     m_config_file_type = CFT_YAML;
   } else if (file_type == ".json") {
     m_config_file_type = CFT_JSON;
@@ -19,11 +19,11 @@ inline void ConfigManager::setConfigFile(const String &path) {
 
 void ConfigManager::showAllConfigs() {
   for (auto &conf_pair: m_configs) {
-    std::cout << conf_pair.second->toString() << "\n";
+    std::cout << conf_pair.first << " : " << conf_pair.second->toString() << "\n";
   }
 }
 
-boolean ConfigManager::load() {
+bool ConfigManager::load() {
   switch (m_config_file_type) {
     case CFT_UNKNOWN:
       return false;
@@ -37,7 +37,7 @@ boolean ConfigManager::load() {
   return true;
 }
 
-boolean ConfigManager::save() {
+bool ConfigManager::save() {
   switch (m_config_file_type) {
     case CFT_UNKNOWN:
       return false;
@@ -61,6 +61,8 @@ void ConfigManager::load_from_yaml() {
             current_node_name += ".";
           }
 
+          std::cout << YAML::Dump(node) << std::endl;
+
           if (!node.IsMap()) {
             return;
           }
@@ -68,26 +70,27 @@ void ConfigManager::load_from_yaml() {
           for (auto &child_node: node) {
             String child_name = child_node.first.Scalar();
             if (child_name.empty()) {
-              return;
+              continue;
             }
             std::transform(child_name.begin(), child_name.end(), child_name.begin(), ::tolower);
             if (child_name.find_first_not_of("abcdefghikjlmnopqrstuvwxyz_012345678") != std::string::npos) {
               //TODO: <log>
-              return;
+              continue;
             }
             String key = current_node_name + child_name;
             ConfigValueBase::ptr var = get_config_base(key);
 
             if (!var) {
-              return;
+              continue;
             }
-            var->fromString(YAML::Dump(child_node.second));
 
-            //if (child_node.second.IsScalar()) {
-            //  var->fromString(child_node.second.Scalar());
-            //} else {
-            //}
-            recursive_func(child_node.second, child_name);
+            if (child_node.second.IsScalar()) {
+              var->fromString(child_node.second.Scalar());
+            } else {
+              String val_str = YAML::Dump(child_node.second);
+              var->fromString(val_str);
+              recursive_func(child_node.second, key);
+            }
           }
         };
 

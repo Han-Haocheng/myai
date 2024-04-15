@@ -21,27 +21,16 @@ public:
 template<typename Ty>
 class StringConverter : private Converter<Ty, String> {
 public:
-  const String &toString(const Ty &ty) {
-    String res = Converter<Ty, String>::cast(ty);
-    return res;
-  }
+  virtual String toString(const Ty &ty) { return Converter<Ty, String>::cast(ty); }
 
-  const Ty &fromString(const String &ty) {
-    Ty res = Converter<Ty, String>::cast(ty);
-    return res;
-  }
+  virtual Ty fromString(const String &ty) { return Converter<Ty, String>::cast(ty); }
 };
 
 template<>
 class StringConverter<String> {
 public:
-  String toString(const String &ty) {
-    return ty;
-  }
-
-  String fromString(const String &ty) {
-    return ty;
-  }
+  virtual String toString(const String &ty) { return ty; }
+  virtual String fromString(const String &ty) { return ty; }
 };
 
 template<typename U>

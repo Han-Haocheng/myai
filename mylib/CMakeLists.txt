@@ -1,4 +1,4 @@
-set(PROJECT_NAME mylib)
+set(MODEL_NAME mylib)
 
 file(GLOB_RECURSE MODEL_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*/*.h mylib.h)
 file(GLOB_RECURSE MODEL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp main.cpp)
@@ -15,11 +15,7 @@ foreach (SOURCE_FILE ${MODEL_SOURCES})
     message(STATUS "\t\t[${SOURCE_FILE}]")
 endforeach ()
 
-add_library(${PROJECT_NAME} STATIC ${MODEL_HEADERS} ${MODEL_SOURCES})
+add_library(${MODEL_NAME} STATIC ${MODEL_SOURCES})
+target_link_libraries(${MODEL_NAME} PRIVATE yaml-cpp)
 
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD ${MY_PROJECT_CXX_STANDARD})
-endif ()
-
-message(STATUS ">>>> [${PROJECT_NAME}] create finish.\n\n")
+message(STATUS ">>>> [${MODEL_NAME}] create finish.\n\n")

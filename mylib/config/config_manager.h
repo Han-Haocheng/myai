@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <utility>
 
 MYLIB_SPACE_BEGIN
 
@@ -17,10 +18,10 @@ public:
   using ptr = std::shared_ptr<ConfigManager>;
 
   explicit ConfigManager() : m_config_file_type(CFT_YAML), m_config_file("config.yml"), m_configs() {}
-  ConfigManager(String confPath) : m_config_file_type(CFT_UNKNOWN), m_config_file(confPath), m_configs() {}
+  explicit ConfigManager(String confPath) : m_config_file_type(CFT_UNKNOWN), m_config_file(std::move(confPath)), m_configs() {}
   ~ConfigManager() = default;
 
-  inline void setConfigFile(const String &path);
+  void setConfigFile(const String &path);
 
   template<typename ConfTy>
   ConfTy &getConfig(const String &key);
@@ -29,8 +30,8 @@ public:
   void setConfig(String key, ConfTy &&conf, String comment = "");
 
   void showAllConfigs();
-  boolean load();
-  boolean save();
+  bool load();
+  bool save();
 
 private:
   void load_from_yaml();
