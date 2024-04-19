@@ -4,6 +4,8 @@
 
 #ifndef MYPROJECT_MYLIB_TEST_H
 #define MYPROJECT_MYLIB_TEST_H
-#include "test_config.h"
+//#include "test_config.h"
 #include "test_log.h"
+//#include "test_untils.h"
+
 #endif//MYPROJECT_MYLIB_TEST_H

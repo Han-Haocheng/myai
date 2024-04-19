@@ -10,6 +10,10 @@
 
 MYLIB_SPACE_BEGIN
 
+#define MYLIB_DEF_LOG_FORMATTER_PATTERN "[%d{%Y-%m-%d %H-%M-%S}][%f:%l]%T%p%T%c%T%t%T%m%n"
+#define MYLIB_DEF_LOG_FORMATTER MYLIB_SPACE_NAME::LogFormatter::DefFormatter()
+
+
 class LogFormatter {
 public:
   class LogFormatterItem {
@@ -31,12 +35,20 @@ public:
   void setPattern(const String &pattern);
   String format(const LogEvent::ptr &event);
 
+  static LogFormatter::ptr DefFormatter() {
+    if (!s_def_formatter) {
+      s_def_formatter.reset(new LogFormatter{MYLIB_DEF_LOG_FORMATTER_PATTERN});
+    }
+    return s_def_formatter;
+  };
+
 private:
   void _parse_pattern();
 
   String m_pattern;
   std::vector<LogFormatterItem::ptr> m_items;
   static ItemMap s_item_map;
+  static LogFormatter::ptr s_def_formatter;
 };
 
 MYLIB_SPACE_END

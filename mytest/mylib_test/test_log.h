@@ -6,30 +6,18 @@
 #include "../test.h"
 #include <boost/test/unit_test.hpp>
 #include <memory>
+using String = std::string;
+
 BOOST_AUTO_TEST_SUITE(log_suite_test)
 
-using String = std::string;
-String m_pattern = "%z{%Y-%m-%d %H:%M:%S.%f}%a{}%b%c%d%e%fadfadfasddfasdfasdfasdfasdfasfdadf";
 
 BOOST_AUTO_TEST_CASE(test_log_base) {
-  auto logger = MYLIB_LOG_ROOT;
-  mylib::LogEvent::ptr event;
-  (event = std::make_shared<mylib::LogEvent>("String appenderName",
-                                             "String loggerName",
-                                             mylib::LogEvent::LE_DEBUG,
-                                             __LINE__,
-                                             __FILE__,
-                                             __func__,
-                                             __func__,
-                                             12345,
-                                             1,
-                                             1,
-                                             "String threadName",
-                                             "String coroutineName"))
-      ->msg(),
-
-  logger->log(event);
+  auto logger = MYLIB_LOG_NAME("test");
+  MYLIB_LOG_DEBUG(logger) << "123123123123"
+                          << "123123";
 }
+
+String m_pattern = "%z{%Y-%m-%d %H:%M:%S.%f}%a{}%b%c%d%e%fadfadfasddfasdfasdfasdfasdfasfdadf";
 
 BOOST_AUTO_TEST_CASE(test_log_parse_pattern) {
   struct TmpFormat {
@@ -87,4 +75,5 @@ BOOST_AUTO_TEST_CASE(test_log_parse_pattern) {
     std::cout << "pattern:" << item.pattern << "\textend:" << item.extend << std::endl;
   }
 }
+
 BOOST_AUTO_TEST_SUITE_END()

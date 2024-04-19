@@ -1,7 +1,7 @@
 #ifndef MYLIB_CONFIG_VAL_H_
 #define MYLIB_CONFIG_VAL_H_
 
-#include "../mylib_def.h"
+#include "../core/mylib_def.h"
 
 #include "../converter/ymal_converter.h"
 #include <memory>

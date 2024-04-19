@@ -4,7 +4,7 @@
 
 #ifndef MY_PROJECT_CONFIG_MANAGER_H
 #define MY_PROJECT_CONFIG_MANAGER_H
-#include "../mylib_def.h"
+#include "../core/mylib_def.h"
 #include "config_val.h"
 
 #include <algorithm>

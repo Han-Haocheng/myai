@@ -10,12 +10,7 @@ LoggerManager::ptr LoggerManager::s_instance = nullptr;
 LoggerManager::ptr LoggerManager::GetInstance() {
   if (!s_instance) {
     s_instance.reset(new LoggerManager());
-    s_instance->m_def_formatter.reset(new LogFormatter(MYLIB_LOG_DEF_FORMATTER_PATTERN));
-    s_instance->m_root_logger.reset(new Logger(MYLIB_LOG_DEF_ROOT_NAME,
-                                               MYLIB_LOG_DEF_LEVEL,
-                                               s_instance->m_def_formatter));
-    s_instance->m_root_logger->addAppender(LogAppender::ptr{new ConsoleAppender(MYLIB_LOG_DEF_LEVEL, s_instance->m_def_formatter)});
-    s_instance->_add_logger(s_instance->m_root_logger);
+    s_instance->_add_logger(MYLIB_ROOT_LOGGER);
   }
   return s_instance;
 }
@@ -28,12 +23,14 @@ void LoggerManager::addLogger(const Logger::ptr &logger) {
   _add_logger(logger);
 }
 
-Logger::ptr LoggerManager::addLogger(const String &name, LogEvent::Type level, const LogFormatter::ptr &formatter) {
+Logger::ptr LoggerManager::addLogger(const String &name, LogEvent::Type level, LogFormatter::ptr formatter) {
   if (name.empty()) {
     return nullptr;
   }
-  Logger::ptr logger =
-      std::make_shared<Logger>(name, level == -1 ? MYLIB_LOG_DEF_LEVEL : level, formatter ? formatter : m_def_formatter);
+
+  Logger::ptr logger = std::make_shared<Logger>(name,
+                                                level == -1 ? MYLIB_DEF_LOGGER_LEVEL : level,
+                                                formatter ? formatter : std::move(m_def_formatter));
   _add_logger(logger);
   return logger;
 }
@@ -44,6 +41,19 @@ Logger::ptr LoggerManager::getLogger(const String &name) {
     return nullptr;
   }
   return _get_logger(name);
+}
+
+Logger::ptr LoggerManager::try_getLogger(const String &name) {
+  if (name.empty()) {
+    //TODO: <log>error
+    return nullptr;
+  }
+  Logger::ptr log = _get_logger(name);
+  if (!log) {
+    log.reset(new Logger{name, MYLIB_DEF_LOGGER_LEVEL, MYLIB_DEF_LOG_FORMATTER});
+    _add_logger(log);
+  }
+  return log;
 }
 
 void LoggerManager::_add_logger(const Logger::ptr &logger) {

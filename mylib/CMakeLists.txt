@@ -17,5 +17,6 @@ endforeach ()
 
 add_library(${MODEL_NAME} STATIC ${MODEL_SOURCES})
 target_link_libraries(${MODEL_NAME} PRIVATE yaml-cpp)
+force_redefine_file_macro_for_sources(${MODEL_NAME})
 
 message(STATUS ">>>> [${MODEL_NAME}] create finish.\n\n")

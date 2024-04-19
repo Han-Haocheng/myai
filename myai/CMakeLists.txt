@@ -21,6 +21,7 @@ endforeach()
 
 # 将源代码添加到此项目的可执行文件。
 add_executable(${MODEL_NAME} ${MODEL_HEADERS} ${MODEL_SOURCES})
+force_redefine_file_macro_for_sources(${MODEL_NAME})
 
 message(STATUS ">>>> [${MODEL_NAME}] create finish.\n\n")
 

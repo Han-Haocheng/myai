@@ -19,13 +19,13 @@ endforeach ()
 add_executable(${MODEL_NAME} ${MODEL_SOURCES})
 
 target_link_libraries(${MODEL_NAME} PRIVATE ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} yaml-cpp mylib)
-
+force_redefine_file_macro_for_sources(${MODEL_NAME})
 
 enable_testing()
 
 add_test(
         NAME MyTest
-        COMMAND ${PROJECT_NAME}
+        COMMAND ${PROJECT_NAME} --run_test=test_log_base
 )
 
 

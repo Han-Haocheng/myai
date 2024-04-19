@@ -1,6 +1,6 @@
 #ifndef MYLIB_CONVERTER_H
 #define MYLIB_CONVERTER_H
-#include "../mylib_def.h"
+#include "../core/mylib_def.h"
 
 MYLIB_SPACE_BEGIN
 

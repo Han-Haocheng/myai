@@ -8,8 +8,7 @@
 
 MYLIB_SPACE_BEGIN
 
-LogEvent::LogEvent(String appenderName,
-                   String loggerName,
+LogEvent::LogEvent(String loggerName,
                    LogEvent::Type type,
                    uint32 line,
                    String file,
@@ -20,8 +19,7 @@ LogEvent::LogEvent(String appenderName,
                    cid_t coroutine,
                    String threadName,
                    String coroutineName)
-    : m_appender_name(std::move(appenderName)),
-      m_logger_name(std::move(loggerName)),
+    : m_logger_name(std::move(loggerName)),
       m_type(type),
       m_line(line),
       m_file(std::move(file)),

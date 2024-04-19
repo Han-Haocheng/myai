@@ -4,7 +4,7 @@
 
 #ifndef MYPROJECT_LOG_EVENT_H
 #define MYPROJECT_LOG_EVENT_H
-#include "../mylib_def.h"
+#include "../core/mylib_def.h"
 
 MYLIB_SPACE_BEGIN
 class LogEvent {
@@ -19,8 +19,7 @@ public:
     LE_ERROR,
   };
 
-  LogEvent(String appenderName,
-           String loggerName,
+  LogEvent(String loggerName,
            Type type,
            uint32 line,
            String file,
@@ -34,8 +33,6 @@ public:
 
   inline SString &msg() { return m_msg; }
 
-  inline const String &getAppenderName() const { return m_appender_name; }
-  inline void setAppenderName(const String &mAppenderName) { m_appender_name = mAppenderName; }
   inline const String &getLoggerName() const { return m_logger_name; }
   inline void setLoggerName(const String &mLoggerName) { m_logger_name = mLoggerName; }
   inline Type getType() const { return m_type; }
@@ -62,7 +59,6 @@ public:
 
 private:
   // 输出类型
-  String m_appender_name;    //输出器名
   String m_logger_name;      //日志器名
   Type m_type = LE_UNDEFINED;//日志类型
 
@@ -82,8 +78,6 @@ private:
   // 日志信息
   SString m_msg;
 };
-
-
 
 MYLIB_SPACE_END
 #endif//MYPROJECT_LOG_EVENT_H

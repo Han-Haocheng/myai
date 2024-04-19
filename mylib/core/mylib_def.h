@@ -6,7 +6,8 @@
 #include <boost/lexical_cast.hpp>
 #include <yaml-cpp/yaml.h>
 
-#define MYLIB_SPACE_BEGIN namespace mylib {
+#define MYLIB_SPACE_NAME mylib
+#define MYLIB_SPACE_BEGIN namespace MYLIB_SPACE_NAME {
 #define MYLIB_SPACE_END }
 
 MYLIB_SPACE_BEGIN
@@ -23,6 +24,8 @@ using uint64 = unsigned long long int;
 
 using float32 = float;
 using float64 = double;
+using CString = const char *;
+
 
 using tid_t = uint32;// 线程id类型
 using cid_t = uint;  //协程id类型

@@ -136,7 +136,9 @@ public:
   [[nodiscard]] String format(LogEvent::ptr event) const override { return event->getCoroutineName(); }
 };
 
-LogFormatter::ItemMap LogFormatter::s_item_map;
+LogFormatter::ItemMap LogFormatter::s_item_map = {};
+LogFormatter::ptr LogFormatter::s_def_formatter = nullptr;
+
 // 位置相关
 // 文件
 // 行数

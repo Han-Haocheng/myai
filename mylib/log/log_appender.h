@@ -48,5 +48,6 @@ private:
   String m_file_path;
 };
 
+
 MYLIB_SPACE_END
 #endif//MYPROJECT_LOG_APPENDER_H

@@ -8,12 +8,16 @@ if (${CMAKE_VERSION} VERSION_LESS 3.21)
 else ()
     cmake_policy(VERSION 3.21)
 endif ()
+
 # message(>>>>>>>>>>>>>>>>>>${CMAKE_SOURCE_DIR})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 project("myproject")
 
+set(CMAKE_CXX_STANDARD 17)
+
+include("./cmake/utils.cmake")
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     MESSAGE(STATUS "current platform: Linux ")
@@ -75,7 +79,6 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
     endif ()
     set(yaml-cpp_INCLUDE_DIRS "${yaml-cpp_SOURCE_DIR}/include")
     # message(>>>>>>>>>>>>>>>>>>>>>>${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     MESSAGE(STATUS "current platform: FreeBSD")
 ELSE ()
@@ -117,7 +120,6 @@ add_subdirectory("myai")
 
 message("my-lib cmake begin")
 add_subdirectory("mylib")
-
 
 message("my-test cmake begin")
 add_subdirectory("mytest")

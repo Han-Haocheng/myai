@@ -12,40 +12,38 @@
 #include "log_formatter.h"
 
 MYLIB_SPACE_BEGIN
+
+#define MYLIB_LOGGER_ROOT_NAME "root"
+#define MYLIB_DEF_LOGGER_LEVEL MYLIB_SPACE_NAME::LogEvent::LE_DEBUG
+#define MYLIB_ROOT_LOGGER MYLIB_SPACE_NAME::Logger::RootLogger()
+
 class Logger {
 public:
   using ptr = std::shared_ptr<Logger>;
 
-  Logger(String name, LogEvent::Type level, LogFormatter::ptr formatter)
+  Logger(String name,
+         LogEvent::Type level,
+         LogFormatter::ptr formatter)
       : m_name(std::move(name)), m_type(level), m_appenders(), m_formatter(std::move(formatter)) {}
 
-  [[nodiscard]] const String &getName() const { return m_name; }
-  void setName(const String &name) { m_name = name; }
-  [[nodiscard]] const LogFormatter::ptr &getFormatter() const { return m_formatter; }
-  void setFormatter(const LogFormatter::ptr &formatter) { m_formatter = formatter; }
+  [[nodiscard]] inline const String &getName() const { return m_name; }
+  inline void setName(const String &name) { m_name = name; }
+  [[nodiscard]] inline const LogFormatter::ptr &getFormatter() const { return m_formatter; }
+  inline void setFormatter(const LogFormatter::ptr &formatter) { m_formatter = formatter; }
 
-  void addAppender(LogAppender::ptr appender) {
-    if (!appender) {
-      return;
+  void addAppender(LogAppender::ptr appender);
+
+  void log(const LogEvent::ptr &event);
+
+  static Logger::ptr RootLogger() {
+    if (!m_root_logger) {
+      m_root_logger.reset(new Logger{
+          MYLIB_LOGGER_ROOT_NAME,
+          MYLIB_DEF_LOGGER_LEVEL,
+          MYLIB_DEF_LOG_FORMATTER});
+      m_root_logger->addAppender(ConsoleAppender::ptr{new ConsoleAppender{MYLIB_DEF_LOGGER_LEVEL, MYLIB_DEF_LOG_FORMATTER}});
     }
-
-    appender->setFormatter(m_formatter);
-    m_appenders.emplace_back(appender);
-  }
-
-  void log(const LogEvent::ptr &event) {
-    if (event->getType() < m_type) {
-      return;
-    }
-
-    if (m_appenders.empty()) {
-      std::cout << "appender is empty" << std::endl;
-      return;
-    }
-
-    for (auto &appender: m_appenders) {
-      appender->append(event);
-    }
+    return m_root_logger;
   }
 
 private:
@@ -54,6 +52,7 @@ private:
   LogEvent::Type m_type;
   std::vector<LogAppender::ptr> m_appenders;
   LogFormatter::ptr m_formatter;
+  static Logger::ptr m_root_logger;
 };
 MYLIB_SPACE_END
 #endif//MYPROJECT_LOGGER_H
