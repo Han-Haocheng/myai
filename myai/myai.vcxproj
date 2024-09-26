@@ -143,21 +143,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="core\myai_controller.h" />
+    <ClInclude Include="core\myai_def.h" />
+    <ClInclude Include="core\myai_factory.h" />
+    <ClInclude Include="core\myai_id_allocator.h" />
+    <ClInclude Include="core\myai_io_manager.h" />
+    <ClInclude Include="core\myai_node.h" />
+    <ClInclude Include="core\myai_node_dao.h" />
+    <ClInclude Include="core\myai_thinker.h" />
+    <ClInclude Include="io\myai_io_interface.h" />
+    <ClInclude Include="io\myai_memory_io.h" />
     <ClInclude Include="link.h" />
     <ClInclude Include="myai.h" />
     <ClInclude Include="node.h" />
     <ClInclude Include="type.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\myai_controller.cpp" />
+    <ClCompile Include="core\myai_factory.cpp" />
+    <ClCompile Include="core\myai_id_allocator.cpp" />
+    <ClCompile Include="core\myai_io_manager.cpp" />
+    <ClCompile Include="core\myai_node.cpp" />
+    <ClCompile Include="core\myai_node_dao.cpp" />
+    <ClCompile Include="core\myai_thinker.cpp" />
+    <ClCompile Include="io\myai_memory_io.cpp" />
     <ClCompile Include="link.cpp" />
     <ClCompile Include="myai.cpp" />
     <ClCompile Include="node.cpp" />
     <ClCompile Include="type.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\mylib\mylib\mylib.vcxproj">
-      <Project>{5a46b457-38ec-4c3f-bcd1-da35de2fcf72}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

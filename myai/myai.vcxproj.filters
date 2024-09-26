@@ -27,6 +27,36 @@
     <ClInclude Include="link.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="io\myai_memory_io.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_controller.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_def.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_factory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_id_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_io_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_node_dao.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\myai_thinker.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\myai_io_interface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="node.cpp">
@@ -39,6 +69,30 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="myai.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_controller.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_factory.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_id_allocator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_io_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_node.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_node_dao.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\myai_thinker.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\myai_memory_io.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
