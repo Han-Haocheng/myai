@@ -1,6 +1,0 @@
-#ifndef MYLIB_UNTIL_UPLOW_BASE_H_
-#define MYLIB_UNTIL_UPLOW_BASE_H_
-
-
-
-#endif

@@ -1,5 +1,0 @@
-config: [ 1,1,1,1 ]
-config2: 2
-config3:
-  config4: 4
-  config5: 5
