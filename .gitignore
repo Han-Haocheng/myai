@@ -6,3 +6,9 @@
 myai.sln
 
 
+!/.$myai.drawio.bkp
+/vcpkg_installed/x64-windows
+/build
+/.vs
+/.idea/
+/myai/myai.vcxproj.user
