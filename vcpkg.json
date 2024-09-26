@@ -1,0 +1,21 @@
+{
+  "builtin-baseline" : "68d349964cb4e8da561fd849d9491e6ba11c5681",
+  "dependencies" : [ {
+    "name" : "jsoncpp",
+    "version>=" : "1.9.5#5"
+  }, {
+    "name" : "gtest",
+    "version>=" : "1.15.2"
+  }, {
+    "name" : "ffmpeg",
+    "version>=" : "7.0.2#4"
+  }, {
+    "name" : "boost-lexical-cast",
+    "version>=" : "1.85.0#1"
+  }, {
+    "name" : "yaml-cpp",
+    "version>=" : "0.8.0#1"
+  } ],
+  "name" : "mylib-sln",
+  "version-string" : "1.0.0"
+}

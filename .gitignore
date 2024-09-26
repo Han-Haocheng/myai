@@ -1,6 +1,6 @@
-.vs
-.vscode
-build
-.idea
-.cache
-out
+.vc/
+.idea/
+.build/
+.vcpkg_installed/
+
+myai.sln
