@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <mylib/config/config_manager.h>
+#include <mylib/config_manager.h>
 
 MYAI_BEGIN
 

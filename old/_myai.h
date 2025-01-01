@@ -7,7 +7,7 @@
 MYAI_BEGIN
 
 /// <summary>
-/// myai controller
+/// src controller
 /// </summary>
 class MyaiController {
 public:

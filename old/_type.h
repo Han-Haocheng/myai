@@ -1,7 +1,7 @@
 #ifndef MYAI_TYPE_H_
 #define MYAI_TYPE_H_
 
-#include <mylib/base/mylib_def.h>
+#include <mylib/mylib_def.h>
 
 #define MYAI_SPACE myai
 #define MYAI_BEGIN             \

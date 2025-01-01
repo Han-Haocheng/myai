@@ -78,13 +78,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
-    <ExternalIncludePath>H:\Documents\program\c++\mylib;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>F:\c++\mylib\out\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>F:\c++\mylib\out\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgEnableManifest>false</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,10 +121,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>myai.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,12 +154,19 @@
     <ClInclude Include="core\myai_node.h" />
     <ClInclude Include="core\myai_node_dao.h" />
     <ClInclude Include="core\myai_thinker.h" />
+    <ClInclude Include="define.h" />
     <ClInclude Include="io\myai_io_interface.h" />
     <ClInclude Include="io\myai_memory_io.h" />
-    <ClInclude Include="link.h" />
-    <ClInclude Include="myai.h" />
-    <ClInclude Include="node.h" />
-    <ClInclude Include="type.h" />
+    <ClInclude Include="control\MyaiController.h" />
+    <ClInclude Include="entity\Node.h" />
+    <ClInclude Include="entity\Link.h" />
+    <ClInclude Include="dao\MyaiFileIO.h" />
+    <ClInclude Include="dao\MyaiDao.h" />
+    <ClInclude Include="dao\LinkStream.h" />
+    <ClInclude Include="driver\MyaiDriverManager.h" />
+    <ClInclude Include="driver\MyaiDriver.h" />
+    <ClInclude Include="service\MyaiService.h" />
+    <ClInclude Include="service\IdAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\myai_controller.cpp" />
@@ -167,10 +177,20 @@
     <ClCompile Include="core\myai_node_dao.cpp" />
     <ClCompile Include="core\myai_thinker.cpp" />
     <ClCompile Include="io\myai_memory_io.cpp" />
-    <ClCompile Include="link.cpp" />
-    <ClCompile Include="myai.cpp" />
-    <ClCompile Include="node.cpp" />
-    <ClCompile Include="type.cpp" />
+    <ClCompile Include="dao\LinkStream.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="control\MyaiController.cpp" />
+    <ClCompile Include="entity\Node.cpp" />
+    <ClCompile Include="entity\Link.cpp" />
+    <ClCompile Include="dao\MyaiFileIO.cpp" />
+    <ClCompile Include="dao\MyaiDao.cpp" />
+    <ClCompile Include="driver\MyaiDriverManager.cpp" />
+    <ClCompile Include="driver\MyaiDriver.cpp" />
+    <ClCompile Include="service\MyaiService.cpp" />
+    <ClCompile Include="service\IdAllocator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

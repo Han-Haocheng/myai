@@ -1,5 +1,5 @@
 #include "node.h"
-#include <mylib/exception/exception.h>
+#include <mylib/exception.h>
 #include <utility>
 
 MYAI_BEGIN

@@ -11,4 +11,4 @@ myai.sln
 /build
 /.vs
 /.idea/
-/myai/myai.vcxproj.user
+/src/myai.vcxproj.user
