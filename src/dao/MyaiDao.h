@@ -1,26 +1,26 @@
-#pragma once
+#ifndef MYAI_DAO_MYAIDAO_H
+#define MYAI_DAO_MYAIDAO_H
+
 #include "MyaiFileIO.h"
 
 MYAI_BEGIN
 
 class MyaiDao {
 public:
-  using ptr = std::shared_ptr<MyaiDao>;
-  int insert(Node::ptr node);
-  int insert(std::vector<Node::ptr> node);
+	using ptr = std::shared_ptr<MyaiDao>;
 
-  int updata(Node::ptr node);
-  int updata(std::vector<Node::ptr> nodes);
-
-  int deleteById(nodeid_t id);
-  int deleteById(std::vector<nodeid_t> ids);
-
-  Node::ptr selectById(nodeid_t id);
-  std::vector<Node::ptr> selectById(std::vector<nodeid_t> id);
+	int insert(Node::ptr node);
+	int updata(Node::ptr node);
+	int deleteById(nodeid_t id);
+	Node::ptr selectById(nodeid_t id);
 
 private:
-  bool check_node_legality(Node::ptr node);
-
+	bool check_node_legality(Node::ptr node);
+	String aniseya_path(nodeid_t id);
+private:
+	MyaiFileIO::ptr m_file_io;
 };
 
 MYAI_END
+
+#endif //MYAI_DAO_MYAIDAO_H

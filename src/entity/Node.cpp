@@ -7,24 +7,18 @@
 #include <utility>
 
 MYAI_BEGIN
-
-Node::Node() {
+void Node::serialize(std::ostream &out) const {
+	out.write(reinterpret_cast<const char *>(&m_head), sizeof(m_head));
+	out << m_links.size();
+	out.write(reinterpret_cast<const char *>(&m_links[0]), sizeof(Link) * MAX_LINK_NUMS);
 }
 
-size_t Node::push(const Link &lk) {
-  // 非法链接
-  if (lk.weight <= 0) {
-    return 0;
-  }
-
-  //插入第一个链接
-  if (m_state == NDS_UNUSED) {
-    m_links[m_link_size] = lk;
-    m_link_size++;
-    return 1;
-  }
-
-  return 1;
+void Node::deserialize(std::istream &in) {
+	in.read(reinterpret_cast<char *>(&m_head), sizeof(m_head));
+	size_t size;
+	in >> size;
+	m_links.resize(size);
+	in.read(reinterpret_cast<char *>(&m_links[0]), sizeof(Link) * m_links.size());
 }
 
 MYAI_END

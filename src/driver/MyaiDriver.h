@@ -10,28 +10,28 @@ MYAI_BEGIN
  */
 class MyaiDriver {
 public:
-  using ptr = std::shared_ptr<MyaiDriver>;
-  using DriverFactory = std::function<MyaiDriver::ptr(nodeid_t)>;
-  enum Type
-  {
-    DT_EMOTION,
-    DT_STRING,
-    DT_AUDIO,
-    DT_SCREEN_VIDEO,
-    DT_CAMERA_VIDEO,
-  };
+	using ptr = std::shared_ptr<MyaiDriver>;
+	using DriverFactory = std::function<MyaiDriver::ptr(nodeid_t)>;
+	enum Type
+	{
+		DT_EMOTION,
+		DT_STRING,
+		DT_AUDIO,
+		DT_SCREEN_VIDEO,
+		DT_CAMERA_VIDEO,
+	};
 
-  MyaiDriver(Type type, nodeid_t begin, size_t id_size);
-  virtual ~MyaiDriver() = default;
-  virtual void collect(LinkStream::ptr input) = 0;
-  virtual void control(LinkStream::ptr output) = 0;
+	MyaiDriver(Type type, nodeid_t begin, size_t id_size);
+	virtual ~MyaiDriver() = default;
+	virtual void collect(LinkStream::ptr input) = 0;
+	virtual void control(LinkStream::ptr output) = 0;
 
-  static std::map<MyaiDriver::Type, DriverFactory> S_FACTORIES;
+	static std::map<MyaiDriver::Type, DriverFactory> S_FACTORIES;
 
 protected:
-  Type m_type;
-  nodeid_t m_begin;
-  size_t m_id_size;
+	Type m_type;
+	nodeid_t m_begin;
+	size_t m_id_size;
 };
 
 MYAI_END

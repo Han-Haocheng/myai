@@ -2,9 +2,9 @@
 #include <mylib_core/core.h>
 
 
-#define MYAI_BEGIN \
-  namespace myai { \
-  using namespace MYLIB_SPACE;
+#define MYAI_BEGIN   \
+	namespace myai { \
+	using namespace MYLIB_SPACE;
 #define MYAI_END }
 
 MYAI_BEGIN

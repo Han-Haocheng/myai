@@ -1,6 +1,6 @@
 ﻿# 定义一个函数来初始化模块
 function(initialize_module MODEL_NAME MODEL_TYPE)
-    message(STATUS "${MODEL_NAME} initializing.....")
+    message(STATUS "=================\n${MODEL_NAME} initializing.....")
 
     file(GLOB_RECURSE MODEL_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
     file(GLOB_RECURSE MODEL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
@@ -25,11 +25,11 @@ function(initialize_module MODEL_NAME MODEL_TYPE)
     elseif (${MODEL_TYPE} STREQUAL dll)
         add_library(${MODEL_NAME} SHARED ${MODEL_SOURCES})
     else ()
-        message(WARNING "MODEL_TYPE:${MODEL_TYPE} is unknown.MODEL_TYPE must be one of in <lib>, <exe> , <dll>")
+        message(WARNING "MODEL_TYPE:${MODEL_TYPE} is unknown.MODEL_TYPE must be one of in `lib`, <exe> , <dll>")
     endif ()
 
     install(FILES ${MODEL_HEADERS} DESTINATION include/${MODEL_NAME})
     set(PROJECT_MODEL_LIST ${PROJECT_MODEL_LIST} ${MODEL_NAME} CACHE INTERNAL "model list" FORCE)
 
-    message(STATUS "[${MODEL_NAME}] initialized.")
+    message(STATUS "[${MODEL_NAME}] initialized.\n=================")
 endfunction()

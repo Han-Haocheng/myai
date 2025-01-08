@@ -6,18 +6,18 @@ MYAI_BEGIN
 
 class MyaiDriverManager {
 public:
-  using ptr = std::shared_ptr<MyaiDriverManager>;
+	using ptr = std::shared_ptr<MyaiDriverManager>;
 
-  bool loadConfig();
-  bool saveConfig();
+	bool loadConfig();
+	bool saveConfig();
 
-  MyaiDriver::ptr addDriver(IdAllocator idalloc, MyaiDriver::Type ty);
+	MyaiDriver::ptr addDriver(IdAllocator idalloc, MyaiDriver::Type ty);
 
-  void cellect(LinkStream::ptr input);
-  void control(LinkStream::ptr output);
+	void cellect(LinkStream::ptr input);
+	void control(LinkStream::ptr output);
 
 private:
-  std::vector<MyaiDriver::ptr> m_drivers;
+	std::vector<MyaiDriver::ptr> m_drivers;
 };
 
 MYAI_END

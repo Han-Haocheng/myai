@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 
 #file(TO_CMAKE_PATH "$ENV{VCPKG_ROOT}" VCPKG_ROOT)
-set(CMAKE_TOOLCHAIN_FILE "F:/lib_vcpkg/scripts/buildsystems/vcpkg.cmake")
-message(STATUS "CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}\\scripts\\buildsystems\\vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+message(STATUS ">>>> CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
+
+set(CMAKE_BUILD_TYPE Debug)
 
 set(myai_VERSION 0.2.0.20241126)
 project(myai VERSION ${myai_VERSION})

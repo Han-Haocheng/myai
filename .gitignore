@@ -12,3 +12,5 @@ myai.sln
 /.vs
 /.idea/
 /src/myai.vcxproj.user
+.vscode/settings.json
+myai.code-workspace
