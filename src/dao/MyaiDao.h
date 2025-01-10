@@ -19,6 +19,7 @@ private:
 	String aniseya_path(nodeid_t id);
 private:
 	MyaiFileIO::ptr m_file_io;
+	
 };
 
 MYAI_END
