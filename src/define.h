@@ -1,5 +1,5 @@
 #pragma once
-#include <mylib_core/core.h>
+#include <mylib/core.h>
 
 
 #define MYAI_BEGIN   \

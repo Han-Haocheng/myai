@@ -30,9 +30,13 @@ set(MODEL_NAME myai)
 
 initialize_module(${MODEL_NAME} exe)
 
+<<<<<<< HEAD
 target_link_libraries(${MODEL_NAME} mylib::mylib_core)
 <<<<<<< HEAD
 >>>>>>> f215332 (2025-1-1)
 =======
+=======
+target_link_libraries(${MODEL_NAME} mylib)
+>>>>>>> 49ee28b (2025-1-18 11:38:08)
 
 >>>>>>> b5b5b2a (2025-1-8 09:18:02)

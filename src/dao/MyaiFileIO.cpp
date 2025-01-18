@@ -21,7 +21,6 @@ void MyaiFileIO::open(std::string path) {
 	if (!m_fs.is_open()) MYLIB_THROW("file error: file open failed.");
 	
 	// read init
-
 	read_head();
 	read_index(m_head);
 }
@@ -49,12 +48,11 @@ bool MyaiFileIO::read(Node::ptr node) {
 	return true;
 }
 
-bool MyaiFileIO::write(Node::ptr node) {
+bool MyaiFileIO::write(const Node::ptr &node) {
 	if (!m_fs.is_open()) MYLIB_THROW("file error:file is not open");
 	if (!node) MYLIB_THROW("avg error:avg is nullptr");
 
-
-	auto g_rt = get_node_pos(node->id());
+	const auto g_rt = get_node_pos(node->id());
 
 	if (g_rt == Node::NULL_ID) {
 		MYLIB_ASSERT(m_index.size() < m_head.max_node_num, "avg error: index is full");
@@ -78,7 +76,6 @@ void MyaiFileIO::read_head() noexcept {
 	m_fs.seekg(0);
 	char magic_head[8];
 	m_fs.read(reinterpret_cast<byte_t *>(&magic_head), sizeof(magic_head));
-
 	if (std::string(magic_head) == MyaiFileIO::MAGIC_HEAD) {
 		m_fs.read(reinterpret_cast<byte_t *>(&m_head), m_head.head_size);
 	} else {
@@ -135,7 +132,6 @@ bool MyaiFileIO::check_path_is_equal(String other) const noexcept {
     } else {
         std::cout << "The paths are not equivalent." << std::endl;
     }
-
 #endif // DEBUG
 	return strcmp(fullpath[0], fullpath[1]) == 0;
 }

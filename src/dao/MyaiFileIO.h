@@ -30,13 +30,6 @@ public:
 		size_t index_num	= 0;
 	};
 
-	struct NodeHead {
-		weight_t bias;
-		size_t size;
-		size_t begin;
-	};
-
-
 	MyaiFileIO(size_t node_max_num = DEF_MAX_NODE_NUM);
 
 	inline const FileIndex &index() const { return m_index; }
@@ -47,7 +40,7 @@ public:
 	void close();
 
 	bool read(Node::ptr node);
-	bool write(Node::ptr node);
+	bool write(const Node::ptr &node);
 
 	int eraseId(nodeid_t id){
 		return m_index.erase(id);
