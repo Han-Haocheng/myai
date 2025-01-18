@@ -26,7 +26,7 @@ find_package(jsoncpp CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 include_directories(${YAML_CPP_INCLUDE_DIR})
 
-set(mylib_ROOT "F:\\c++\\mylib\\out")
+set(mylib_ROOT "F:\\c++\\mylib\\out\\${CMAKE_BUILD_TYPE}")
 find_package(mylib REQUIRED)
 message(STATUS ">>mylib_INCLUDE_DIRS：${mylib_INCLUDE_DIRS}")
 message(STATUS ">>mylib_LIBRARYS：${mylib_LIBRARIES}")

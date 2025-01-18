@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../dao/LinkStream.h"
+#include "../entity/Emotion.h"
+
 #include <functional>
 
 MYAI_BEGIN
@@ -10,10 +12,9 @@ MYAI_BEGIN
  */
 class MyaiDriver {
 public:
-	using ptr = std::shared_ptr<MyaiDriver>;
+	using ptr			= std::shared_ptr<MyaiDriver>;
 	using DriverFactory = std::function<MyaiDriver::ptr(nodeid_t)>;
-	enum Type
-	{
+	enum Type {
 		DT_EMOTION,
 		DT_STRING,
 		DT_AUDIO,
@@ -22,16 +23,20 @@ public:
 	};
 
 	MyaiDriver(Type type, nodeid_t begin, size_t id_size);
-	virtual ~MyaiDriver() = default;
-	virtual void collect(LinkStream::ptr input) = 0;
-	virtual void control(LinkStream::ptr output) = 0;
+	LinkList &&operator<<(const ptr &md) const { return md->collect(); }
+	void operator>>(LinkList &input) { return control(input); }
 
-	static std::map<MyaiDriver::Type, DriverFactory> S_FACTORIES;
+	virtual ~MyaiDriver()				   = default;
+	virtual LinkList &&collect()		   = 0;
+	virtual void control(LinkList &output) = 0;
+
+	static std::map<Type, DriverFactory> S_FACTORIES;
 
 protected:
 	Type m_type;
 	nodeid_t m_begin;
 	size_t m_id_size;
+	Emotion::ptr m_emo;
 };
 
 MYAI_END

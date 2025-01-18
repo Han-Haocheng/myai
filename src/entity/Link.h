@@ -1,55 +1,77 @@
-#pragma once
+#ifndef MYLIB_ENTITY_LINK_H
+#define MYLIB_ENTITY_LINK_H
+
 #include "../define.h"
+#include <functional>
+
 
 MYAI_BEGIN
+
 /**
  * @brief 用于保存链接
  */
-union Link
-{
-	constexpr static const nodeid_t NULL_ID = 0ULL;
+union Link {
+	constexpr static const nodeid_t NULL_ID		= 0ULL;
 	constexpr static const weight_t NULL_WEIGHT = 0.0;
+	using pair_t								= std::pair<nodeid_t, weight_t>;
 	struct {
 		nodeid_t id;
 		weight_t weight;
 	};
 
-	std::pair<nodeid_t, weight_t> pair;
+	pair_t pair;
 
-	explicit Link(nodeid_t i = NULL_ID, weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
+	explicit Link(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
 	explicit Link(const std::pair<const nodeid_t, weight_t> &p) : pair(p) {}
-	Link(Link &&) = default;
+	Link(Link &&)	   = default;
 	Link(const Link &) = default;
-	~Link() = default;
+	~Link()			   = default;
 
-	Link &operator=(Link &&rhs);
+	Link &operator=(Link &&rhs) noexcept;
 	Link &operator=(const Link &rhs);
 };
 
-class LinkList {
+class LinkList : std::map<nodeid_t, weight_t> {
+	using super = std::map<nodeid_t, weight_t>;
+
 public:
 	using ptr = std::shared_ptr<LinkList>;
+	using std::map<nodeid_t, weight_t>::begin;
+	using std::map<nodeid_t, weight_t>::end;
+	using std::map<nodeid_t, weight_t>::size;
 
-	LinkList() {}
-	~LinkList() {}
+	LinkList()									 = default;
+	~LinkList()									 = default;
+	LinkList(LinkList &&)						 = default;
+	LinkList(const LinkList &)					 = default;
+	LinkList &operator=(LinkList &&rhs) noexcept = default;
+	LinkList &operator=(const LinkList &rhs)	 = default;
 
-	Link &push(Link &&e);
-	Link &push(const Link &e);
+	LinkList &operator<<(LinkList &&ll) {
+		merge(std::move(ll));
+		return *this;
+	}
 
-	inline auto clear() { m_datas.clear(); }
+	LinkList &operator<<(const LinkList &ll) {
+		this->insert(ll.begin(), ll.end());
+		return *this;
+	}
 
-	inline auto begin() { return m_datas.begin(); }
-	inline auto end() { return m_datas.end(); }
-	inline auto cbegin() { return m_datas.cbegin(); }
-	inline auto cend() { return m_datas.cend(); }
+	size_t eraseByLessStand(weight_t w);
 
-	size_t eraseLessStand(weight_t w);
+	void downWeight(weight_t w);
+	void upWeight(weight_t w);
+	weight_t averageWeight() const;
+
+
+	iterator emplace(const nodeid_t &key, const weight_t &mapped);
+
+	//void insert(LinkList &&ll);
+	//void insert(const LinkList &ll);
 
 private:
-	std::vector<Link>::iterator binary_search(weight_t e);
-
-private:
-	std::vector<Link> m_datas;
 };
 
 MYAI_END
+
+#endif// !MYLIB_ENTITY_LINK_H
