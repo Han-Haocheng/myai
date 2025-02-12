@@ -3,7 +3,10 @@
 #define MYAI_EDGE_H_
 
 #include "define.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> cf44269 (2025年2月23日 16:12:23)
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -11,6 +14,7 @@ MYAI_BEGIN
 /**
  * @brief 用于保存链接
  */
+<<<<<<< HEAD
 struct Edge {
 	constexpr static const nodeid_t NULL_ID		= 0ULL;
 	constexpr static const weight_t NULL_WEIGHT = 0.0;
@@ -19,6 +23,21 @@ struct Edge {
 	weight_t weight;
 
 	explicit Edge(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
+=======
+union Edge {
+	constexpr static const nodeid_t NULL_ID		= 0ULL;
+	constexpr static const weight_t NULL_WEIGHT = 0.0;
+	using pair_t								= std::pair<nodeid_t, weight_t>;
+	struct {
+		nodeid_t id;
+		weight_t weight;
+	};
+
+	pair_t pair;
+
+	explicit Edge(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
+	explicit Edge(const std::pair<const nodeid_t, weight_t> &p) : pair(p) {}
+>>>>>>> cf44269 (2025年2月23日 16:12:23)
 	Edge(Edge &&)	   = default;
 	Edge(const Edge &) = default;
 	~Edge()			   = default;
@@ -60,7 +79,10 @@ public:
 	iterator find(const nodeid_t &key);
 	void insert(EdgeList::const_iterator first, EdgeList::const_iterator last);
 	void insert(const EdgeList &list);
+<<<<<<< HEAD
 	void insert(EdgeList::ptr list) { insert(list->begin(), list->end()); }
+=======
+>>>>>>> cf44269 (2025年2月23日 16:12:23)
 
 private:
 	container m_map;

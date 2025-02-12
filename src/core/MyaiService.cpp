@@ -1,10 +1,15 @@
 #include "MyaiService.h"
 
+<<<<<<< HEAD
 
 MYAI_BEGIN
 
 
 
+=======
+MYAI_BEGIN
+
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 MyaiNode::ptr MyaiService::createNode(weight_t bias) {
 
 	MyaiNode::ptr node = std::make_shared<MyaiNode>(m_alloc->allocate(), bias, MyaiNode::NDS_CREATE);
@@ -14,8 +19,13 @@ MyaiNode::ptr MyaiService::createNode(weight_t bias) {
 }
 
 bool MyaiService::removeNodeById(nodeid_t _id) {
+<<<<<<< HEAD
 	const nodeid_t &id		 = _id;
 	const auto fd_rt		 = m_updata_nodes.find(id);
+=======
+	const nodeid_t &id	 = _id;
+	const auto fd_rt	 = m_updata_nodes.find(id);
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	const MyaiNode::ptr node = fd_rt != m_updata_nodes.end() ? fd_rt->second : m_dao->selectById(id);
 
 	if (node == nullptr) return false;
@@ -26,6 +36,7 @@ bool MyaiService::removeNodeById(nodeid_t _id) {
 	return true;
 }
 
+<<<<<<< HEAD
 MyaiNode::ptr MyaiService::getNodeById(nodeid_t id) {
 	auto fd_rt = m_updata_nodes.find(id);
 	if (fd_rt != m_updata_nodes.end()) {
@@ -57,3 +68,6 @@ void MyaiService::linkNode(MyaiNode::ptr node, EdgeList::ptr links) {
 }
 
 MYAI_END
+=======
+MYAI_END
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)

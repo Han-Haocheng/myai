@@ -3,28 +3,44 @@
 #ifdef MYLIB_WINDOWS
 #include <windows.h>
 #elif MYLIB_LINUX
+<<<<<<< HEAD
 #include <limits.h>
 #include <stdlib.h>
 
+=======
+#include <stdlib.h>
+#include <limits.h>
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 #endif
 
 MYAI_BEGIN
 
+<<<<<<< HEAD
 MyaiFileIO::MyaiFileIO(size_t node_max_num)
 	: m_node_max_num(node_max_num) {
 }
 
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 void MyaiFileIO::open(std::string path) {
 	// check path
 	if (check_path_is_equal(path)) return;
 
 	// open init
 	m_current_path = path;
+<<<<<<< HEAD
 
 	if (m_fs.is_open()) close();
 	m_fs.open(m_current_path, std::ios::in | std::ios::out | std::ios::binary);
 	if (!m_fs.is_open()) MYLIB_THROW("file error: file open failed.");
 
+=======
+	
+	if (m_fs.is_open()) close();
+	m_fs.open(m_current_path, std::ios::in | std::ios::out | std::ios::binary);
+	if (!m_fs.is_open()) MYLIB_THROW("file error: file open failed.");
+	
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	// read init
 	read_head();
 	read_index(m_head);
@@ -124,6 +140,7 @@ void MyaiFileIO::write_node(MyaiNode::ptr node, std::streampos pos) noexcept {
 bool MyaiFileIO::check_path_is_equal(String other) const noexcept {
 #ifdef MYLIB_WINDOWS
 	char fullpath[2][MAX_PATH];
+<<<<<<< HEAD
 	GetFullPathName(other.c_str(), MAX_PATH, fullpath[0], NULL);
 	GetFullPathName(m_current_path.c_str(), MAX_PATH, fullpath[1], NULL);
 #elif MYLIB_LINUX
@@ -138,6 +155,22 @@ bool MyaiFileIO::check_path_is_equal(String other) const noexcept {
 		std::cout << "The paths are not equivalent." << std::endl;
 	}
 #endif// DEBUG
+=======
+    GetFullPathName(other.c_str(), MAX_PATH, fullpath[0], NULL);
+    GetFullPathName(m_current_path.c_str(), MAX_PATH, fullpath[1], NULL);
+#elif MYLIB_LINUX
+	char fullpath[2][PATH_MAX];
+
+    realpath(other.c_str(), fullpath[0]);
+    realpath(m_current_path.c_str(), fullpath[1]);
+
+    if (strcmp(fullpath1, fullpath2) == 0) {
+        std::cout << "The paths are equivalent." << std::endl;
+    } else {
+        std::cout << "The paths are not equivalent." << std::endl;
+    }
+#endif // DEBUG
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	return strcmp(fullpath[0], fullpath[1]) == 0;
 }
 

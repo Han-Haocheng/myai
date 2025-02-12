@@ -3,6 +3,8 @@
 //
 #include "MyaiController.h"
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 
 MYAI_BEGIN
 void myai::MyaiController::init() {
@@ -18,17 +20,32 @@ void MyaiController::run() {
 	while (m_reasoning_size < m_reasoning_max) {
 		reasoningCycle();
 		++m_reasoning_size;
+=======
+#include <thread>
+=======
+>>>>>>> cf44269 (2025年2月23日 16:12:23)
+
+MYAI_BEGIN
+
+void MyaiController::run() {
+	while (m_reasoning_size < m_reasoning_max) {
+		reasoningCycle();
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 		// 监视器
 	}
 
 	while (m_reasoning_size > 0) {
 		trainingCycle();
+<<<<<<< HEAD
 		--m_reasoning_size;
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 		// 监视器
 	}
 }
 
 void MyaiController::reasoningCycle() {
+<<<<<<< HEAD
 	EdgeList::ptr collect = std::make_shared<EdgeList>();
 	m_driver_manager->collect(collect);
 
@@ -56,6 +73,31 @@ void MyaiController::reasoningCycle() {
 	m_temp_nodes.emplace_back(TempInfo{temp_node, attach_weight, filter_weight});
 }
 void MyaiController::trainingCycle() {
+=======
+	++m_reasoning_size;
+	//collect handler cheese
+
+	const MyaiNode::ptr temp_node = m_service->createNode(m_focus);
+	EdgeList::ptr collect		  = std::make_shared<EdgeList>();
+	m_driver_manager->collect(collect);
+	try {
+		for (auto &[id, edge]: *collect) {
+			edge.weight = func(edge.weight) + m_status.emotion();
+			if (edge.weight < m_status.focus()) {
+				continue;
+			}
+			if (edge.id < DriverManager::MAX_CONTROL_NODE_ID) {
+				m_driver_manager->control(edge);
+				continue;
+			}
+			
+		}
+	} catch (std::out_of_range &e) {
+	}
+}
+void MyaiController::trainingCycle() {
+	--m_reasoning_size;
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 }
 
 MYAI_END

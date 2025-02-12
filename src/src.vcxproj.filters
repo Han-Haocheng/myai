@@ -51,9 +51,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/src.vcxproj.filters
 =======
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
     <ClCompile Include="core\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -81,6 +84,7 @@
     <ClCompile Include="driver\StatusDriver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD:src/src.vcxproj.filters
     <ClCompile Include="src\header\inout\interface.h">
@@ -131,4 +135,7 @@
 =======
   </ItemGroup>
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+  </ItemGroup>
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 </Project>

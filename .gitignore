@@ -36,6 +36,7 @@ myai.sln
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /.cache
 =======
 # Fortran module files
@@ -401,3 +402,6 @@ myai.code-workspace
 =======
 *.code-workspace
 >>>>>>> 37107ed (2025-1-8 13:15:30)
+=======
+/.cache
+>>>>>>> cf44269 (2025年2月23日 16:12:23)

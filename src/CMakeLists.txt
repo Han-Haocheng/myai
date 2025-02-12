@@ -28,8 +28,11 @@ aux_source_directory(. SRC_DIR)
 
 set(MODEL_NAME myai)
 
-initialize_module(${MODEL_NAME} exe)
+initialize_model(${MODEL_NAME} ".")
+add_executable(${MODEL_NAME} ${MODEL_SOURCES})
+install_model(${MODEL_NAME})
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 target_link_libraries(${MODEL_NAME} mylib::mylib_core)
 <<<<<<< HEAD
@@ -38,5 +41,8 @@ target_link_libraries(${MODEL_NAME} mylib::mylib_core)
 =======
 target_link_libraries(${MODEL_NAME} mylib)
 >>>>>>> 49ee28b (2025-1-18 11:38:08)
+=======
+target_link_libraries(${MODEL_NAME} mylib dbghelp yaml-cpp::yaml-cpp)
+>>>>>>> e675a70 (2025年2月12日 15:19:07)
 
 >>>>>>> b5b5b2a (2025-1-8 09:18:02)

@@ -1,4 +1,5 @@
 #include "DriverManager.h"
+<<<<<<< HEAD
 
 MYAI_BEGIN
 
@@ -19,3 +20,5 @@ void DriverManager::control(const Edge &output) {
 }
 
 MYAI_END
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)

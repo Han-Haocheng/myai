@@ -5,8 +5,12 @@
 
 MYAI_BEGIN
 
+<<<<<<< HEAD
 IdAllocator::IdAllocator(std::pair<nodeid_t, nodeid_t> alloc_range, nodeid_t allocated, std::vector<nodeid_t> debris)
 	: m_range(alloc_range), m_allocated(allocated), m_debris(debris) {
+=======
+IdAllocator::IdAllocator(std::pair<nodeid_t, nodeid_t> alloc_range, nodeid_t allocated, std::vector<nodeid_t> debris) : m_range(alloc_range), m_allocated(allocated), m_debris(debris) {
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 }
 
 
@@ -23,12 +27,15 @@ nodeid_t IdAllocator::allocate() {
 	return ++m_allocated;
 }
 
+<<<<<<< HEAD
 nodeid_t IdAllocator::allocate(size_t size) {
 	nodeid_t id = m_allocated;
 	m_allocated += size;
 	return id;
 }
 
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 bool IdAllocator::deallocate(nodeid_t id) {
 	if (id > m_range.second) {
 		return false;

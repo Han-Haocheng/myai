@@ -41,15 +41,21 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
 <<<<<<< HEAD
+<<<<<<< HEAD
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
 =======
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+<<<<<<< HEAD
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -111,6 +117,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/src.vcxproj
 =======
       <BrowseInformation>true</BrowseInformation>
@@ -118,6 +125,8 @@
 >>>>>>> 69004fd (v0.33):Think.vcxproj
 =======
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,11 +151,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/src.vcxproj
 <<<<<<< HEAD:src/src.vcxproj
 <<<<<<< HEAD:src/src.vcxproj
 =======
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
     <ClInclude Include="core\define.h" />
     <ClInclude Include="core\IdAllocator.h" />
     <ClInclude Include="core\MyaiController.h" />
@@ -160,10 +172,13 @@
   </ItemGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/src.vcxproj
 <<<<<<< HEAD:src/src.vcxproj
 =======
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
     <ClCompile Include="core\IdAllocator.cpp" />
     <ClCompile Include="core\main.cpp" />
     <ClCompile Include="core\MyaiController.cpp" />
@@ -174,6 +189,7 @@
     <ClCompile Include="driver\Driver.cpp" />
     <ClCompile Include="driver\DriverManager.cpp" />
     <ClCompile Include="driver\StatusDriver.cpp" />
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     <ClInclude Include="3_think_io.h" />
@@ -231,6 +247,9 @@
 =======
   </ItemGroup>
 >>>>>>> a3a28bf (2025年2月24日 20:19:05)
+=======
+  </ItemGroup>
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

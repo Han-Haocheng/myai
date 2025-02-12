@@ -3,6 +3,10 @@
 
 #include "IdAllocator.h"
 #include "MyaiDao.h"
+<<<<<<< HEAD
+=======
+
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -11,6 +15,7 @@ MYAI_BEGIN
  * @brief 提供节点的控制和操作功能
  */
 class MyaiService {
+<<<<<<< HEAD
 	friend class DriverManager;
 
 public:
@@ -21,6 +26,11 @@ public:
 	}
 
 
+=======
+public:
+	using ptr = std::shared_ptr<MyaiService>;
+
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	// 创建节点
 	MyaiNode::ptr createNode(weight_t bias);
 
@@ -30,6 +40,7 @@ public:
 	// 获取节点
 	MyaiNode::ptr getNodeById(nodeid_t id);
 
+<<<<<<< HEAD
 	bool activatedNode(EdgeList::ptr out, Edge edge);
 
 	void linkNode(nodeid_t id, Edge link);
@@ -39,6 +50,12 @@ private:
 	nodeid_t applyId(size_t size) {
 		return m_alloc->allocate(size);
 	}
+=======
+	// 修改节点
+
+	// 激活节点
+	bool activatedNode(EdgeList &out, MyaiNode::ptr node, weight_t input);
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 
 private:
 	std::unordered_map<nodeid_t, MyaiNode::ptr> m_updata_nodes;

@@ -3,6 +3,7 @@
 
 MYAI_BEGIN
 
+<<<<<<< HEAD
 void StatusDriver::collect_data() {
 	for (size_t i = 0, j = 0; i < __DT_END__; ++i) {
 		for (j = 0; j < __DT_END__; ++j) {
@@ -24,5 +25,7 @@ void StatusDriver::regeiste_controls() {
 	super::S_CONNECTIONS.emplace(m_begin + __DT_END__ + 1, [this](weight_t w) { m_negative = w; });
 	super::S_CONNECTIONS.emplace(m_begin + __DT_END__ + 2, [this](weight_t w) { m_filter = w; });
 }
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 
 MYAI_END

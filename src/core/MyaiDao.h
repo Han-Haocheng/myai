@@ -9,21 +9,33 @@ class MyaiDao {
 public:
 	using ptr = std::shared_ptr<MyaiDao>;
 
+<<<<<<< HEAD
 	MyaiDao(String data_path)
 		: m_data_path(data_path),
 		  m_file_io(std::make_shared<MyaiFileIO>()) {}
+=======
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	int insert(MyaiNode::ptr node);
 	int updata(MyaiNode::ptr node);
 	int deleteById(nodeid_t id);
 	MyaiNode::ptr selectById(nodeid_t id);
 
 private:
+<<<<<<< HEAD
 	String analyze_path(nodeid_t id) {
 		return m_data_path + "/" + std::to_string(id) + ".node";
 	}
 
 private:
 	String m_data_path;
+=======
+	bool check_node_legality(MyaiNode::ptr node);
+	String aniseya_path(nodeid_t id){
+		return "";
+	}
+
+private:
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	MyaiFileIO::ptr m_file_io;
 };
 

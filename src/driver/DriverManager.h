@@ -3,6 +3,7 @@
 
 
 #include "Driver.h"
+<<<<<<< HEAD
 #include "MemoryDriver.h"
 #include "StatusDriver.h"
 
@@ -14,11 +15,17 @@ MYAI_BEGIN
 struct DriverConfig {
 };
 
+=======
+
+MYAI_BEGIN
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 
 class DriverManager {
 public:
 	using ptr = std::shared_ptr<DriverManager>;
 	// using Motive = void(const Edge &);
+<<<<<<< HEAD
+<<<<<<< HEAD
 	static constexpr nodeid_t MAX_CONTROL_NODE_ID = 0x1000'0000;
 
 	DriverManager(MyaiService::ptr ser) : m_service(ser) {}
@@ -57,6 +64,34 @@ private:
 	MyaiService::ptr m_service;
 	StatusDriver::ptr m_status;
 	MemoryDriver::ptr m_memory;
+=======
+
+	bool loadConfig();
+	bool saveConfig();
+=======
+	static constexpr nodeid_t MAX_CONTROL_NODE_ID = 0x1000'0000;
+>>>>>>> cf44269 (2025年2月23日 16:12:23)
+
+	MyaiDriver::ptr addDriver(MyaiDriver::ptr driver) {
+		m_drivers.push_back(driver);
+		return driver;
+	}
+
+	void collect(EdgeList::ptr out) {
+		for (auto &var: m_drivers) {
+			auto temp = var->collect();
+			out->insert(temp->begin(), temp->end());
+		}
+	}
+
+	/// @brief 控制
+	/// @param output 对外输出数据
+	void control(const Edge &output) {
+		MyaiDriver::S_CONNECTIONS.at(output.id)(output.weight);
+	}
+
+private:
+>>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 	std::vector<MyaiDriver::ptr> m_drivers;
 };
 
