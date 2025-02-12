@@ -39,6 +39,7 @@ protected:
 	Emotion::ptr m_emo;
 };
 
+
 MYAI_END
 
 MYAI_BEGIN

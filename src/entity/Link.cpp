@@ -77,4 +77,5 @@ LinkList::iterator LinkList::emplace(const nodeid_t &key, const weight_t &mapped
 #endif
 }
 
+
 MYAI_END

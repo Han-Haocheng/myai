@@ -8,17 +8,25 @@
 
 MYAI_BEGIN
 void Node::serialize(std::ostream &out) const {
-	out.write(reinterpret_cast<const char *>(&m_head), sizeof(m_head));
+	out << m_id << m_bias << m_state;
 	out << m_links.size();
-	out.write(reinterpret_cast<const char *>(&m_links[0]), sizeof(Link) * MAX_LINK_NUMS);
+	for (const auto &[id, weight]: m_links) {
+		out << id << weight;
+	}
 }
 
 void Node::deserialize(std::istream &in) {
-	in.read(reinterpret_cast<char *>(&m_head), sizeof(m_head));
+	in >> m_id;
+	in >> m_bias;
+	in >> *reinterpret_cast<enum_size *>(&m_state);
 	size_t size;
 	in >> size;
-	m_links.resize(size);
-	in.read(reinterpret_cast<char *>(&m_links[0]), sizeof(Link) * m_links.size());
+	weight_t w;
+	nodeid_t id;
+	for (size_t i = 0; i < size; ++i) {
+		in >> id >> w;
+		m_links.emplace(id, w);
+	}
 }
 
 MYAI_END

@@ -10,12 +10,6 @@
 
 MYAI_BEGIN
 
-class ISerialize {
-public:
-	virtual ~ISerialize()							= default;
-	virtual void serialize(std::ostream &out) const = 0;
-	virtual void deserialize(std::istream &in)		= 0;
-};
 
 /**
  * @brief 用于保存节点
@@ -31,8 +25,8 @@ public:
 
 	using const_ptr								= std::shared_ptr<const Node>;
 	using ptr									= std::shared_ptr<Node>;
-
-	enum State {
+	using enum_size								= uint32;
+	enum State : enum_size {
 		NDS_UNDEFINED,// 未定义
 		NDS_CREATE,	  // 创建：未分配id
 		NDS_FILL,	  // 填充数据：只有基础属性，没有链接属性
@@ -44,22 +38,22 @@ public:
 		NDS_DESTROY,  // 销毁：id被释放
 	};
 
-	Node();
+	Node() = default;
 	Node(nodeid_t id, weight_t bias, State state) : m_id(id), m_bias(bias), m_state(state) {}
 	Node(nodeid_t id, weight_t bias, State state, LinkList &links) : m_id(id), m_bias(bias), m_state(state), m_links(links) {}
 	~Node() override = default;
 
-	[[nodiscard]]  auto bias() const { return m_bias; }
-	[[nodiscard]]  auto id() const { return m_id; }
-	[[nodiscard]]  auto state() const { return m_state; }
-	[[nodiscard]]  const auto &links() const { return m_links; }
+	[[nodiscard]] auto bias() const { return m_bias; }
+	[[nodiscard]] auto id() const { return m_id; }
+	[[nodiscard]] auto state() const { return m_state; }
+	[[nodiscard]] const auto &links() const { return m_links; }
 
-	 auto &links() { return m_links; }
-	 auto &buffer() { return m_buffer; }
+	auto &links() { return m_links; }
+	auto &buffer() { return m_buffer; }
 
 	void serialize(std::ostream &out) const override;
 	void deserialize(std::istream &in) override;
-	
+
 private:
 	nodeid_t m_id;
 	weight_t m_bias;

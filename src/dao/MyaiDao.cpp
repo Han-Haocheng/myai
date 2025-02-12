@@ -44,7 +44,7 @@ Node::ptr MyaiDao::selectById(nodeid_t id) {
 	String path = aniseya_path(id);
 	m_file_io->open(path);
 
-	Node::ptr res = std::make_shared<Node>(id);
+	Node::ptr res = std::make_shared<Node>();
 	if (m_file_io->read(res)){
 		return res;
 	}

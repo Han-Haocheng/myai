@@ -15,8 +15,12 @@ public:
 	Node::ptr selectById(nodeid_t id);
 
 private:
-	bool check_node_legality(Node::ptr node);
-	String aniseya_path(nodeid_t id);
+	bool check_node_legality(Node::ptr node){
+		return false;
+	}
+	String aniseya_path(nodeid_t id){
+		return "";
+	}
 private:
 	MyaiFileIO::ptr m_file_io;
 	

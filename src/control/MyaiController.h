@@ -9,7 +9,7 @@
 #include "../driver/MyaiDriverManager.h"
 #include "../entity/Emotion.h"
 
-#include <mylib/Configurator.h>
+#include <mylib/config/ConfigManager.h>
 
 
 MYAI_BEGIN
@@ -45,7 +45,7 @@ private:
 	size_t m_reasoning_max;
 	Status m_status;
 
-	Configurator::ptr m_myai_config;
+	ConfigManager::ptr m_myai_config;
 
 	Emotion::ptr m_emo;
 	NodeService::ptr m_service;

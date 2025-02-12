@@ -3,6 +3,7 @@
 
 #include "../define.h"
 #include <functional>
+#include <map>
 
 
 MYAI_BEGIN
@@ -30,6 +31,7 @@ union Link {
 	Link &operator=(Link &&rhs) noexcept;
 	Link &operator=(const Link &rhs);
 };
+
 
 class LinkList : std::map<nodeid_t, weight_t> {
 	using super = std::map<nodeid_t, weight_t>;
@@ -66,8 +68,10 @@ public:
 
 	iterator emplace(const nodeid_t &key, const weight_t &mapped);
 
+
 	//void insert(LinkList &&ll);
 	//void insert(const LinkList &ll);
+
 
 private:
 };

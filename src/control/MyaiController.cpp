@@ -17,7 +17,7 @@ MyaiController::~MyaiController() {
 }
 
 
-[[noreturn]] void MyaiController::run() {
+void MyaiController::run() {
 	m_status = NCS_RUNNING;
 
 	while (m_reasoning_size < m_reasoning_max) {
@@ -36,8 +36,8 @@ void MyaiController::reasoningCycle() {
 	//collect handler cheese
 
 	const Node::ptr temp_node = m_service->createNode(0.0);
-	temp_node->buffer() << m_driver_manager->collect();
-	m_driver_manager->control(temp_node->buffer());
+	// temp_node->buffer() << m_driver_manager->collect();
+	// m_driver_manager->control(temp_node->buffer());
 }
 void MyaiController::trainingCycle() {
 	--m_reasoning_size;
