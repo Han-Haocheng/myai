@@ -60,6 +60,7 @@ public:
 	iterator find(const nodeid_t &key);
 	void insert(EdgeList::const_iterator first, EdgeList::const_iterator last);
 	void insert(const EdgeList &list);
+	void insert(EdgeList::ptr list) { insert(list->begin(), list->end()); }
 
 private:
 	container m_map;

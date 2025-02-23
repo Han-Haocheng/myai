@@ -1,0 +1,39 @@
+{
+	"configurations": [
+		{
+			"type": "command",
+			"name": "config",
+			"program": "cmake",
+			"args": [
+				"-DCMAKE_BUILD_TYPE:STRING=Debug",
+				"-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE",
+				"-DCMAKE_C_COMPILER:FILEPATH=E:\\Programming\\mingw64\\bin\\gcc.exe",
+				"-DCMAKE_CXX_COMPILER:FILEPATH=E:\\Programming\\mingw64\\bin\\g++.exe",
+				"--no-warn-unused-cli",
+				"-S$PROJECT_DIR$",
+				"-B$PROJECT_DIR$/build",
+				"-G",
+				"MinGW Makefiles"
+			],
+		},
+		{
+			"type": "command",
+			"name": "build",
+			"program": "cmake",
+			"args": [
+				"--build",
+				"$PROJECT_DIR$/build",
+				"--config",
+				"Debug",
+				"-j",
+				"10",
+				"--"
+			]
+		},
+		{
+			"type": "command",
+			"name": "Run-tests",
+			"program": "$PROJECT_DIR$/build/tests/mylib_tests.exe",
+		},
+	]
+}

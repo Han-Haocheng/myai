@@ -1,12 +1,12 @@
 #ifndef MYAI_NODE_H_
 #define MYAI_NODE_H_
 
-#include "define.h"
 #include "Edge.h"
+#include "define.h"
+#include <functional>
 
 
 MYAI_BEGIN
-
 
 
 /**
@@ -51,6 +51,15 @@ public:
 
 	void serialize(std::ostream &out) const override;
 	void deserialize(std::istream &in) override;
+
+	void for_each(const std::function<void(Edge &)> &cb) {
+		for (auto &link: m_links) {
+			cb(link.second);
+		}
+		for (auto &link: m_buffer) {
+			cb(link.second);
+		}
+	}
 
 private:
 	nodeid_t m_id;

@@ -3,7 +3,6 @@
 
 #include "IdAllocator.h"
 #include "MyaiDao.h"
-
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -23,8 +22,6 @@ public:
 
 	// 获取节点
 	MyaiNode::ptr getNodeById(nodeid_t id);
-
-	// 修改节点
 
 	// 激活节点
 	bool activatedNode(EdgeList::ptr out, Edge edge);
