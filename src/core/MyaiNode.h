@@ -2,13 +2,18 @@
 #define MYAI_NODE_H_
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "Edge.h"
 #include "define.h"
 #include <functional>
 
 =======
 #include "define.h"
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 #include "Edge.h"
+#include "define.h"
+#include <functional>
 
 <<<<<<< HEAD
 #include <array>
@@ -22,6 +27,7 @@
 MYAI_BEGIN
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /**
 <<<<<<< HEAD
@@ -87,6 +93,8 @@ private:
 =======
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
 
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 /**
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
  * @brief 用于保存节点
@@ -132,6 +140,9 @@ public:
 	void deserialize(std::istream &in) override;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 	void for_each(const std::function<void(Edge &)> &cb) {
 		for (auto &link: m_links) {
 			cb(link.second);
@@ -141,8 +152,11 @@ public:
 		}
 	}
 
+<<<<<<< HEAD
 =======
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 private:
 	nodeid_t m_id;
 	weight_t m_bias;

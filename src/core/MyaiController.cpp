@@ -107,7 +107,7 @@ void MyaiController::trainingCycle() {
 		m_service->linkNode(edge.id, Edge{temp_node->id(), edge.weight});
 	}
 
-	m_temp_nodes.emplace_back(temp_node, m_driver_manager->negative() + m_driver_manager->positive());
+	m_temp_nodes.emplace_back(TempInfo{temp_node, m_driver_manager->negative() + m_driver_manager->positive()});
 }
 void MyaiController::trainingCycle() {
 <<<<<<< HEAD

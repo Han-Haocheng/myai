@@ -87,9 +87,13 @@ public:
 	void insert(EdgeList::const_iterator first, EdgeList::const_iterator last);
 	void insert(const EdgeList &list);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	void insert(EdgeList::ptr list) { insert(list->begin(), list->end()); }
 =======
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
+=======
+	void insert(EdgeList::ptr list) { insert(list->begin(), list->end()); }
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 
 private:
 	container m_map;

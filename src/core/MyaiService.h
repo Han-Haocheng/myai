@@ -4,9 +4,12 @@
 #include "IdAllocator.h"
 #include "MyaiDao.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -41,6 +44,10 @@ public:
 	MyaiNode::ptr getNodeById(nodeid_t id);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	// 激活节点
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 	bool activatedNode(EdgeList::ptr out, Edge edge);
 
 	void linkNode(nodeid_t id, Edge link);

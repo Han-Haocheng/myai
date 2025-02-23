@@ -20,12 +20,17 @@ MyaiNode::ptr MyaiService::createNode(weight_t bias) {
 
 bool MyaiService::removeNodeById(nodeid_t _id) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	const nodeid_t &id		 = _id;
 	const auto fd_rt		 = m_updata_nodes.find(id);
 =======
 	const nodeid_t &id	 = _id;
 	const auto fd_rt	 = m_updata_nodes.find(id);
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+	const nodeid_t &id		 = _id;
+	const auto fd_rt		 = m_updata_nodes.find(id);
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 	const MyaiNode::ptr node = fd_rt != m_updata_nodes.end() ? fd_rt->second : m_dao->selectById(id);
 
 	if (node == nullptr) return false;
@@ -37,6 +42,9 @@ bool MyaiService::removeNodeById(nodeid_t _id) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
 MyaiNode::ptr MyaiService::getNodeById(nodeid_t id) {
 	auto fd_rt = m_updata_nodes.find(id);
 	if (fd_rt != m_updata_nodes.end()) {
@@ -68,6 +76,9 @@ void MyaiService::linkNode(MyaiNode::ptr node, EdgeList::ptr links) {
 }
 
 MYAI_END
+<<<<<<< HEAD
 =======
 MYAI_END
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+>>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
