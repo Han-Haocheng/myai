@@ -1,10 +1,12 @@
 #ifndef MYAI_DAO_MYAIFILEIO_H
 #define MYAI_DAO_MYAIFILEIO_H
 
-#include "../define.h"
-#include "../entity/Node.h"
+#include "MyaiNode.h"
+#include "define.h"
 
 #include <fstream>
+#include <map>
+
 
 MYAI_BEGIN
 
@@ -39,10 +41,10 @@ public:
 	void open(std::string path);
 	void close();
 
-	bool read(Node::ptr node);
-	bool write(const Node::ptr &node);
+	bool read(MyaiNode::ptr node);
+	bool write(const MyaiNode::ptr &node);
 
-	int eraseId(nodeid_t id){
+	int eraseId(nodeid_t id) {
 		return m_index.erase(id);
 	}
 
@@ -53,16 +55,17 @@ private:
 	void write_head() noexcept;
 	void read_index(const FileHead &head) noexcept;
 	void write_index(FileHead &head) noexcept;
-	void read_node(Node::ptr node, std::streampos pos) noexcept;
-	void write_node(Node::ptr node, std::streampos pos) noexcept;
+	void read_node(MyaiNode::ptr node, std::streampos pos) noexcept;
+	void write_node(MyaiNode::ptr node, std::streampos pos) noexcept;
 
-	bool check_path_is_equal(String other ) const noexcept;
+	bool check_path_is_equal(String other) const noexcept;
+
 private:
 	const size_t m_node_max_num;// 最大节点数量
-	String m_current_path; // 当前文件路径
-	FileHead m_head; // 文件头
-	FileIndex m_index; // 节点索引
-	std::fstream m_fs; // 文件流
+	String m_current_path;		// 当前文件路径
+	FileHead m_head;			// 文件头
+	FileIndex m_index;			// 节点索引
+	std::fstream m_fs;			// 文件流
 };
 
 MYAI_END

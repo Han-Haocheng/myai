@@ -2,8 +2,8 @@
 
 MYAI_BEGIN
 
-int MyaiDao::insert(Node::ptr node) {
-	if (!node || !node->id() == Node::NULL_ID) {
+int MyaiDao::insert(MyaiNode::ptr node) {
+	if (!node || !node->id() == MyaiNode::NULL_ID) {
 		MYLIB_THROW("avg error: node is null or id is null");
 	}
 
@@ -14,8 +14,8 @@ int MyaiDao::insert(Node::ptr node) {
 	return 0;
 }
 
-int MyaiDao::updata(Node::ptr node) {
-	if (!node || !node->id() == Node::NULL_ID) {
+int MyaiDao::updata(MyaiNode::ptr node) {
+	if (!node || !node->id() == MyaiNode::NULL_ID) {
 		MYLIB_THROW("avg error: node is null or id is null");
 	}
 
@@ -27,7 +27,7 @@ int MyaiDao::updata(Node::ptr node) {
 }
 
 int MyaiDao::deleteById(nodeid_t id) {
-	if (id == Node::NULL_ID) {
+	if (id == MyaiNode::NULL_ID) {
 		MYLIB_THROW("avg error:  id is null");
 	}
 
@@ -36,15 +36,15 @@ int MyaiDao::deleteById(nodeid_t id) {
 	return m_file_io->eraseId(id);
 }
 
-Node::ptr MyaiDao::selectById(nodeid_t id) {
-	if (id == Node::NULL_ID) {
+MyaiNode::ptr MyaiDao::selectById(nodeid_t id) {
+	if (id == MyaiNode::NULL_ID) {
 		MYLIB_THROW("avg error:  id is null");
 	}
 
 	String path = aniseya_path(id);
 	m_file_io->open(path);
 
-	Node::ptr res = std::make_shared<Node>();
+	MyaiNode::ptr res = std::make_shared<MyaiNode>();
 	if (m_file_io->read(res)){
 		return res;
 	}

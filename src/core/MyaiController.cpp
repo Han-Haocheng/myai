@@ -8,7 +8,7 @@
 MYAI_BEGIN
 
 MyaiController::MyaiController(size_t reasoning_max)
-	: m_reasoning_size(0), m_reasoning_max(reasoning_max), m_status(NCS_UNDEF) {
+	: m_reasoning_size(0), m_reasoning_max(reasoning_max), m_status() {
 	init();
 }
 
@@ -18,8 +18,6 @@ MyaiController::~MyaiController() {
 
 
 void MyaiController::run() {
-	m_status = NCS_RUNNING;
-
 	while (m_reasoning_size < m_reasoning_max) {
 		reasoningCycle();
 		// 监视器
@@ -35,9 +33,15 @@ void MyaiController::reasoningCycle() {
 	++m_reasoning_size;
 	//collect handler cheese
 
-	const Node::ptr temp_node = m_service->createNode(0.0);
-	// temp_node->buffer() << m_driver_manager->collect();
-	// m_driver_manager->control(temp_node->buffer());
+	const MyaiNode::ptr temp_node = m_service->createNode(m_focus);
+	EdgeList collect		  = m_driver_manager->collect();
+
+	for (auto &lk: collect) {
+		lk.weight = func(lk.weight);
+		m_driver_manager->control(lk);
+	}
+
+	temp_node->buffer() = collect;
 }
 void MyaiController::trainingCycle() {
 	--m_reasoning_size;

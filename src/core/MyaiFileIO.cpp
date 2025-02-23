@@ -37,24 +37,24 @@ void MyaiFileIO::close() {
 	m_fs.clear();
 }
 
-bool MyaiFileIO::read(Node::ptr node) {
+bool MyaiFileIO::read(MyaiNode::ptr node) {
 	if (!m_fs.is_open()) MYLIB_THROW("file error:file is not open");
 	if (!node) MYLIB_THROW("avg error:avg is nullptr");
 
 	auto g_rt = get_node_pos(node->id());
 
-	if (g_rt == Node::NULL_ID) return false;
+	if (g_rt == MyaiNode::NULL_ID) return false;
 	read_node(node, g_rt);
 	return true;
 }
 
-bool MyaiFileIO::write(const Node::ptr &node) {
+bool MyaiFileIO::write(const MyaiNode::ptr &node) {
 	if (!m_fs.is_open()) MYLIB_THROW("file error:file is not open");
 	if (!node) MYLIB_THROW("avg error:avg is nullptr");
 
 	const auto g_rt = get_node_pos(node->id());
 
-	if (g_rt == Node::NULL_ID) {
+	if (g_rt == MyaiNode::NULL_ID) {
 		MYLIB_ASSERT(m_index.size() < m_head.max_node_num, "avg error: index is full");
 		m_fs.seekp(m_head.index_offset + m_head.max_node_num * m_head.head_size);
 		m_index.emplace(node->id(), m_fs.tellp());
@@ -67,7 +67,7 @@ bool MyaiFileIO::write(const Node::ptr &node) {
 std::streampos MyaiFileIO::get_node_pos(nodeid_t id) const noexcept {
 	auto fd_rt = m_index.find(id);
 	if (fd_rt == m_index.end()) {
-		return Node::NULL_ID;
+		return MyaiNode::NULL_ID;
 	}
 	return fd_rt->second;
 }
@@ -106,12 +106,12 @@ void MyaiFileIO::write_index(FileHead &head) noexcept {
 	}
 }
 
-void MyaiFileIO::read_node(Node::ptr node, std::streampos pos) noexcept {
+void MyaiFileIO::read_node(MyaiNode::ptr node, std::streampos pos) noexcept {
 	m_fs.seekg(pos);
 	node->deserialize(m_fs);
 }
 
-void MyaiFileIO::write_node(Node::ptr node, std::streampos pos) noexcept {
+void MyaiFileIO::write_node(MyaiNode::ptr node, std::streampos pos) noexcept {
 	m_fs.seekp(pos);
 	node->serialize(m_fs);
 }

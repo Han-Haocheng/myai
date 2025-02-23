@@ -5,14 +5,23 @@
 #ifndef MYAI_SLN_MYAI_CONTROL_H
 #define MYAI_SLN_MYAI_CONTROL_H
 
-#include "../service/NodeService.h"
-#include "../driver/MyaiDriverManager.h"
-#include "../entity/Emotion.h"
+
+#include "../driver/DriverManager.h"
+
+
+#include "MyaiService.h"
+
 
 #include <mylib/config/ConfigManager.h>
 
 
 MYAI_BEGIN
+class MyaiConfig {
+
+public:
+	using ptr	 = std::shared_ptr<MyaiConfig>;
+	MyaiConfig() = default;
+};
 
 //=================================================================
 // 控制层
@@ -20,36 +29,33 @@ MYAI_BEGIN
 
 class MyaiController {
 public:
-	enum Status {
-		NCS_UNDEF,
-		NCS_INIT,
-		NCS_RUNNING,
-		NCS_STOP,
-		NCS_DESTROY,
-	};
-
 	explicit MyaiController(size_t reasoning_max);
 	~MyaiController();
-	void init(){ m_status = NCS_INIT;}
-	void destroy(){m_status = NCS_DESTROY;}
-	void stop(){m_status = NCS_STOP;}
+	void init() {}
+	void destroy() {}
+	void stop() {}
 
 	void run();
 
 	void reasoningCycle();
 	void trainingCycle();
 
+private:
+	weight_t func(weight_t x) {
+		return log2f(x + 1);
+	}
 
 private:
 	size_t m_reasoning_size;
 	size_t m_reasoning_max;
-	Status m_status;
+	weight_t m_focus;
 
-	ConfigManager::ptr m_myai_config;
+	MyaiStatus m_status;
 
-	Emotion::ptr m_emo;
-	NodeService::ptr m_service;
-	MyaiDriverManager::ptr m_driver_manager;
+	MyaiConfig::ptr m_myai_config;
+
+	MyaiService::ptr m_service;
+	DriverManager::ptr m_driver_manager;
 };
 
 MYAI_END

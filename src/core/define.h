@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MYAI_DEFINE_H_
+#define MYAI_DEFINE_H_
+
 
 #include <mylib/core/core.h>
 
@@ -21,4 +23,9 @@ public:
 	virtual void deserialize(std::istream &in)		= 0;
 };
 
+
+
+
 MYAI_END
+
+#endif// !MYAI_DEFINE_H_
