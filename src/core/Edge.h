@@ -4,9 +4,13 @@
 
 #include "define.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
+=======
+
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -14,6 +18,7 @@ MYAI_BEGIN
 /**
  * @brief 用于保存链接
  */
+<<<<<<< HEAD
 <<<<<<< HEAD
 struct Edge {
 	constexpr static const nodeid_t NULL_ID		= 0ULL;
@@ -25,19 +30,21 @@ struct Edge {
 	explicit Edge(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
 =======
 union Edge {
+=======
+struct Edge {
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 	constexpr static const nodeid_t NULL_ID		= 0ULL;
 	constexpr static const weight_t NULL_WEIGHT = 0.0;
-	using pair_t								= std::pair<nodeid_t, weight_t>;
-	struct {
-		nodeid_t id;
-		weight_t weight;
-	};
 
-	pair_t pair;
+	nodeid_t id;
+	weight_t weight;
 
 	explicit Edge(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
+<<<<<<< HEAD
 	explicit Edge(const std::pair<const nodeid_t, weight_t> &p) : pair(p) {}
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
+=======
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 	Edge(Edge &&)	   = default;
 	Edge(const Edge &) = default;
 	~Edge()			   = default;

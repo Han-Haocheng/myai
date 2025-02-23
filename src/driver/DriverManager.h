@@ -4,12 +4,17 @@
 
 #include "Driver.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "MemoryDriver.h"
 #include "StatusDriver.h"
 
 
 #include "../core/MyaiService.h"
 
+=======
+#include "StatusDriver.h"
+
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 
 MYAI_BEGIN
 struct DriverConfig {

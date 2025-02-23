@@ -28,11 +28,16 @@ Edge &EdgeList::emplace(const value_type &val) {
 		return fd_rt->second;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	auto rt = m_map.emplace(val.id, val);
 	return rt.first->second;
 =======
 	return m_map.emplace(val).first->second;
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
+=======
+	auto rt = m_map.emplace(val.id, val);
+	return rt.first->second;
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 }
 
 EdgeList::iterator EdgeList::find(const nodeid_t &key) {

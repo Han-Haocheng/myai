@@ -59,11 +59,9 @@ public:
 	~MyaiController();
 =======
 	explicit MyaiController(size_t reasoning_max = 10)
-		: m_reasoning_size(0), m_reasoning_max(reasoning_max), m_status() {
-		init();
+		: m_reasoning_size(0), m_reasoning_max(reasoning_max) {
 	}
-	~MyaiController(){
-		destroy();
+	~MyaiController() {
 	}
 
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
@@ -108,7 +106,7 @@ private:
 	size_t m_reasoning_max;
 	weight_t m_focus;
 
-	MyaiStatus m_status;
+	StatusDriver::ptr m_status;
 
 	MyaiConfig::ptr m_myai_config;
 

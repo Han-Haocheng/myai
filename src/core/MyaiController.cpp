@@ -82,15 +82,14 @@ void MyaiController::trainingCycle() {
 	m_driver_manager->collect(collect);
 	try {
 		for (auto &[id, edge]: *collect) {
-			edge.weight = func(edge.weight) + m_status.emotion();
-			if (edge.weight < m_status.focus()) {
+			edge.weight = func(edge.weight) - m_status->negative() + m_status->positive();
+			if (edge.weight < m_status->filter()) {
 				continue;
 			}
 			if (edge.id < DriverManager::MAX_CONTROL_NODE_ID) {
 				m_driver_manager->control(edge);
 				continue;
 			}
-			
 		}
 	} catch (std::out_of_range &e) {
 	}

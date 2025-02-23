@@ -66,6 +66,7 @@ public:
 public:
 	using ptr = std::shared_ptr<MyaiDriver>;
 
+
 	enum Type {
 <<<<<<< HEAD
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
@@ -129,6 +130,7 @@ protected:
 =======
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
 protected:
+<<<<<<< HEAD
 	using super						 = MyaiDriver;
 	using ControlConnectionFunc		 = std::function<void(weight_t)>;
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
@@ -141,6 +143,14 @@ protected:
 	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
 
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+	using super					= MyaiDriver;
+	using ControlConnectionFunc = std::function<void(weight_t)>;
+	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
+	virtual void collect_data()		 = 0;
+	virtual void regeiste_controls() = 0;
+
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 
 protected:
 	Type m_type;
@@ -152,10 +162,14 @@ protected:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 =======
+=======
+
+>>>>>>> f902b12 (2025年2月23日 16:26:30)
 class MemoryDriver : public MyaiDriver {
 public:
 	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_STATUS, begin, 0) {}
