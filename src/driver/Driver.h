@@ -66,7 +66,6 @@ public:
 public:
 	using ptr = std::shared_ptr<MyaiDriver>;
 
-
 	enum Type {
 <<<<<<< HEAD
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
@@ -171,8 +170,14 @@ protected:
 
 >>>>>>> f902b12 (2025年2月23日 16:26:30)
 class MemoryDriver : public MyaiDriver {
+	friend class MyaiDriverManager;
+
 public:
-	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_STATUS, begin, 0) {}
+	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_MEMORY, begin, 0) {}
+
+private:
+	virtual void collect_data() override {}
+	virtual void regeiste_controls() override {}
 };
 
 >>>>>>> cf44269 (2025年2月23日 16:12:23)

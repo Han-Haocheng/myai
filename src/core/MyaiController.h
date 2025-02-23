@@ -7,6 +7,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "MyaiService.h"
 
 #include "../driver/DriverManager.h"
@@ -16,7 +17,11 @@
 #include "../driver/DriverManager.h"
 
 
+=======
+>>>>>>> 69dfd9f (2025年2月23日 17:16:44)
 #include "MyaiService.h"
+
+#include "../driver/DriverManager.h"
 
 
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
@@ -78,6 +83,7 @@ public:
 private:
 	weight_t func(weight_t x) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		return x > 0 ? log2f(x + 1) : x * 0.01;
 	}
 
@@ -99,20 +105,28 @@ private:
 	std::vector<TempInfo> m_temp_nodes;
 =======
 		return log2f(x + 1);
+=======
+		return x > 0 ? log2f(x + 1) : x * 0.01;
+>>>>>>> 69dfd9f (2025年2月23日 17:16:44)
 	}
 
 private:
+	struct TempInfo {
+		MyaiNode::ptr node;
+		weight_t attach_weight;
+	};
 	size_t m_reasoning_size;
 	size_t m_reasoning_max;
-	weight_t m_focus;
-
-	StatusDriver::ptr m_status;
 
 	MyaiConfig::ptr m_myai_config;
 
 	MyaiService::ptr m_service;
 	DriverManager::ptr m_driver_manager;
+<<<<<<< HEAD
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+	std::vector<TempInfo> m_temp_nodes;
+>>>>>>> 69dfd9f (2025年2月23日 17:16:44)
 };
 
 MYAI_END

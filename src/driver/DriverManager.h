@@ -5,7 +5,12 @@
 #include "Driver.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "MemoryDriver.h"
+=======
+
+#include "../core/MyaiService.h"
+>>>>>>> 69dfd9f (2025年2月23日 17:16:44)
 #include "StatusDriver.h"
 
 
@@ -95,8 +100,24 @@ private:
 		MyaiDriver::S_CONNECTIONS.at(output.id)(output.weight);
 	}
 
+	// 返回m_positive的值
+	auto positive() const { return m_status->m_positive; }
+	auto negative() const { return m_status->m_negative; }
+	auto filter() const { return m_status->m_filter; }
+	auto driver_weight(MyaiDriver::Type source, MyaiDriver::Type target) const { return m_status->m_driver_weight[source][target]; }
+
+	void activate_node(const Edge &edge) {
+		m_service->activatedNode(m_memory->m_collects, edge);
+	}
+
 private:
+<<<<<<< HEAD
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+	StatusDriver::ptr m_status;
+	MemoryDriver::ptr m_memory;
+	MyaiService::ptr m_service;
+>>>>>>> 69dfd9f (2025年2月23日 17:16:44)
 	std::vector<MyaiDriver::ptr> m_drivers;
 };
 
