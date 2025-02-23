@@ -3,6 +3,7 @@
 #define MYAI_EDGE_H_
 
 #include "define.h"
+
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -10,19 +11,14 @@ MYAI_BEGIN
 /**
  * @brief 用于保存链接
  */
-union Edge {
+struct Edge {
 	constexpr static const nodeid_t NULL_ID		= 0ULL;
 	constexpr static const weight_t NULL_WEIGHT = 0.0;
-	using pair_t								= std::pair<nodeid_t, weight_t>;
-	struct {
-		nodeid_t id;
-		weight_t weight;
-	};
 
-	pair_t pair;
+	nodeid_t id;
+	weight_t weight;
 
 	explicit Edge(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
-	explicit Edge(const std::pair<const nodeid_t, weight_t> &p) : pair(p) {}
 	Edge(Edge &&)	   = default;
 	Edge(const Edge &) = default;
 	~Edge()			   = default;

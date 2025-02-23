@@ -19,6 +19,7 @@ class MyaiDriver {
 public:
 	using ptr = std::shared_ptr<MyaiDriver>;
 
+
 	enum Type {
 		DT_MEMORY,
 		DT_STATUS,
@@ -47,13 +48,11 @@ public:
 	}
 
 protected:
-	using super						 = MyaiDriver;
-	using ControlConnectionFunc		 = std::function<void(weight_t)>;
-
+	using super					= MyaiDriver;
+	using ControlConnectionFunc = std::function<void(weight_t)>;
+	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
 	virtual void collect_data()		 = 0;
 	virtual void regeiste_controls() = 0;
-
-	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
 
 
 protected:
@@ -63,6 +62,7 @@ protected:
 
 	EdgeList::ptr m_collects;
 };
+
 
 class MemoryDriver : public MyaiDriver {
 public:

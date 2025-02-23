@@ -27,7 +27,8 @@ Edge &EdgeList::emplace(const value_type &val) {
 		fd_rt->second.weight += val.weight;
 		return fd_rt->second;
 	}
-	return m_map.emplace(val).first->second;
+	auto rt = m_map.emplace(val.id, val);
+	return rt.first->second;
 }
 
 EdgeList::iterator EdgeList::find(const nodeid_t &key) {

@@ -7,6 +7,8 @@ MYAI_BEGIN
 
 class StatusDriver : public MyaiDriver {
 public:
+	using ptr = std::shared_ptr<StatusDriver>;
+
 	// 构造函数，初始化StatusDriver对象
 	StatusDriver(nodeid_t begin, size_t size) : MyaiDriver(Type::DT_STATUS, begin, size) {}
 
