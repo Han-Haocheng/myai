@@ -3,19 +3,8 @@
 //
 #include "MyaiController.h"
 
-#include <thread>
 
 MYAI_BEGIN
-
-MyaiController::MyaiController(size_t reasoning_max)
-	: m_reasoning_size(0), m_reasoning_max(reasoning_max), m_status() {
-	init();
-}
-
-MyaiController::~MyaiController() {
-	destroy();
-}
-
 
 void MyaiController::run() {
 	while (m_reasoning_size < m_reasoning_max) {
@@ -34,14 +23,22 @@ void MyaiController::reasoningCycle() {
 	//collect handler cheese
 
 	const MyaiNode::ptr temp_node = m_service->createNode(m_focus);
-	EdgeList collect		  = m_driver_manager->collect();
-
-	for (auto &lk: collect) {
-		lk.weight = func(lk.weight);
-		m_driver_manager->control(lk);
+	EdgeList::ptr collect		  = std::make_shared<EdgeList>();
+	m_driver_manager->collect(collect);
+	try {
+		for (auto &[id, edge]: *collect) {
+			edge.weight = func(edge.weight) + m_status.emotion();
+			if (edge.weight < m_status.focus()) {
+				continue;
+			}
+			if (edge.id < DriverManager::MAX_CONTROL_NODE_ID) {
+				m_driver_manager->control(edge);
+				continue;
+			}
+			
+		}
+	} catch (std::out_of_range &e) {
 	}
-
-	temp_node->buffer() = collect;
 }
 void MyaiController::trainingCycle() {
 	--m_reasoning_size;

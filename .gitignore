@@ -14,3 +14,5 @@ myai.sln
 /src/myai.vcxproj.user
 .vscode/settings.json
 *.code-workspace
+
+/.cache

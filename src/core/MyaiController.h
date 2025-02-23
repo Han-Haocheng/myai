@@ -29,8 +29,14 @@ public:
 
 class MyaiController {
 public:
-	explicit MyaiController(size_t reasoning_max);
-	~MyaiController();
+	explicit MyaiController(size_t reasoning_max = 10)
+		: m_reasoning_size(0), m_reasoning_max(reasoning_max), m_status() {
+		init();
+	}
+	~MyaiController(){
+		destroy();
+	}
+
 	void init() {}
 	void destroy() {}
 	void stop() {}

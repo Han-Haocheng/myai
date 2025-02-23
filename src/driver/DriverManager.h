@@ -10,33 +10,24 @@ class DriverManager {
 public:
 	using ptr = std::shared_ptr<DriverManager>;
 	// using Motive = void(const Edge &);
-
-	bool loadConfig();
-	bool saveConfig();
+	static constexpr nodeid_t MAX_CONTROL_NODE_ID = 0x1000'0000;
 
 	MyaiDriver::ptr addDriver(MyaiDriver::ptr driver) {
 		m_drivers.push_back(driver);
 		return driver;
 	}
 
-	EdgeList &&collect() {
-		EdgeList res;
+	void collect(EdgeList::ptr out) {
 		for (auto &var: m_drivers) {
 			auto temp = var->collect();
-			res.emplace(0, 0);
+			out->insert(temp->begin(), temp->end());
 		}
-		return std::move(res);
 	}
-	void control(const Edge &output) {
-	}
-
 
 	/// @brief 控制
 	/// @param output 对外输出数据
-	void control(EdgeList &output) {
-		for (auto &var: output) {
-			MyaiDriver::S_CONNECTIONS.at(var.id)(var.weight);
-		}
+	void control(const Edge &output) {
+		MyaiDriver::S_CONNECTIONS.at(output.id)(output.weight);
 	}
 
 private:

@@ -1,37 +1,13 @@
 #ifndef MYAI_DRIVER_H_
 #define MYAI_DRIVER_H_
 
-#include "../core/MyaiNode.h"
+#include "../core/Edge.h"
 
 #include <functional>
 #include <map>
 
 
 MYAI_BEGIN
-
-
-class MyaiStatus {
-public:
-	using ptr	 = std::shared_ptr<MyaiStatus>;
-
-	MyaiStatus() = default;
-	void setEmotion(weight_t emotion) { m_emotion = emotion; }
-	void setFocus(weight_t focus) { m_focus = focus; }
-
-	weight_t emotion() const { return m_emotion; }
-	weight_t focus() const { return m_focus; }
-
-
-private:
-	// 正向权重
-	// 反向权重
-	// 过滤权重
-	// 链接权重列表
-	std::vector<std::vector<weight_t>> m_driver_weights;
-
-	weight_t m_emotion;
-	weight_t m_focus;
-};
 
 
 /**
@@ -41,16 +17,17 @@ class MyaiDriver {
 	friend class DriverManager;
 
 public:
-	using ptr								= std::shared_ptr<MyaiDriver>;
-
-	MYLIB_CONSTEXPR_TYPE MAX_DRIVER_NODE_ID = 0x1000'0000;
+	using ptr = std::shared_ptr<MyaiDriver>;
 
 	enum Type {
+		DT_MEMORY,
 		DT_STATUS,
 		DT_STRING,
 		DT_AUDIO,
 		DT_SCREEN_VIDEO,
 		DT_CAMERA_VIDEO,
+
+		__DT_END__
 	};
 
 
@@ -64,13 +41,10 @@ public:
 		regeiste_controls();
 	}
 
-	/// @brief 收集链接
-	/// @return 链接列表
 	EdgeList::ptr collect() {
 		collect_data();
 		return m_collects;
 	}
-
 
 protected:
 	using super						 = MyaiDriver;
@@ -88,6 +62,11 @@ protected:
 	size_t m_id_size;
 
 	EdgeList::ptr m_collects;
+};
+
+class MemoryDriver : public MyaiDriver {
+public:
+	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_STATUS, begin, 0) {}
 };
 
 MYAI_END

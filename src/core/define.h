@@ -4,9 +4,9 @@
 
 #include <mylib/core/core.h>
 
-
+#define MYAI_SPACE myai
 #define MYAI_BEGIN   \
-	namespace myai { \
+	namespace MYAI_SPACE { \
 	using namespace MYLIB_SPACE;
 #define MYAI_END }
 
