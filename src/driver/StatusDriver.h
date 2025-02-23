@@ -6,22 +6,17 @@
 MYAI_BEGIN
 
 class StatusDriver : public MyaiDriver {
+	friend class DriverManager;
+
 public:
 	using ptr = std::shared_ptr<StatusDriver>;
 
 	// 构造函数，初始化StatusDriver对象
 	StatusDriver(nodeid_t begin, size_t size) : MyaiDriver(Type::DT_STATUS, begin, size) {}
 
-	// 返回m_positive的值
-	auto positive() const { return m_positive; }
-	auto negative() const { return m_negative; }
-	auto filter() const { return m_filter; }
-	auto driver_weight(super::Type source, super::Type target) const { return m_driver_weight[source][target]; }
 
 private:
 	virtual void collect_data() override {
-
-
 		for (size_t i = 0, j = 0; i < __DT_END__; ++i) {
 			for (j = 0; j < __DT_END__; ++j) {
 				m_collects->emplace(m_begin + i + j, m_driver_weight[i][j]);

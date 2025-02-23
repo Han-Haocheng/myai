@@ -19,7 +19,6 @@ class MyaiDriver {
 public:
 	using ptr = std::shared_ptr<MyaiDriver>;
 
-
 	enum Type {
 		DT_MEMORY,
 		DT_STATUS,
@@ -65,8 +64,14 @@ protected:
 
 
 class MemoryDriver : public MyaiDriver {
+	friend class MyaiDriverManager;
+
 public:
-	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_STATUS, begin, 0) {}
+	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_MEMORY, begin, 0) {}
+
+private:
+	virtual void collect_data() override {}
+	virtual void regeiste_controls() override {}
 };
 
 MYAI_END

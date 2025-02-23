@@ -27,7 +27,10 @@ public:
 	// 修改节点
 
 	// 激活节点
-	bool activatedNode(EdgeList &out, MyaiNode::ptr node, weight_t input);
+	bool activatedNode(EdgeList::ptr out, Edge edge);
+
+	void linkNode(nodeid_t id, Edge link);
+	void linkNode(MyaiNode::ptr node, EdgeList::ptr links);
 
 private:
 	std::unordered_map<nodeid_t, MyaiNode::ptr> m_updata_nodes;
