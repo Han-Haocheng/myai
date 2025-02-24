@@ -19,6 +19,9 @@ MYAI_BEGIN
  */
 class MyaiService {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	friend class DriverManager;
 
 public:
@@ -29,11 +32,14 @@ public:
 	}
 
 
+<<<<<<< HEAD
 =======
 public:
 	using ptr = std::shared_ptr<MyaiService>;
 
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	// 创建节点
 	MyaiNode::ptr createNode(weight_t bias);
 
@@ -45,9 +51,12 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	// 激活节点
 >>>>>>> 23fcfe1 (2025年2月23日 20:57:23)
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	bool activatedNode(EdgeList::ptr out, Edge edge);
 
 	void linkNode(nodeid_t id, Edge link);
@@ -57,6 +66,7 @@ private:
 	nodeid_t applyId(size_t size) {
 		return m_alloc->allocate(size);
 	}
+<<<<<<< HEAD
 =======
 	// 修改节点
 
@@ -70,6 +80,8 @@ private:
 	void linkNode(nodeid_t id, Edge link);
 	void linkNode(MyaiNode::ptr node, EdgeList::ptr links);
 >>>>>>> 69dfd9f (2025年2月23日 17:16:44)
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 
 private:
 	std::unordered_map<nodeid_t, MyaiNode::ptr> m_updata_nodes;

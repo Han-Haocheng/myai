@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "MyaiController.h"
 #include <iostream>
 
@@ -50,9 +51,13 @@ int main(int argc, char **argv) {
 >>>>>>> f215332 (2025-1-1)
 =======
 #include <iostream>
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 #include "MyaiController.h"
+#include <iostream>
 
 
+<<<<<<< HEAD
 int main(int argc, const char** argv) {
     MYAI_SPACE::MyaiController controller(10);
     controller.run();
@@ -61,3 +66,13 @@ int main(int argc, const char** argv) {
 }
 >>>>>>> e675a70 (2025年2月12日 15:19:07)
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+
+int main(int argc, const char **argv) {
+	MYAI_SPACE::MyaiController controller(10);
+	controller.init();
+	controller.run();
+	std::cout << "Hello world!" << std::endl;
+	return 0;
+}
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)

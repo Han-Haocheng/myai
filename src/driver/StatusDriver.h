@@ -36,30 +36,9 @@ public:
 	// 构造函数，初始化StatusDriver对象
 	StatusDriver(nodeid_t begin, size_t size) : MyaiDriver(Type::DT_STATUS, begin, size) {}
 
-
 private:
-	virtual void collect_data() override {
-		for (size_t i = 0, j = 0; i < __DT_END__; ++i) {
-			for (j = 0; j < __DT_END__; ++j) {
-				m_collects->emplace(m_begin + i + j, m_driver_weight[i][j]);
-			}
-		}
-		m_collects->emplace(m_begin + __DT_END__, m_positive);
-		m_collects->emplace(m_begin + __DT_END__ + 1, m_negative);
-		m_collects->emplace(m_begin + __DT_END__ + 2, m_filter);
-	}
-
-	// 重写regeiste_controls函数
-	virtual void regeiste_controls() override {
-		m_driver_weight.assign(__DT_END__, std::vector<weight_t>(__DT_END__, weight_t()));
-		for (size_t i = 0, j = 0; i < __DT_END__; ++i)
-			for (j = 0; j < __DT_END__; ++j)
-				super::S_CONNECTIONS.emplace(m_begin + i + j, [&](weight_t w) { m_driver_weight[i][j] = w; });
-
-		super::S_CONNECTIONS.emplace(m_begin + __DT_END__, [this](weight_t w) { m_positive = w; });
-		super::S_CONNECTIONS.emplace(m_begin + __DT_END__ + 1, [this](weight_t w) { m_negative = w; });
-		super::S_CONNECTIONS.emplace(m_begin + __DT_END__ + 2, [this](weight_t w) { m_filter = w; });
-	}
+	virtual void collect_data() override;
+	virtual void regeiste_controls() override;
 
 	size_t m_normal_size = 3;
 	weight_t m_positive;//正向权重

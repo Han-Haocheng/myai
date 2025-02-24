@@ -53,6 +53,7 @@ private:
  */
 class MyaiDriver {
 <<<<<<< HEAD
+<<<<<<< HEAD
 public:
 	using ptr					= std::shared_ptr<MyaiDriver>;
 	using ControlConnectionFunc = std::function<void(weight_t)>;
@@ -63,8 +64,12 @@ public:
 =======
 	friend class DriverManager;
 
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 public:
-	using ptr = std::shared_ptr<MyaiDriver>;
+	using ptr					= std::shared_ptr<MyaiDriver>;
+	using ControlConnectionFunc = std::function<void(weight_t)>;
+	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
 
 	enum Type {
 <<<<<<< HEAD
@@ -92,10 +97,14 @@ public:
 
 	MyaiDriver(Type type, nodeid_t begin, size_t id_size)
 <<<<<<< HEAD
+<<<<<<< HEAD
 		: m_type(type), m_begin(begin), m_id_size(id_size), m_collects(std::make_shared<EdgeList>()) {
 =======
 		: m_type(type), m_begin(begin), m_id_size(id_size) {
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+		: m_type(type), m_begin(begin), m_id_size(id_size), m_collects(std::make_shared<EdgeList>()) {
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	}
 
 	virtual ~MyaiDriver() = default;
@@ -119,11 +128,15 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	auto getCollects() { return m_collects; }
 
 protected:
 	using super						 = MyaiDriver;
 
+<<<<<<< HEAD
 =======
 
 =======
@@ -146,6 +159,9 @@ protected:
 	using super					= MyaiDriver;
 	using ControlConnectionFunc = std::function<void(weight_t)>;
 	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
+=======
+
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	virtual void collect_data()		 = 0;
 	virtual void regeiste_controls() = 0;
 
@@ -163,6 +179,7 @@ protected:
 <<<<<<< HEAD
 <<<<<<< HEAD
 
+<<<<<<< HEAD
 =======
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 =======
@@ -181,6 +198,8 @@ private:
 };
 
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 MYAI_END
 
 

@@ -31,6 +31,7 @@
 MYAI_BEGIN
 class MyaiConfig {
 <<<<<<< HEAD
+<<<<<<< HEAD
 public:
 	using ptr	 = std::shared_ptr<MyaiConfig>;
 	MyaiConfig() = default;
@@ -42,6 +43,13 @@ public:
 	using ptr	 = std::shared_ptr<MyaiConfig>;
 	MyaiConfig() = default;
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+public:
+	using ptr	 = std::shared_ptr<MyaiConfig>;
+	MyaiConfig() = default;
+
+private:
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 };
 
 //=================================================================
@@ -59,6 +67,7 @@ public:
 	}
 
 	void init();
+<<<<<<< HEAD
 =======
 	explicit MyaiController(size_t reasoning_max);
 	~MyaiController();
@@ -72,6 +81,8 @@ public:
 >>>>>>> cf44269 (2025年2月23日 16:12:23)
 	void init() {}
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	void destroy() {}
 	void stop() {}
 
@@ -92,6 +103,7 @@ private:
 		MyaiNode::ptr node;
 		weight_t attach_weight;
 		weight_t filter_weight;
+<<<<<<< HEAD
 	};
 	size_t m_reasoning_size;
 	size_t m_reasoning_max;
@@ -114,17 +126,24 @@ private:
 	struct TempInfo {
 		MyaiNode::ptr node;
 		weight_t attach_weight;
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	};
 	size_t m_reasoning_size;
 	size_t m_reasoning_max;
 
-	MyaiConfig::ptr m_myai_config;
-
+	MyaiDao::ptr m_dao;
+	IdAllocator::ptr m_id_alloc;
+	MyaiConfig::ptr m_config;
 	MyaiService::ptr m_service;
 	DriverManager::ptr m_driver_manager;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 =======
+=======
+
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 	std::vector<TempInfo> m_temp_nodes;
 >>>>>>> 69dfd9f (2025年2月23日 17:16:44)
 };

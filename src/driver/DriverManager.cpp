@@ -1,5 +1,8 @@
 #include "DriverManager.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 
 MYAI_BEGIN
 
@@ -19,6 +22,10 @@ void DriverManager::control(const Edge &output) {
 	MyaiDriver::S_CONNECTIONS.at(output.id)(output.weight);
 }
 
+<<<<<<< HEAD
 MYAI_END
 =======
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+MYAI_END
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)

@@ -1,15 +1,21 @@
 #include "MyaiService.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 
 MYAI_BEGIN
 
 
 
+<<<<<<< HEAD
 =======
 MYAI_BEGIN
 
 >>>>>>> 574ffc2 (2025年2月23日 12:27:49)
+=======
+>>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 MyaiNode::ptr MyaiService::createNode(weight_t bias) {
 
 	MyaiNode::ptr node = std::make_shared<MyaiNode>(m_alloc->allocate(), bias, MyaiNode::NDS_CREATE);
