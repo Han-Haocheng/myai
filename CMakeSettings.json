@@ -1,11 +1,6 @@
 ﻿{
   "configurations": [
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> cf98b81 (v0.02 - x86)
       "name": "Mingw64-Debug",
       "generator": "Unix Makefiles",
       "configurationType": "Debug",
@@ -46,41 +41,10 @@
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-<<<<<<< HEAD
-=======
-      "name": "vc-debug-x64",
-      "generator": "Visual Studio 17 2022 Win64",
-      "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "ctestCommandArgs": "",
-      "intelliSenseMode": "windows-msvc-x64",
-      "variables": [
-        {
-          "name": "CMAKE_RC_FLAGS_DEBUG",
-          "value": "-D_DEBUG"
-        }
-      ]
-    },
-    {
-      "name": "vc-release-x64",
-      "generator": "Visual Studio 17 2022 Win64",
-      "configurationType": "Release",
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir\\install\\${name}",
->>>>>>> aab93c0 (v1.3)
-=======
->>>>>>> cf98b81 (v0.02 - x86)
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> cf98b81 (v0.02 - x86)
     },
     {
       "name": "Mingw64-Release",
@@ -127,13 +91,6 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ]
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a3a28bf (2025年2月24日 20:19:05)
-=======
->>>>>>> 41248b3 (v1.0.1)
     },
     {
       "name": "Linux-GCC-Debug",
@@ -141,44 +98,10 @@
       "configurationType": "Debug",
       "cmakeExecutable": "cmake",
       "remoteCopySourcesExclusionList": [ ".vs", ".git", "out" ],
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      "name": "WSL-GCC-Debug",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "buildRoot": "${projectDir}\\build\\wsl-Debug",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeExecutable": "cmake",
-=======
->>>>>>> a3a28bf (2025年2月24日 20:19:05)
-=======
->>>>>>> 41248b3 (v1.0.1)
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux_x64" ],
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "wslPath": "${defaultWSLPath}"
-    },
-    {
-      "name": "WSL-GCC-Release",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "buildRoot": "${projectDir}\\build\\wsl-Release",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeExecutable": "cmake",
->>>>>>> b392109 (添加项目文件。)
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": "",
-      "inheritEnvironments": [ "linux_x64" ],
-<<<<<<< HEAD
-=======
->>>>>>> a3a28bf (2025年2月24日 20:19:05)
-=======
->>>>>>> 41248b3 (v1.0.1)
       "remoteMachineName": "${defaultRemoteMachineName}",
       "remoteCMakeListsRoot": "$HOME/.vs/${projectDirName}/${workspaceHash}/src",
       "remoteBuildRoot": "$HOME/.vs/${projectDirName}/${workspaceHash}/out/build/${name}",
@@ -208,49 +131,6 @@
       "remoteCopyBuildOutput": false,
       "remoteCopySourcesMethod": "rsync",
       "variables": []
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> aab93c0 (v1.3)
-=======
-      "wslPath": "${defaultWSLPath}"
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> b392109 (添加项目文件。)
-=======
-    },
-    {
-      "name": "x64-Debug",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "buildRoot": "${projectDir}\\build\\msvc-Debug",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
-    },
-    {
-      "name": "x64-Release",
-      "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "buildRoot": "${projectDir}\\out\\build\\msvc-Release",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
->>>>>>> dd5c0c4 (添加项目文件。)
-=======
->>>>>>> 688b3c0 (v1.0.3)
-=======
->>>>>>> cf98b81 (v0.02 - x86)
-=======
->>>>>>> a3a28bf (2025年2月24日 20:19:05)
-=======
->>>>>>> 41248b3 (v1.0.1)
     }
   ]
 }

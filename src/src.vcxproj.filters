@@ -50,13 +50,6 @@
     <ClCompile Include="core\IdAllocator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD:src/src.vcxproj.filters
-=======
->>>>>>> a3a28bf (2025年2月24日 20:19:05)
-=======
->>>>>>> 574ffc2 (2025年2月23日 12:27:49)
     <ClCompile Include="core\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -84,58 +77,5 @@
     <ClCompile Include="driver\StatusDriver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD:src/src.vcxproj.filters
-    <ClCompile Include="src\header\inout\interface.h">
-      <Filter>头文件\inout</Filter>
-    </ClCompile>
   </ItemGroup>
-<<<<<<< HEAD:src/src.vcxproj.filters
-=======
-  <ItemGroup>
-    <ClInclude Include="src\main.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\4_think_core.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\1_node_info.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\2_id_allocator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\2_io_node.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\3_io_manage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\include.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\0_think_type.h">
-      <Filter>头文件\bases</Filter>
-    </ClInclude>
-    <ClInclude Include="src\header\range.h">
-      <Filter>头文件\bases</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Think.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
-=======
->>>>>>> 55d935f (v0.40):Think.vcxproj.filters
-=======
->>>>>>> e7ce4b8 (v0.40):Think.vcxproj.filters
-  </ItemGroup>
->>>>>>> 8e86c1c (v0.34):Think.vcxproj.filters
-=======
-  </ItemGroup>
->>>>>>> a3a28bf (2025年2月24日 20:19:05)
-=======
-  </ItemGroup>
->>>>>>> 574ffc2 (2025年2月23日 12:27:49)
 </Project>

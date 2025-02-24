@@ -4,35 +4,16 @@
 
 #include <mylib/core/core.h>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 #define MYAI_SPACE myai
 #define MYAI_BEGIN         \
 	namespace MYAI_SPACE { \
-=======
-
-#define MYAI_BEGIN   \
-	namespace myai { \
->>>>>>> 574ffc2 (2025年2月23日 12:27:49)
-=======
-#define MYAI_SPACE myai
-#define MYAI_BEGIN         \
-	namespace MYAI_SPACE { \
->>>>>>> cf44269 (2025年2月23日 16:12:23)
 	using namespace MYLIB_SPACE;
 #define MYAI_END }
 
 MYAI_BEGIN
 
 using nodeid_t = uint32;
-<<<<<<< HEAD
-<<<<<<< HEAD
 typedef nodeid_t noid_t, edgeid_t;
-=======
->>>>>>> 574ffc2 (2025年2月23日 12:27:49)
-=======
-typedef nodeid_t noid_t, edgeid_t;
->>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 using weight_t = float;
 using byte_t   = char;
 
@@ -43,15 +24,6 @@ public:
 	virtual void deserialize(std::istream &in)		= 0;
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 574ffc2 (2025年2月23日 12:27:49)
-=======
->>>>>>> ad9ab63 (2025年2月24日 19:48:47)
 MYAI_END
 
 #endif// !MYAI_DEFINE_H_

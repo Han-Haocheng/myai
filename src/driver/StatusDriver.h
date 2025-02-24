@@ -5,8 +5,6 @@
 
 MYAI_BEGIN
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 class StatusDriver : public MyaiDriver {
 	friend class DriverManager;
 
@@ -23,31 +21,6 @@ private:
 	size_t m_normal_size = 3;
 	weight_t m_positive;//正向权重
 	weight_t m_negative;// 反向权重
-=======
-
-=======
->>>>>>> cf44269 (2025年2月23日 16:12:23)
-class StatusDriver : public MyaiDriver {
-	friend class DriverManager;
-
-public:
-	using ptr = std::shared_ptr<StatusDriver>;
-
-	// 构造函数，初始化StatusDriver对象
-	StatusDriver(nodeid_t begin, size_t size) : MyaiDriver(Type::DT_STATUS, begin, size) {}
-
-private:
-	virtual void collect_data() override;
-	virtual void regeiste_controls() override;
-
-	size_t m_normal_size = 3;
-	weight_t m_positive;//正向权重
-<<<<<<< HEAD
-	weight_t m_negative; // 反向权重
->>>>>>> 574ffc2 (2025年2月23日 12:27:49)
-=======
-	weight_t m_negative;// 反向权重
->>>>>>> cf44269 (2025年2月23日 16:12:23)
 	weight_t m_filter;	// 过滤权重
 	std::vector<std::vector<weight_t>> m_driver_weight;
 };
