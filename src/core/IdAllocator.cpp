@@ -5,7 +5,8 @@
 
 MYAI_BEGIN
 
-IdAllocator::IdAllocator(std::pair<nodeid_t, nodeid_t> alloc_range, nodeid_t allocated, std::vector<nodeid_t> debris) : m_range(alloc_range), m_allocated(allocated), m_debris(debris) {
+IdAllocator::IdAllocator(std::pair<nodeid_t, nodeid_t> alloc_range, nodeid_t allocated, std::vector<nodeid_t> debris)
+	: m_range(alloc_range), m_allocated(allocated), m_debris(debris) {
 }
 
 
@@ -20,6 +21,12 @@ nodeid_t IdAllocator::allocate() {
 		return 0;
 	}
 	return ++m_allocated;
+}
+
+nodeid_t IdAllocator::allocate(size_t size) {
+	nodeid_t id = m_allocated;
+	m_allocated += size;
+	return id;
 }
 
 bool IdAllocator::deallocate(nodeid_t id) {

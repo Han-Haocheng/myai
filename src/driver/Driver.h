@@ -14,10 +14,10 @@ MYAI_BEGIN
  * @brief 驱动
  */
 class MyaiDriver {
-	friend class DriverManager;
-
 public:
-	using ptr = std::shared_ptr<MyaiDriver>;
+	using ptr					= std::shared_ptr<MyaiDriver>;
+	using ControlConnectionFunc = std::function<void(weight_t)>;
+	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
 
 	enum Type {
 		DT_MEMORY,
@@ -32,7 +32,7 @@ public:
 
 
 	MyaiDriver(Type type, nodeid_t begin, size_t id_size)
-		: m_type(type), m_begin(begin), m_id_size(id_size) {
+		: m_type(type), m_begin(begin), m_id_size(id_size), m_collects(std::make_shared<EdgeList>()) {
 	}
 
 	virtual ~MyaiDriver() = default;
@@ -46,10 +46,12 @@ public:
 		return m_collects;
 	}
 
+	auto getCollects() { return m_collects; }
+
 protected:
-	using super					= MyaiDriver;
-	using ControlConnectionFunc = std::function<void(weight_t)>;
-	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
+	using super						 = MyaiDriver;
+
+
 	virtual void collect_data()		 = 0;
 	virtual void regeiste_controls() = 0;
 
@@ -62,17 +64,6 @@ protected:
 	EdgeList::ptr m_collects;
 };
 
-
-class MemoryDriver : public MyaiDriver {
-	friend class MyaiDriverManager;
-
-public:
-	MemoryDriver(nodeid_t begin, size_t driver_size) : MyaiDriver(Type::DT_MEMORY, begin, 0) {}
-
-private:
-	virtual void collect_data() override {}
-	virtual void regeiste_controls() override {}
-};
 
 MYAI_END
 

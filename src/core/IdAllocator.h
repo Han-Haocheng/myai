@@ -14,10 +14,13 @@ MYAI_BEGIN
 class IdAllocator {
 public:
 	using ptr = std::shared_ptr<IdAllocator>;
-
+	IdAllocator(nodeid_t beg, size_t size)
+		: m_range(beg, beg + size), m_allocated(beg), m_debris() {
+	}
 	IdAllocator(std::pair<nodeid_t, nodeid_t> alloc_range, nodeid_t allocated, std::vector<nodeid_t> debris);
 
 	nodeid_t allocate();
+	nodeid_t allocate(size_t size);
 
 	bool deallocate(nodeid_t id);
 

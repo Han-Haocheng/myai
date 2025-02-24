@@ -3,12 +3,17 @@
 
 
 #include "Driver.h"
-
-#include "../core/MyaiService.h"
+#include "MemoryDriver.h"
 #include "StatusDriver.h"
 
 
+#include "../core/MyaiService.h"
+
+
 MYAI_BEGIN
+struct DriverConfig {
+};
+
 
 class DriverManager {
 public:
@@ -16,38 +21,42 @@ public:
 	// using Motive = void(const Edge &);
 	static constexpr nodeid_t MAX_CONTROL_NODE_ID = 0x1000'0000;
 
-	MyaiDriver::ptr addDriver(MyaiDriver::ptr driver) {
-		m_drivers.push_back(driver);
-		return driver;
-	}
+	DriverManager(MyaiService::ptr ser) : m_service(ser) {}
 
-	void collect(EdgeList::ptr out) {
-		for (auto &var: m_drivers) {
-			auto temp = var->collect();
-			out->insert(temp->begin(), temp->end());
+	void init() {
+
+		m_status = std::make_shared<StatusDriver>(m_service->applyId(1000), 1000);
+		m_memory = std::make_shared<MemoryDriver>(m_service->applyId(100), 100);
+		m_drivers.push_back(m_status);
+		m_drivers.push_back(m_memory);
+
+		for (auto &driver: m_drivers) {
+			driver->init();
 		}
 	}
+	MyaiDriver::ptr addDriver(MyaiDriver::ptr driver);
+
+	void collect(EdgeList::ptr out);
 
 	/// @brief 控制
 	/// @param output 对外输出数据
-	void control(const Edge &output) {
-		MyaiDriver::S_CONNECTIONS.at(output.id)(output.weight);
-	}
+	void control(const Edge &output);
 
 	// 返回m_positive的值
 	auto positive() const { return m_status->m_positive; }
 	auto negative() const { return m_status->m_negative; }
 	auto filter() const { return m_status->m_filter; }
-	auto driver_weight(MyaiDriver::Type source, MyaiDriver::Type target) const { return m_status->m_driver_weight[source][target]; }
-
+	auto driver_weight(MyaiDriver::Type source, MyaiDriver::Type target) const {
+		return m_status->m_driver_weight[source][target];
+	}
 	void activate_node(const Edge &edge) {
-		m_service->activatedNode(m_memory->m_collects, edge);
+		m_service->activatedNode(m_memory->getCollects(), edge);
 	}
 
 private:
+	MyaiService::ptr m_service;
 	StatusDriver::ptr m_status;
 	MemoryDriver::ptr m_memory;
-	MyaiService::ptr m_service;
 	std::vector<MyaiDriver::ptr> m_drivers;
 };
 

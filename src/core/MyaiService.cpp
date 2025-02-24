@@ -1,6 +1,9 @@
 #include "MyaiService.h"
 
+
 MYAI_BEGIN
+
+
 
 MyaiNode::ptr MyaiService::createNode(weight_t bias) {
 

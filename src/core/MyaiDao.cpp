@@ -7,7 +7,7 @@ int MyaiDao::insert(MyaiNode::ptr node) {
 		MYLIB_THROW("avg error: node is null or id is null");
 	}
 
-	String path = aniseya_path(node->id());
+	String path = analyze_path(node->id());
 	m_file_io->open(path);
 
 	m_file_io->write(node);
@@ -19,7 +19,7 @@ int MyaiDao::updata(MyaiNode::ptr node) {
 		MYLIB_THROW("avg error: node is null or id is null");
 	}
 
-	String path = aniseya_path(node->id());
+	String path = analyze_path(node->id());
 	m_file_io->open(path);
 
 	m_file_io->write(node);
@@ -31,8 +31,9 @@ int MyaiDao::deleteById(nodeid_t id) {
 		MYLIB_THROW("avg error:  id is null");
 	}
 
-	String path = aniseya_path(id);
+	String path = analyze_path(id);
 	m_file_io->open(path);
+
 	return m_file_io->eraseId(id);
 }
 
@@ -41,11 +42,11 @@ MyaiNode::ptr MyaiDao::selectById(nodeid_t id) {
 		MYLIB_THROW("avg error:  id is null");
 	}
 
-	String path = aniseya_path(id);
+	String path = analyze_path(id);
 	m_file_io->open(path);
 
 	MyaiNode::ptr res = std::make_shared<MyaiNode>();
-	if (m_file_io->read(res)){
+	if (m_file_io->read(res)) {
 		return res;
 	}
 	return nullptr;

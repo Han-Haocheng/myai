@@ -16,10 +16,11 @@
 
 MYAI_BEGIN
 class MyaiConfig {
-
 public:
 	using ptr	 = std::shared_ptr<MyaiConfig>;
 	MyaiConfig() = default;
+
+private:
 };
 
 //=================================================================
@@ -34,7 +35,7 @@ public:
 	~MyaiController() {
 	}
 
-	void init() {}
+	void init();
 	void destroy() {}
 	void stop() {}
 
@@ -52,14 +53,17 @@ private:
 	struct TempInfo {
 		MyaiNode::ptr node;
 		weight_t attach_weight;
+		weight_t filter_weight;
 	};
 	size_t m_reasoning_size;
 	size_t m_reasoning_max;
 
-	MyaiConfig::ptr m_myai_config;
-
+	MyaiDao::ptr m_dao;
+	IdAllocator::ptr m_id_alloc;
+	MyaiConfig::ptr m_config;
 	MyaiService::ptr m_service;
 	DriverManager::ptr m_driver_manager;
+
 	std::vector<TempInfo> m_temp_nodes;
 };
 

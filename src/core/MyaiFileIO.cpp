@@ -3,11 +3,16 @@
 #ifdef MYLIB_WINDOWS
 #include <windows.h>
 #elif MYLIB_LINUX
-#include <stdlib.h>
 #include <limits.h>
+#include <stdlib.h>
+
 #endif
 
 MYAI_BEGIN
+
+MyaiFileIO::MyaiFileIO(size_t node_max_num)
+	: m_node_max_num(node_max_num) {
+}
 
 void MyaiFileIO::open(std::string path) {
 	// check path
@@ -15,11 +20,11 @@ void MyaiFileIO::open(std::string path) {
 
 	// open init
 	m_current_path = path;
-	
+
 	if (m_fs.is_open()) close();
 	m_fs.open(m_current_path, std::ios::in | std::ios::out | std::ios::binary);
 	if (!m_fs.is_open()) MYLIB_THROW("file error: file open failed.");
-	
+
 	// read init
 	read_head();
 	read_index(m_head);
@@ -119,20 +124,20 @@ void MyaiFileIO::write_node(MyaiNode::ptr node, std::streampos pos) noexcept {
 bool MyaiFileIO::check_path_is_equal(String other) const noexcept {
 #ifdef MYLIB_WINDOWS
 	char fullpath[2][MAX_PATH];
-    GetFullPathName(other.c_str(), MAX_PATH, fullpath[0], NULL);
-    GetFullPathName(m_current_path.c_str(), MAX_PATH, fullpath[1], NULL);
+	GetFullPathName(other.c_str(), MAX_PATH, fullpath[0], NULL);
+	GetFullPathName(m_current_path.c_str(), MAX_PATH, fullpath[1], NULL);
 #elif MYLIB_LINUX
 	char fullpath[2][PATH_MAX];
 
-    realpath(other.c_str(), fullpath[0]);
-    realpath(m_current_path.c_str(), fullpath[1]);
+	realpath(other.c_str(), fullpath[0]);
+	realpath(m_current_path.c_str(), fullpath[1]);
 
-    if (strcmp(fullpath1, fullpath2) == 0) {
-        std::cout << "The paths are equivalent." << std::endl;
-    } else {
-        std::cout << "The paths are not equivalent." << std::endl;
-    }
-#endif // DEBUG
+	if (strcmp(fullpath1, fullpath2) == 0) {
+		std::cout << "The paths are equivalent." << std::endl;
+	} else {
+		std::cout << "The paths are not equivalent." << std::endl;
+	}
+#endif// DEBUG
 	return strcmp(fullpath[0], fullpath[1]) == 0;
 }
 
