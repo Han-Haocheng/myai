@@ -1,8 +1,7 @@
-
 #ifndef MYAI_EDGE_H_
 #define MYAI_EDGE_H_
 
-#include "define.h"
+#include "../MyaiDefine.h"
 
 #include <unordered_map>
 
@@ -12,19 +11,17 @@ MYAI_BEGIN
  * @brief 用于保存链接
  */
 struct Edge {
-	constexpr static const nodeid_t NULL_ID		= 0ULL;
-	constexpr static const weight_t NULL_WEIGHT = 0.0;
+
 
 	nodeid_t id;
 	weight_t weight;
 
-	explicit Edge(const nodeid_t i = NULL_ID, const weight_t w = NULL_WEIGHT) : id(i), weight(w) {}
-	Edge(Edge &&)	   = default;
-	Edge(const Edge &) = default;
-	~Edge()			   = default;
-
-	Edge &operator=(Edge &&rhs) noexcept;
-	Edge &operator=(const Edge &rhs);
+	explicit Edge(nodeid_t i = NULL_ID, weight_t w = NULL_WEIGHT);
+	Edge(Edge &&)						 = default;
+	Edge(const Edge &)					 = default;
+	~Edge()								 = default;
+	Edge &operator=(Edge &&rhs) noexcept = default;
+	Edge &operator=(const Edge &rhs)	 = default;
 };
 
 // using EdgeList = std::unordered_map<nodeid_t, Edge>;
@@ -48,16 +45,17 @@ public:
 	EdgeList &operator=(const EdgeList &rhs)	 = default;
 
 
-	iterator begin() { return m_map.begin(); }
-	iterator end() { return m_map.end(); }
-	const_iterator begin() const { return m_map.begin(); }
-	const_iterator end() const { return m_map.end(); }
-	size_t size() const { return m_map.size(); }
-	bool empty() const { return m_map.empty(); }
+	inline iterator begin() { return m_map.begin(); }
+	inline iterator end() { return m_map.end(); }
+	inline const_iterator begin() const { return m_map.begin(); }
+	inline const_iterator end() const { return m_map.end(); }
+	inline size_t size() const { return m_map.size(); }
+	inline bool empty() const { return m_map.empty(); }
 
+	iterator find(const nodeid_t &key);
+	
 	Edge &emplace(const value_type &key);
 	Edge &emplace(nodeid_t id, weight_t weight) { return emplace(value_type{id, weight}); }
-	iterator find(const nodeid_t &key);
 	void insert(EdgeList::const_iterator first, EdgeList::const_iterator last);
 	void insert(const EdgeList &list);
 	void insert(EdgeList::ptr list) { insert(list->begin(), list->end()); }

@@ -1,8 +1,8 @@
 #ifndef MYAI_SERVICE_NODESERVICE_H
 #define MYAI_SERVICE_NODESERVICE_H
 
+#include "../dao/MyaiDao.h"
 #include "IdAllocator.h"
-#include "MyaiDao.h"
 #include <unordered_map>
 
 MYAI_BEGIN
@@ -30,13 +30,12 @@ public:
 	// 获取节点
 	MyaiNode::ptr getNodeById(nodeid_t id);
 
-	bool activatedNode(EdgeList::ptr out, Edge edge);
+	// bool activatedNode(EdgeList::ptr out, Edge edge);
 
 	void linkNode(nodeid_t id, Edge link);
 	void linkNode(MyaiNode::ptr node, EdgeList::ptr links);
 
-private:
-	nodeid_t applyId(size_t size) {
+	nodeid_t applyIds(size_t size) {
 		return m_alloc->allocate(size);
 	}
 
@@ -45,6 +44,7 @@ private:
 	MyaiDao::ptr m_dao;
 	IdAllocator::ptr m_alloc;
 };
+
 
 MYAI_END
 #endif// !MYAI_SERVICE_NODESERVICE_H

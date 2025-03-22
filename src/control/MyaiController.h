@@ -6,9 +6,9 @@
 #define MYAI_SLN_MYAI_CONTROL_H
 
 
-#include "MyaiService.h"
+#include "../service/MyaiService.h"
 
-#include "../driver/DriverManager.h"
+#include "DriverManager.h"
 
 
 #include <mylib/config/ConfigManager.h>
@@ -29,6 +29,7 @@ private:
 
 class MyaiController {
 public:
+
 	explicit MyaiController(size_t reasoning_max = 10)
 		: m_reasoning_size(0), m_reasoning_max(reasoning_max) {
 	}

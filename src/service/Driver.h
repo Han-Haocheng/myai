@@ -1,7 +1,7 @@
 #ifndef MYAI_DRIVER_H_
 #define MYAI_DRIVER_H_
 
-#include "../core/Edge.h"
+#include "../entity/Edge.h"
 
 #include <functional>
 #include <map>
@@ -15,9 +15,9 @@ MYAI_BEGIN
  */
 class MyaiDriver {
 public:
-	using ptr					= std::shared_ptr<MyaiDriver>;
-	using ControlConnectionFunc = std::function<void(weight_t)>;
-	static std::map<nodeid_t, ControlConnectionFunc> S_CONNECTIONS;
+	using ptr	 = std::shared_ptr<MyaiDriver>;
+	using Reflex = std::function<void(weight_t)>;
+	//using ConditionedReflex =
 
 	enum Type {
 		DT_MEMORY,
@@ -38,23 +38,23 @@ public:
 	virtual ~MyaiDriver() = default;
 
 	void init() {
-		regeiste_controls();
+		set_reflexes();
 	}
 
-	EdgeList::ptr collect() {
+	auto collect(EdgeList::ptr out) {
 		collect_data();
-		return m_collects;
+		m_collects->insert(m_collects->begin(), m_collects->end());
 	}
 
-	auto getCollects() { return m_collects; }
+	const std::vector<std::pair<noid_t, Reflex>> &reflexes() { return m_reflexes; }
+
+	auto collects() { return m_collects; }
+	[[nodiscard]] auto type() const { return m_type; }
 
 protected:
-	using super						 = MyaiDriver;
-
-
-	virtual void collect_data()		 = 0;
-	virtual void regeiste_controls() = 0;
-
+	using super					= MyaiDriver;
+	virtual void collect_data() = 0;
+	virtual void set_reflexes() = 0;
 
 protected:
 	Type m_type;
@@ -62,16 +62,28 @@ protected:
 	size_t m_id_size;
 
 	EdgeList::ptr m_collects;
+	std::vector<std::pair<noid_t, Reflex>> m_reflexes;
 };
 
+using Driver = MyaiDriver;
 
 MYAI_END
-
 
 MYAI_BEGIN
 
 //size = 1 0000H+1 0000H
 class StringDriver : public MyaiDriver {
+public:
+
+private:
+	void collect_data() override {
+
+	}
+
+	void set_reflexes() override {
+
+	}
+
 };
 
 MYAI_END
@@ -86,10 +98,17 @@ private:
 
 MYAI_END
 
+#include<QtGui>
+#include<QtMultimedia/QtMultimedia>
+
 MYAI_BEGIN
 
 //size = 40 0000H+4H
 class ScreenVideoDriver : public MyaiDriver {
+public:
+
+private:
+	QMediaCaptureSession m_session;
 };
 
 //size = 40 0000H+8H

@@ -1,18 +1,16 @@
 #include "MyaiFileIO.h"
 
 #ifdef MYLIB_WINDOWS
-#include <windows.h>
+#include <Windows.h>
 #elif MYLIB_LINUX
 #include <limits.h>
 #include <stdlib.h>
-
 #endif
 
 MYAI_BEGIN
 
 MyaiFileIO::MyaiFileIO(size_t node_max_num)
-	: m_node_max_num(node_max_num) {
-}
+	: m_node_max_num(node_max_num), m_head(), m_index(), m_fs() {}
 
 void MyaiFileIO::open(std::string path) {
 	// check path
@@ -23,7 +21,8 @@ void MyaiFileIO::open(std::string path) {
 
 	if (m_fs.is_open()) close();
 	m_fs.open(m_current_path, std::ios::in | std::ios::out | std::ios::binary);
-	if (!m_fs.is_open()) MYLIB_THROW("file error: file open failed.");
+	if (!m_fs.is_open())
+		MYLIB_THROW("file error: file open failed.");
 
 	// read init
 	read_head();
@@ -31,9 +30,7 @@ void MyaiFileIO::open(std::string path) {
 }
 
 void MyaiFileIO::close() {
-	if (!m_fs.is_open()) {
-		return;
-	}
+	if (!m_fs.is_open()) { return; }
 
 	write_index(m_head);
 	write_head();
@@ -43,8 +40,10 @@ void MyaiFileIO::close() {
 }
 
 bool MyaiFileIO::read(MyaiNode::ptr node) {
-	if (!m_fs.is_open()) MYLIB_THROW("file error:file is not open");
-	if (!node) MYLIB_THROW("avg error:avg is nullptr");
+	if (!m_fs.is_open())
+		MYLIB_THROW("file error:file is not open");
+	if (!node)
+		MYLIB_THROW("avg error:avg is nullptr");
 
 	auto g_rt = get_node_pos(node->id());
 
@@ -54,14 +53,16 @@ bool MyaiFileIO::read(MyaiNode::ptr node) {
 }
 
 bool MyaiFileIO::write(const MyaiNode::ptr &node) {
-	if (!m_fs.is_open()) MYLIB_THROW("file error:file is not open");
-	if (!node) MYLIB_THROW("avg error:avg is nullptr");
+	if (!m_fs.is_open())
+		MYLIB_THROW("file error:file is not open");
+	if (!node)
+		MYLIB_THROW("avg error:avg is nullptr");
 
 	const auto g_rt = get_node_pos(node->id());
 
 	if (g_rt == MyaiNode::NULL_ID) {
 		MYLIB_ASSERT(m_index.size() < m_head.max_node_num, "avg error: index is full");
-		m_fs.seekp(m_head.index_offset + m_head.max_node_num * m_head.head_size);
+		m_fs.seekp(m_head.index_offset + static_cast<std::streampos>(m_head.max_node_num) * m_head.head_size);
 		m_index.emplace(node->id(), m_fs.tellp());
 	}
 
@@ -71,9 +72,7 @@ bool MyaiFileIO::write(const MyaiNode::ptr &node) {
 
 std::streampos MyaiFileIO::get_node_pos(nodeid_t id) const noexcept {
 	auto fd_rt = m_index.find(id);
-	if (fd_rt == m_index.end()) {
-		return MyaiNode::NULL_ID;
-	}
+	if (fd_rt == m_index.end()) { return MyaiNode::NULL_ID; }
 	return fd_rt->second;
 }
 
@@ -81,11 +80,7 @@ void MyaiFileIO::read_head() noexcept {
 	m_fs.seekg(0);
 	char magic_head[8];
 	m_fs.read(reinterpret_cast<byte_t *>(&magic_head), sizeof(magic_head));
-	if (std::string(magic_head) == MyaiFileIO::MAGIC_HEAD) {
-		m_fs.read(reinterpret_cast<byte_t *>(&m_head), m_head.head_size);
-	} else {
-		m_head = FileHead();
-	}
+	if (std::string(magic_head) == MyaiFileIO::MAGIC_HEAD) { m_fs.read(reinterpret_cast<byte_t *>(&m_head), m_head.head_size); } else { m_head = FileHead(); }
 }
 
 void MyaiFileIO::write_head() noexcept {
@@ -106,9 +101,7 @@ void MyaiFileIO::read_index(const FileHead &head) noexcept {
 void MyaiFileIO::write_index(FileHead &head) noexcept {
 	head.index_num = m_index.size();
 	m_fs.seekg(head.index_offset);
-	for (auto &i: m_index) {
-		m_fs.write(reinterpret_cast<const byte_t *>(&i), head.index_size);
-	}
+	for (auto &i: m_index) { m_fs.write(reinterpret_cast<const byte_t *>(&i), head.index_size); }
 }
 
 void MyaiFileIO::read_node(MyaiNode::ptr node, std::streampos pos) noexcept {
@@ -124,8 +117,8 @@ void MyaiFileIO::write_node(MyaiNode::ptr node, std::streampos pos) noexcept {
 bool MyaiFileIO::check_path_is_equal(String other) const noexcept {
 #ifdef MYLIB_WINDOWS
 	char fullpath[2][MAX_PATH];
-	GetFullPathName(other.c_str(), MAX_PATH, fullpath[0], NULL);
-	GetFullPathName(m_current_path.c_str(), MAX_PATH, fullpath[1], NULL);
+	GetFullPathNameA(other.c_str(), MAX_PATH, fullpath[0], NULL);
+	GetFullPathNameA(m_current_path.c_str(), MAX_PATH, fullpath[1], NULL);
 #elif MYLIB_LINUX
 	char fullpath[2][PATH_MAX];
 

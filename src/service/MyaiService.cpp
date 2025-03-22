@@ -1,9 +1,6 @@
 #include "MyaiService.h"
 
-
 MYAI_BEGIN
-
-
 
 MyaiNode::ptr MyaiService::createNode(weight_t bias) {
 
@@ -35,14 +32,15 @@ MyaiNode::ptr MyaiService::getNodeById(nodeid_t id) {
 	return node;
 }
 
-bool MyaiService::activatedNode(EdgeList::ptr out, Edge edge) {
-	MyaiNode::ptr node = getNodeById(edge.id);
-	if (node == nullptr) return false;
-	node->for_each([&](Edge &link) {
-		out->emplace(Edge{link.id, link.weight * edge.weight});
-	});
-	return true;
-}
+//bool MyaiService::activatedNode(EdgeList::ptr out, Edge edge) {
+//	MyaiNode::ptr node = getNodeById(edge.id);
+//	if (node == nullptr)
+//		return false;
+//	node->for_each([&](Edge &link) {
+//		out->emplace(Edge{link.id, link.weight * edge.weight});
+//	});
+//	return true;
+//}
 
 void MyaiService::linkNode(nodeid_t id, Edge link) {
 	auto node = getNodeById(id);

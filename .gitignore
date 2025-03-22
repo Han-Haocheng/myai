@@ -16,3 +16,4 @@ myai.sln
 *.code-workspace
 
 /.cache
+/.*

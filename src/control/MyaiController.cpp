@@ -3,8 +3,10 @@
 //
 #include "MyaiController.h"
 
+#include "../service/StatusDriver.h"
 
 MYAI_BEGIN
+
 void myai::MyaiController::init() {
 	m_dao			 = std::make_shared<MyaiDao>("./data");
 	m_id_alloc		 = std::make_shared<IdAllocator>(1, 100000);
@@ -30,32 +32,36 @@ void MyaiController::run() {
 
 void MyaiController::reasoningCycle() {
 	EdgeList::ptr collect = std::make_shared<EdgeList>();
+	StatusDriver::ptr status_driver = m_driver_manager->getDriver<StatusDriver>("status");
 	m_driver_manager->collect(collect);
 
-	if (!m_temp_nodes.empty()) {
-		m_service->linkNode(m_temp_nodes.back().node, collect);
-	}
-	weight_t attach_weight		  = m_driver_manager->negative() + m_driver_manager->positive();
-	weight_t filter_weight		  = m_driver_manager->filter();
+	if (!m_temp_nodes.empty()) { m_service->linkNode(m_temp_nodes.back().node, collect); }
+
+	weight_t attach_weight		  = status_driver->negative() + status_driver->positive();
+	weight_t filter_weight		  = status_driver->filter();
 	const MyaiNode::ptr temp_node = m_service->createNode(filter_weight);
 
 	for (auto &[id, edge]: *collect) {
 		edge.weight = func(edge.weight) + attach_weight;
-		if (edge.weight < filter_weight) {
-			continue;
-		}
+		if (edge.weight < filter_weight) { continue; }
 
 		if (edge.id < DriverManager::MAX_CONTROL_NODE_ID) {
 			m_driver_manager->control(edge);
 			continue;
 		}
-		m_driver_manager->activate_node(edge);
+		// m_driver_manager->activate_node(edge);
+
 		m_service->linkNode(edge.id, Edge{temp_node->id(), edge.weight});
 	}
 
+	//m_driver_manager->show();
+
+
 	m_temp_nodes.emplace_back(TempInfo{temp_node, attach_weight, filter_weight});
 }
+
 void MyaiController::trainingCycle() {
+	for (auto info: m_temp_nodes) {}
 }
 
 MYAI_END

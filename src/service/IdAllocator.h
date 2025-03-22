@@ -5,7 +5,7 @@
 #ifndef MYAI_SLN_MYAI_SERVICE_H
 #define MYAI_SLN_MYAI_SERVICE_H
 
-#include "define.h"
+#include "../MyaiDefine.h"
 
 #include <algorithm>
 #include <vector>

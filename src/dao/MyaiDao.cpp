@@ -14,7 +14,7 @@ int MyaiDao::insert(MyaiNode::ptr node) {
 	return 0;
 }
 
-int MyaiDao::updata(MyaiNode::ptr node) {
+int MyaiDao::update(MyaiNode::ptr node) {
 	if (!node || !node->id() == MyaiNode::NULL_ID) {
 		MYLIB_THROW("avg error: node is null or id is null");
 	}
